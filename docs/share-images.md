@@ -1,47 +1,47 @@
-# 分享图片模板与数据填充
+# 分享圖片模板與數據填充
 
-分享图片用于把个股分析和市场复盘转换为适合社交平台传播的 1080px 长图。个股和大盘使用两套独立的信息结构，但共用 DSA 品牌、仓库标识 `ZhuLinsen/daily_stock_analysis` 和风险声明。GitHub 区不放二维码；Web 与桌面端分享图默认展示仓库内置小红书二维码及昵称 `@霸天土小豆`，部署配置可替换二维码和账号信息。
+分享圖片用於把個股分析和市場覆盤轉換為適合社交平臺傳播的 1080px 長圖。個股和大盤使用兩套獨立的信息結構，但共用 DSA 品牌、倉庫標識 `ZhuLinsen/daily_stock_analysis` 和風險聲明。GitHub 區不放二維碼；Web 與桌面端分享圖默認展示倉庫內置小紅書二維碼及暱稱 `@霸天土小豆`，部署配置可替換二維碼和賬號信息。
 
-## 运行时如何填充
+## 運行時如何填充
 
-现有通知链路不需要手工组装图片数据：
+現有通知鏈路不需要手工組裝圖片數據：
 
 ```text
-个股 AnalysisResult
-  -> AnalysisResult.to_dict() 结构化 JSON + 稳定 Markdown
-  -> share_image 优先读取 JSON，Markdown 兼容回退
-  -> 个股决策卡 HTML
-  -> wkhtmltoimage / markdown-to-file / Playwright 输出 PNG
+個股 AnalysisResult
+  -> AnalysisResult.to_dict() 結構化 JSON + 穩定 Markdown
+  -> share_image 優先讀取 JSON，Markdown 兼容回退
+  -> 個股決策卡 HTML
+  -> wkhtmltoimage / markdown-to-file / Playwright 輸出 PNG
 
-大盘 MarketOverview + market_light + LLM 复盘
-  -> MarketAnalyzer 生成 market_review_payload + 稳定 Markdown
-  -> share_image 优先读取 payload，Markdown 兼容回退
-  -> 市场复盘卡 HTML
-  -> wkhtmltoimage / markdown-to-file / Playwright 输出 PNG
+大盤 MarketOverview + market_light + LLM 覆盤
+  -> MarketAnalyzer 生成 market_review_payload + 穩定 Markdown
+  -> share_image 優先讀取 payload，Markdown 兼容回退
+  -> 市場覆盤卡 HTML
+  -> wkhtmltoimage / markdown-to-file / Playwright 輸出 PNG
 ```
 
-`MARKDOWN_TO_IMAGE_CHANNELS`、`MD2IMG_ENGINE`、`MARKDOWN_TO_IMAGE_MAX_CHARS` 继续控制哪些通知渠道转图、使用哪个引擎以及最大输入长度。转换失败时仍回退为文本通知。
+`MARKDOWN_TO_IMAGE_CHANNELS`、`MD2IMG_ENGINE`、`MARKDOWN_TO_IMAGE_MAX_CHARS` 繼續控制哪些通知渠道轉圖、使用哪個引擎以及最大輸入長度。轉換失敗時仍回退為文本通知。
 
-分享图需要运行环境提供对应语言字体。官方 Docker 镜像已内置 Noto CJK 字体；Debian/Ubuntu 源码部署使用默认 `wkhtmltoimage` 引擎时，应安装 `wkhtmltopdf fonts-noto-cjk`。如果只安装转图工具而缺少 CJK 字体，中文或韩文可能在 PNG 中消失，只剩数字、英文和边框。
-`fonts-noto-cjk` 是 Debian 字体包名，不代表新增日文报告语言。项目的报告输出仍只支持 `REPORT_LANGUAGE=zh|en|ko`；日股个股和日本市场复盘中的日文原生名称由通用 Noto CJK fallback 覆盖，页面语言仍跟随所选报告语言，不会根据 `7203.T` 或 `region=jp` 切换成未支持的 `ja` 输出。
+分享圖需要運行環境提供對應語言字體。官方 Docker 鏡像已內置 Noto CJK 字體；Debian/Ubuntu 源碼部署使用默認 `wkhtmltoimage` 引擎時，應安裝 `wkhtmltopdf fonts-noto-cjk`。如果只安裝轉圖工具而缺少 CJK 字體，中文或韓文可能在 PNG 中消失，只剩數字、英文和邊框。
+`fonts-noto-cjk` 是 Debian 字體包名，不代表新增日文報告語言。項目的報告輸出仍只支持 `REPORT_LANGUAGE=zh|en|ko`；日股個股和日本市場覆盤中的日文原生名稱由通用 Noto CJK fallback 覆蓋，頁面語言仍跟隨所選報告語言，不會根據 `7203.T` 或 `region=jp` 切換成未支持的 `ja` 輸出。
 
-小红书品牌使用以下可选配置。全部留空时展示仓库内置二维码及昵称 `@霸天土小豆`；配置任一自定义值后仅使用这组自定义品牌信息，避免把自定义账号与默认二维码混合：
+小紅書品牌使用以下可選配置。全部留空時展示倉庫內置二維碼及暱稱 `@霸天土小豆`；配置任一自定義值後僅使用這組自定義品牌信息，避免把自定義賬號與默認二維碼混合：
 
 ```dotenv
 SHARE_IMAGE_XIAOHONGSHU_URL=https://example.com/my-xiaohongshu
-SHARE_IMAGE_XIAOHONGSHU_HANDLE=@我的账号
+SHARE_IMAGE_XIAOHONGSHU_HANDLE=@我的賬號
 SHARE_IMAGE_XIAOHONGSHU_QR_PATH=assets/my-xiaohongshu-qr.png
 ```
 
-二维码路径支持绝对路径或相对项目根目录路径；冻结桌面后端也会从 PyInstaller 资源目录解析相对路径。账号 URL 只接受 `http://` 或 `https://`。二维码在转图时以内嵌 Data URI 渲染，不依赖运行时网络。未配置 `SHARE_IMAGE_XIAOHONGSHU_QR_PATH` 时，统一回退到随源码和桌面包分发的 `src/assets/share_image/xiaohongshu_qr.jpg`，因此 Web PNG 与桌面 Electron PNG 都会保留二维码。二维码下方固定显示小红书昵称，例如 `小红书@霸天土小豆`；历史配置中的数字 ID 不参与分享图渲染。
+二維碼路徑支持絕對路徑或相對項目根目錄路徑；凍結桌面後端也會從 PyInstaller 資源目錄解析相對路徑。賬號 URL 只接受 `http://` 或 `https://`。二維碼在轉圖時以內嵌 Data URI 渲染，不依賴運行時網絡。未配置 `SHARE_IMAGE_XIAOHONGSHU_QR_PATH` 時，統一回退到隨源碼和桌面包分發的 `src/assets/share_image/xiaohongshu_qr.jpg`，因此 Web PNG 與桌面 Electron PNG 都會保留二維碼。二維碼下方固定顯示小紅書暱稱，例如 `小紅書@霸天土小豆`；歷史配置中的數字 ID 不參與分享圖渲染。
 
-## Web 一键分享
+## Web 一鍵分享
 
-浏览器版历史个股报告、市场复盘和完整报告抽屉右上角都会显示“分享”按钮。页面加载报告时不会生成图片；只有用户点击“分享”后，页面才调用 `GET /api/v1/history/{record_id}/share-image` 按需生成或读取缓存 PNG。支持文件分享的浏览器会在图片准备好后提示“再次点击分享”，由第二次点击同步打开系统分享面板，避免异步生成过程使浏览器的用户激活状态失效；其他浏览器会在首次生成完成后直接下载 PNG。如果系统分享面板打开失败，除用户主动取消外也会自动回退下载已经生成的 PNG。
+瀏覽器版歷史個股報告、市場覆盤和完整報告抽屜右上角都會顯示“分享”按鈕。頁面加載報告時不會生成圖片；只有用戶點擊“分享”後，頁面才調用 `GET /api/v1/history/{record_id}/share-image` 按需生成或讀取緩存 PNG。支持文件分享的瀏覽器會在圖片準備好後提示“再次點擊分享”，由第二次點擊同步打開系統分享面板，避免異步生成過程使瀏覽器的用戶激活狀態失效；其他瀏覽器會在首次生成完成後直接下載 PNG。如果系統分享面板打開失敗，除用戶主動取消外也會自動回退下載已經生成的 PNG。
 
-Electron 桌面端同样展示“分享”按钮，但不依赖额外分发 `wkhtmltoimage`、`markdown-to-file` 或 Playwright。用户点击后，桌面 preload 通过受限 IPC 让主进程打开本地 `GET /api/v1/history/{record_id}/share-image-html`，使用 Electron 自带的隐藏 Chromium 窗口按完整页面高度截图为 PNG，随后走与浏览器一致的下载回退。IPC 只接受正整数记录 ID，主进程只允许当前桌面窗口请求本次启动时确定的后端 origin（包括显式配置的局域网 `WEBUI_HOST`），HTML 响应使用 CSP 禁止脚本、外部资源和网络加载。
+Electron 桌面端同樣展示“分享”按鈕，但不依賴額外分發 `wkhtmltoimage`、`markdown-to-file` 或 Playwright。用戶點擊後，桌面 preload 通過受限 IPC 讓主進程打開本地 `GET /api/v1/history/{record_id}/share-image-html`，使用 Electron 自帶的隱藏 Chromium 窗口按完整頁面高度截圖為 PNG，隨後走與瀏覽器一致的下載回退。IPC 只接受正整數記錄 ID，主進程只允許當前桌面窗口請求本次啟動時確定的後端 origin（包括顯式配置的局域網 `WEBUI_HOST`），HTML 響應使用 CSP 禁止腳本、外部資源和網絡加載。
 
-Web 手工生成不受 `MARKDOWN_TO_IMAGE_CHANNELS` 限制，但服务端仍需配置可用的 `MD2IMG_ENGINE`。桌面端手工生成复用 Electron，不读取 `MD2IMG_ENGINE`。Web 使用 Playwright 时先执行：
+Web 手工生成不受 `MARKDOWN_TO_IMAGE_CHANNELS` 限制，但服務端仍需配置可用的 `MD2IMG_ENGINE`。桌面端手工生成複用 Electron，不讀取 `MD2IMG_ENGINE`。Web 使用 Playwright 時先執行：
 
 ```bash
 cd apps/dsa-web
@@ -49,68 +49,68 @@ npm ci
 npx playwright install chromium
 ```
 
-结构化数据用于精确填充名称、动作、评分、价格、宽度和板块等字段；Markdown 仍负责兼容旧调用以及计划、风险等文本章节。部分历史 JSON 只覆盖其中实际存在的字段，不会清空 Markdown 中已有的行情、技术参考或执行点位。模板不根据分数自行推导操作，也不补造价格或指标。字段为 `N/A`、`-`、空值或没有对应模块时，相关卡片自动隐藏。
+結構化數據用於精確填充名稱、動作、評分、價格、寬度和板塊等字段；Markdown 仍負責兼容舊調用以及計劃、風險等文本章節。部分歷史 JSON 只覆蓋其中實際存在的字段，不會清空 Markdown 中已有的行情、技術參考或執行點位。模板不根據分數自行推導操作，也不補造價格或指標。字段為 `N/A`、`-`、空值或沒有對應模塊時，相關卡片自動隱藏。
 
-## 个股卡字段映射
+## 個股卡字段映射
 
-| 图片区域 | 项目字段 / 生成来源 | 填充规则 |
+| 圖片區域 | 項目字段 / 生成來源 | 填充規則 |
 | --- | --- | --- |
-| 股票名称、代码 | `AnalysisResult.name`、`AnalysisResult.code` | 直接读取结构化字段，Markdown 标题仅作回退 |
-| 操作、评分、趋势 | `action_label` / `operation_advice`、`sentiment_score`、`trend_prediction`、`confidence_level` | 使用最终校准结果，评分范围 0–100，并标明结论置信度 |
-| 核心结论 | `dashboard.core_conclusion.one_sentence` | 没有时隐藏 |
-| 市场快照 | `market_snapshot` | 当前/收盘价、涨跌幅、量比、换手率按可用字段展示；数据源进入底部声明 |
-| 执行计划 | `dashboard.battle_plan.sniper_points` | 只展示理想/确认买入、止损和首个目标价格；复杂触发条件保留在完整报告 |
-| 技术参考 | `dashboard.data_perspective` | 展示均线状态、趋势分、MA5 乖离、支撑和压力；结构化量比/换手已进入快照时不重复展示冗长量能描述，旧记录缺失结构化量能时仍保留 Markdown 兜底 |
-| 下一步观察 | `dashboard.phase_decision` | 展示行动窗口、下次检查时间和最多两条观察条件 |
-| 催化与风险 | `dashboard.intelligence` | `positive_catalysts` 与 `risk_alerts` 最多各展示 2 条短摘要 |
-| 持仓建议 | `core_conclusion.position_advice` | 只区分未持仓和已持仓，仓位、建仓、风控长文保留在完整报告 |
+| 股票名稱、代碼 | `AnalysisResult.name`、`AnalysisResult.code` | 直接讀取結構化字段，Markdown 標題僅作回退 |
+| 操作、評分、趨勢 | `action_label` / `operation_advice`、`sentiment_score`、`trend_prediction`、`confidence_level` | 使用最終校準結果，評分範圍 0–100，並標明結論置信度 |
+| 核心結論 | `dashboard.core_conclusion.one_sentence` | 沒有時隱藏 |
+| 市場快照 | `market_snapshot` | 當前/收盤價、漲跌幅、量比、換手率按可用字段展示；數據源進入底部聲明 |
+| 執行計劃 | `dashboard.battle_plan.sniper_points` | 只展示理想/確認買入、止損和首個目標價格；複雜觸發條件保留在完整報告 |
+| 技術參考 | `dashboard.data_perspective` | 展示均線狀態、趨勢分、MA5 乖離、支撐和壓力；結構化量比/換手已進入快照時不重複展示冗長量能描述，舊記錄缺失結構化量能時仍保留 Markdown 兜底 |
+| 下一步觀察 | `dashboard.phase_decision` | 展示行動窗口、下次檢查時間和最多兩條觀察條件 |
+| 催化與風險 | `dashboard.intelligence` | `positive_catalysts` 與 `risk_alerts` 最多各展示 2 條短摘要 |
+| 持倉建議 | `core_conclusion.position_advice` | 只區分未持倉和已持倉，倉位、建倉、風控長文保留在完整報告 |
 
-模板支持项目当前的中文、英文和韩文报告标签，海报栏目、指标标签和底部声明跟随报告语言。一个“决策仪表盘”只有一只股票时会自动使用个股卡；包含多只股票时保留多股报告布局，避免错误地把第一只股票当成整份报告。`强烈买入`、`Strong Buy` 等复合动作会保留完整动作标签。
+模板支持項目當前的中文、英文和韓文報告標籤，海報欄目、指標標籤和底部聲明跟隨報告語言。一個“決策儀表盤”只有一隻股票時會自動使用個股卡；包含多隻股票時保留多股報告佈局，避免錯誤地把第一隻股票當成整份報告。`强烈买入`、`Strong Buy` 等複合動作會保留完整動作標籤。
 
-## 大盘卡字段映射
+## 大盤卡字段映射
 
-| 图片区域 | 项目字段 / 生成来源 | 填充规则 |
+| 圖片區域 | 項目字段 / 生成來源 | 填充規則 |
 | --- | --- | --- |
-| 日期、市场范围 | `MarketOverview.date`、复盘区域 | 生成 A股/美股/港股/日股/韩股市场复盘标题；多市场报告逐段匹配 `market_review_payload.markets` |
-| 市场信号 | `market_light.score`、`temperature_label`、`label`、`guidance` | 使用确定性市场灯号结果，不由模板二次评分 |
-| 指数表现 | `MarketOverview.indices`、`color_scheme` | 最多展示 4 个主要指数的最新值和涨跌幅；结构化 payload 持久化生成时的 `green_up` / `red_up` 颜色语义 |
-| 市场宽度 | `up_count`、`down_count`、`limit_up_count`、`limit_down_count`、`total_amount` | 仅在数据源支持且报告包含结构化数据时展示 |
-| 信号拆解 | `market_light.dimensions` | 只展示 `available != false` 的确定性评分；不把不支持的维度占位分 50 当作真实数据 |
-| 强弱板块 | `sectors.top`、`sectors.bottom` | 领涨、领跌各展示 Top 3；没有板块榜的市场自动隐藏 |
-| 资金观察 | 复盘“资金与情绪”章节 | 提炼涨跌比、增量成交和资金风格，不把成交额或新闻推断伪装成净流入 |
-| 重点跟踪 | 复盘“明日交易计划”的关注/回避方向 | 最多各展示 2 个板块或主题；当前 payload 没有 `leader_stocks`，因此不编造重点个股 |
-| 明日策略 | 复盘“明日交易计划”章节 | 展示结论、仓位区间和失效条件，不与重点跟踪重复 |
-| 风险提示 | 复盘“风险提示”章节 | 最多展示 2 条，过滤重复免责声明 |
+| 日期、市場範圍 | `MarketOverview.date`、覆盤區域 | 生成 A股/美股/港股/日股/韓股市場覆盤標題；多市場報告逐段匹配 `market_review_payload.markets` |
+| 市場信號 | `market_light.score`、`temperature_label`、`label`、`guidance` | 使用確定性市場燈號結果，不由模板二次評分 |
+| 指數表現 | `MarketOverview.indices`、`color_scheme` | 最多展示 4 個主要指數的最新值和漲跌幅；結構化 payload 持久化生成時的 `green_up` / `red_up` 顏色語義 |
+| 市場寬度 | `up_count`、`down_count`、`limit_up_count`、`limit_down_count`、`total_amount` | 僅在數據源支持且報告包含結構化數據時展示 |
+| 信號拆解 | `market_light.dimensions` | 只展示 `available != false` 的確定性評分；不把不支持的維度佔位分 50 當作真實數據 |
+| 強弱板塊 | `sectors.top`、`sectors.bottom` | 領漲、領跌各展示 Top 3；沒有板塊榜的市場自動隱藏 |
+| 資金觀察 | 覆盤“資金與情緒”章節 | 提煉漲跌比、增量成交和資金風格，不把成交額或新聞推斷偽裝成淨流入 |
+| 重點跟蹤 | 覆盤“明日交易計劃”的關注/迴避方向 | 最多各展示 2 個板塊或主題；當前 payload 沒有 `leader_stocks`，因此不編造重點個股 |
+| 明日策略 | 覆盤“明日交易計劃”章節 | 展示結論、倉位區間和失效條件，不與重點跟蹤重複 |
+| 風險提示 | 覆盤“風險提示”章節 | 最多展示 2 條，過濾重複免責聲明 |
 
-## 手工填充或本地预览
+## 手工填充或本地預覽
 
-模板仍接受项目生成的 Markdown；新链路会额外传入 `AnalysisResult.to_dict()` 或 `market_review_payload`。仅调试兼容回退时，可以准备一份最小个股报告：
+模板仍接受項目生成的 Markdown；新鏈路會額外傳入 `AnalysisResult.to_dict()` 或 `market_review_payload`。僅調試兼容回退時，可以準備一份最小個股報告：
 
 ```markdown
-## 🟢 贵州茅台 (600519)
+## 🟢 貴州茅臺 (600519)
 
-> 2026-07-31 15:00 | 评分: **72** | 看多
+> 2026-07-31 15:00 | 評分: **72** | 看多
 
-### 📌 核心结论
+### 📌 核心結論
 
-**买入**: 趋势偏强，等待回踩支撑后分批执行。
+**買入**: 趨勢偏強，等待回踩支撐後分批執行。
 
-| 持仓情况 | 操作建议 |
+| 持倉情況 | 操作建議 |
 | --- | --- |
-| 空仓者 | 等待回踩确认，不追高。 |
-| 持仓者 | 继续持有，跌破止损位退出。 |
+| 空倉者 | 等待回踩確認，不追高。 |
+| 持倉者 | 繼續持有，跌破止損位退出。 |
 
-### 🎯 作战计划
+### 🎯 作戰計劃
 
-| 点位类型 | 价格 |
+| 點位類型 | 價格 |
 | --- | --- |
-| 理想买入点 | 1420-1450 |
-| 次优买入点 | 1380-1400 |
-| 止损位 | 1350 |
-| 目标位 | 1580 |
+| 理想買入點 | 1420-1450 |
+| 次優買入點 | 1380-1400 |
+| 止損位 | 1350 |
+| 目標位 | 1580 |
 ```
 
-生成 HTML 预览：
+生成 HTML 預覽：
 
 ```python
 from pathlib import Path
@@ -119,14 +119,14 @@ from src.share_image import ShareImageBranding, build_share_image_html
 markdown_text = Path("reports/example.md").read_text(encoding="utf-8")
 branding = ShareImageBranding(
     xiaohongshu_url="https://example.com/my-xiaohongshu",
-    xiaohongshu_handle="@我的账号",
+    xiaohongshu_handle="@我的賬號",
     xiaohongshu_qr_path="assets/my-xiaohongshu-qr.png",
 )
 html = build_share_image_html(markdown_text, branding=branding)
 Path("share-preview.html").write_text(html, encoding="utf-8")
 ```
 
-按真实运行数据预览时传入结构化结果：
+按真實運行數據預覽時傳入結構化結果：
 
 ```python
 html = build_share_image_html(
@@ -135,7 +135,7 @@ html = build_share_image_html(
 )
 ```
 
-实际通知转 PNG 仍调用：
+實際通知轉 PNG 仍調用：
 
 ```python
 from src.md2img import markdown_to_image
@@ -146,13 +146,13 @@ png_bytes = markdown_to_image(
 )
 ```
 
-大盘报告应沿用 `MarketAnalyzer` 生成的“盘面信号、指数结构、板块主线、消息催化、明日交易计划、风险提示”章节；不建议在外部另造一套字段名称，否则模板会按缺失字段处理。
+大盤報告應沿用 `MarketAnalyzer` 生成的“盤面信號、指數結構、板塊主線、消息催化、明日交易計劃、風險提示”章節；不建議在外部另造一套字段名稱，否則模板會按缺失字段處理。
 
-## 视觉与内容边界
+## 視覺與內容邊界
 
-- 涨跌颜色优先使用结构化 payload 持久化的 `color_scheme`，旧记录则从最终报告颜色标记恢复；模板不按市场地区硬编码涨跌色。
-- 分享图中的买入、止损和目标只保留可扫描的价格或“等待企稳”；完整条件始终保留在原报告中。
-- 没有真实价格序列时不绘制伪 K 线；顶部仅保留非数据化的品牌光晕。
-- 小红书 URL、昵称和二维码路径可由运行时配置覆盖；二维码下只显示昵称，不显示数字 ID。全部留空时使用内置昵称 `@霸天土小豆` 和仓库内置二维码。GitHub 固定展示仓库标识 `ZhuLinsen/daily_stock_analysis`，不生成二维码。
-- 大盘报告在核心模块已成功提取时不重复附加完整 Markdown；额外的详情章节保留在原报告中，分享图只呈现结构化摘要。
-- 图片底部固定说明“AI 生成，仅供研究交流，不构成投资建议”。
+- 漲跌顏色優先使用結構化 payload 持久化的 `color_scheme`，舊記錄則從最終報告顏色標記恢復；模板不按市場地區硬編碼漲跌色。
+- 分享圖中的買入、止損和目標只保留可掃描的價格或“等待企穩”；完整條件始終保留在原報告中。
+- 沒有真實價格序列時不繪製偽 K 線；頂部僅保留非數據化的品牌光暈。
+- 小紅書 URL、暱稱和二維碼路徑可由運行時配置覆蓋；二維碼下只顯示暱稱，不顯示數字 ID。全部留空時使用內置暱稱 `@霸天土小豆` 和倉庫內置二維碼。GitHub 固定展示倉庫標識 `ZhuLinsen/daily_stock_analysis`，不生成二維碼。
+- 大盤報告在核心模塊已成功提取時不重複附加完整 Markdown；額外的詳情章節保留在原報告中，分享圖只呈現結構化摘要。
+- 圖片底部固定說明“AI 生成，僅供研究交流，不構成投資建議”。

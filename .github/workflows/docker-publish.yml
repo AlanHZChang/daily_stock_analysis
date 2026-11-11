@@ -66,10 +66,10 @@ jobs:
       - name: Install backend gate dependencies
         run: |
           pip install --upgrade pip
-          # 使用与 backend-gate (ci.yml) 一致的依赖安装方式：
-          # `.github/requirements-ci.txt` 递归拉 `requirements.txt` + 加
-          # pytest-timeout 等 CI-only 依赖（issue #2131 让 ci_gate.sh 用了
-          # `--timeout=120`，发布前 gate 也需要该插件）。
+          # 使用與 backend-gate (ci.yml) 一致的依賴安裝方式：
+          # `.github/requirements-ci.txt` 遞歸拉 `requirements.txt` + 加
+          # pytest-timeout 等 CI-only 依賴（issue #2131 讓 ci_gate.sh 用了
+          # `--timeout=120`，發佈前 gate 也需要該插件）。
           for attempt in 1 2 3; do
             if pip install -r .github/requirements-ci.txt; then
               break

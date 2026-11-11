@@ -14,13 +14,13 @@
   <img src="https://trendshift.io/api/badge/trendshift/repositories/18527/daily?language=Python" alt="#1 Python Repository Of The Day | Trendshift" width="250" height="55"/>&nbsp;<a href="https://hellogithub.com/repository/ZhuLinsen/daily_stock_analysis" target="_blank"><img src="https://api.hellogithub.com/v1/widgets/recommend.svg?rid=6daa16e405ce46ed97b4a57706aeb29f&claim_uid=pfiJMqhR9uvDGlT&theme=neutral" alt="Featured｜HelloGitHub" width="230" /></a>
 </p>
 
-**基於 AI 大模型的 A股/港股/美股/日股/韓股/台股自選股智能分析系統**
+**基於 AI 大模型的 A股/港股/美股/日股/韓股/臺股自選股智能分析系統**
 
 每日自動分析自選股 -> 生成決策儀表盤 -> 推送到 Telegram / Discord / Slack / 郵件 / 企業微信 / 飛書。
 
 [**產品預覽**](#-產品預覽) · [**功能特性**](#-功能特性) · [**快速開始**](#-快速開始) · [**推送效果**](#-推送效果) · [**文檔中心**](./INDEX.md) · [**完整指南**](./full-guide.md)
 
-繁體中文 | [English](README_EN.md) | [简体中文](../README.md)
+繁體中文 | [English](README_EN.md) | [簡體中文](../README.md)
 
 </div>
 
@@ -39,7 +39,7 @@
 ## 🖥️ 產品預覽
 
 <p align="center">
-  <img src="assets/readme_workspace_tour_20260510.gif" alt="DSA Web 工作台演示" width="720">
+  <img src="assets/readme_workspace_tour_20260510.gif" alt="DSA Web 工作臺演示" width="720">
 </p>
 
 ## ✨ 功能特性
@@ -47,8 +47,8 @@
 | 能力 | 覆蓋內容 |
 |------|------|
 | AI 決策報告 | 核心結論、評分、趨勢、買賣點位、風險警報、催化因素、操作檢查清單 |
-| 多市場數據聚合 | 覆蓋 A股、港股、美股、日股、韓股、台股和 ETF，支援行情、K 線、技術指標、新聞、公告、基本面與報告輔助數據；不同市場的數據源和能力邊界見 [市場支持邊界](./market-support.md) |
-| Web / 桌面工作台 | 手動分析、任務進度、歷史報告、完整 Markdown、回測、持倉、配置管理、淺色 / 深色主題 |
+| 多市場數據聚合 | 覆蓋 A股、港股、美股、日股、韓股、臺股和 ETF，支援行情、K 線、技術指標、新聞、公告、基本面與報告輔助數據；不同市場的數據源和能力邊界見 [市場支持邊界](./market-support.md) |
+| Web / 桌面工作臺 | 手動分析、任務進度、歷史報告、完整 Markdown、回測、持倉、配置管理、淺色 / 深色主題 |
 | Agent 策略問股 | 多輪追問，支援均線、纏論、波浪、趨勢、熱點、事件、成長、預期等 15 種內建策略，覆蓋 Web/Bot/API |
 | 智能匯入與補全 | 圖片、CSV/Excel、剪貼簿匯入；股票代碼/名稱/拼音/別名補全 |
 | 自動化與推送 | GitHub Actions、Docker、本地定時任務、FastAPI 服務和企業微信/飛書/Telegram/Discord/Slack/郵件推送 |
@@ -64,7 +64,7 @@
 | 新聞搜尋 | [SerpAPI](https://serpapi.com/github-daily-stock-analysis)、[Anspire](https://open.anspire.cn/dsa?share_code=QFBC0FYC)、[Tavily](https://tavily.com/)、[Bocha](https://open.bocha.cn/)、[Brave](https://brave.com/search/api/)、[MiniMax](https://platform.minimaxi.com/)、SearXNG |
 | 社交輿情 | [Stock Sentiment API](https://api.adanos.org/docs)（Reddit / X / Polymarket，僅美股，可選） |
 
-> 專案預設內建 AkShare、Baostock、YFinance 等免費行情源，可零配置執行；免費源受上游限流、介面變動和網路波動影響，穩定性不保證。長期定時、批量分析或更穩定行情建議配置 Tushare、Longbridge 等 token 型數據源，適用市場、Actions 映射和 fallback 規則見 [數據源配置](./full-guide.md#数据源配置)。
+> 專案預設內建 AkShare、Baostock、YFinance 等免費行情源，可零配置執行；免費源受上游限流、介面變動和網路波動影響，穩定性不保證。長期定時、批量分析或更穩定行情建議配置 Tushare、Longbridge 等 token 型數據源，適用市場、Actions 映射和 fallback 規則見 [數據源配置](./full-guide.md#數據源配置)。
 
 ## 🚀 快速開始
 
@@ -106,13 +106,13 @@
 | `SLACK_BOT_TOKEN` + `SLACK_CHANNEL_ID` | Slack Bot |
 | `EMAIL_SENDER` + `EMAIL_PASSWORD` | 郵件推送 |
 
-更多渠道、簽名校驗、分組郵件、Markdown 轉圖片等配置見 [通知渠道詳細配置](./full-guide.md#通知渠道详细配置)。
+更多渠道、簽名校驗、分組郵件、Markdown 轉圖片等配置見 [通知渠道詳細配置](./full-guide.md#通知渠道詳細配置)。
 
 **自選股配置（必填）**
 
 | Secret 名稱 | 說明 | 必填 |
 |-------------|------|:----:|
-| `STOCK_LIST` | 自選股代碼，如 `600519,hk00700,AAPL,7203.T,005930.KS,2330.TW`；已登記指數顯式代碼（如 `sh000016`、`930606.CSI`）經一次性 `--stocks` 或 GitHub Actions 入口支持，規則見 [指數自選股配置](./full-guide.md#指数自选股配置) | ✅ |
+| `STOCK_LIST` | 自選股代碼，如 `600519,hk00700,AAPL,7203.T,005930.KS,2330.TW`；已登記指數顯式代碼（如 `sh000016`、`930606.CSI`）經一次性 `--stocks` 或 GitHub Actions 入口支持，規則見 [指數自選股配置](./full-guide.md#指數自選股配置) | ✅ |
 
 **新聞源配置（推薦）**
 
@@ -128,7 +128,7 @@
 | `MINIMAX_API_KEYS` | [MiniMax](https://platform.minimaxi.com/)：結構化搜尋結果 | 可選 |
 | `SEARXNG_BASE_URLS` | SearXNG 自建實例：無配額兜底，適合私有部署 | 可選 |
 
-更多搜尋源、社交輿情和降級規則見 [搜尋服務配置](./full-guide.md#搜索服务配置)。
+更多搜尋源、社交輿情和降級規則見 [搜尋服務配置](./full-guide.md#搜索服務配置)。
 
 **行情數據源配置（可選）**
 
@@ -140,7 +140,7 @@
 | `TUSHARE_TOKEN` | A 股 | 提升歷史行情穩定性 |
 | `LONGBRIDGE_OAUTH_CLIENT_ID` + `LONGBRIDGE_OAUTH_TOKEN_CACHE_B64` | 港股/美股 | 補齊量比、換手率、PE 等欄位 |
 
-> 詳見 [數據源配置](./full-guide.md#数据源配置)。
+> 詳見 [數據源配置](./full-guide.md#數據源配置)。
 
 #### 3. 啟用 Actions
 
@@ -152,7 +152,7 @@
 
 #### 完成
 
-預設每個工作日 18:00（北京時間）自動執行，也可手動觸發。預設非交易日（含 A/H/US 節假日）不執行；強制運行、交易日檢查、斷點續傳等規則見 [完整指南](./full-guide.md#定时任务配置)。
+預設每個工作日 18:00（北京時間）自動執行，也可手動觸發。預設非交易日（含 A/H/US 節假日）不執行；強制運行、交易日檢查、斷點續傳等規則見 [完整指南](./full-guide.md#定時任務配置)。
 
 ### 方式二：[客戶端配置教程](https://www.bilibili.com/video/BV11FEb66Eyr/) / 本地運行 / Docker 部署
 
@@ -198,7 +198,7 @@ python main.py --serve-only
 
 🚨 風險警報:
 風險點1：主力資金出現明顯流出，需警惕短期拋壓。
-風險點2：籌碼集中度偏高，拉升阻力可能較大。
+風險點2：籌碼集中度偏高，拉昇阻力可能較大。
 
 ✨ 利好催化:
 利好1：公司被市場定位為 AI 供應鏈核心標的。
@@ -229,7 +229,7 @@ python main.py --serve-only
 
 ## 🖥️ Web 介面
 
-Web 工作台提供配置管理、任務監控、手動分析、歷史報告、完整 Markdown 報告、Agent 問股、回測、持倉管理、智能匯入和淺色 / 深色主題。啟動方式：
+Web 工作臺提供配置管理、任務監控、手動分析、歷史報告、完整 Markdown 報告、Agent 問股、回測、持倉管理、智能匯入和淺色 / 深色主題。啟動方式：
 
 ```bash
 python main.py --webui
@@ -244,7 +244,7 @@ python main.py --webui-only
 
 - 支援均線金叉、纏論、波浪理論、多頭趨勢、熱點題材、事件驅動、成長品質、預期重估等內建策略
 - 支援即時行情、K 線、技術指標、新聞和風險資訊調用
-- 支援多輪追問、會話匯出、發送到通知渠道和後台執行
+- 支援多輪追問、會話匯出、發送到通知渠道和後臺執行
 - 支援自訂策略文件與多 Agent 編排（實驗性）
 
 > Agent 具體參數、`skill` 命名兼容、多 Agent 模式和預算護欄見 [完整指南](./full-guide.md#本地-webui-管理界面) 與 [LLM 配置指南](./LLM_CONFIG_GUIDE.md)。

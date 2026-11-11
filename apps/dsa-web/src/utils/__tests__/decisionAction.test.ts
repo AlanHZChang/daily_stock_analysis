@@ -20,25 +20,25 @@ const englishLabels: DecisionActionLabelMap = {
 
 describe('decisionAction helpers', () => {
   it('uses structured action taxonomy before server label and legacy advice text', () => {
-    expect(getDecisionActionLabel('avoid', '回避', '买入', '建议')).toBe('回避');
+    expect(getDecisionActionLabel('avoid', '回避', '买入', '建議')).toBe('回避');
     expect(getDecisionActionLabel('sell', '买入', null, 'Advice', englishLabels)).toBe('Sell');
     expect(getDecisionActionTone('sell', '买入', null)).toBe('danger');
     expect(getDecisionActionLabel(null, '买入', null, 'Advice', englishLabels)).toBe('买入');
   });
 
   it('falls back to the action taxonomy label when actionLabel is absent', () => {
-    expect(getDecisionActionLabel('add', null, '持有', '建议')).toBe('加仓');
+    expect(getDecisionActionLabel('add', null, '持有', '建議')).toBe('加仓');
     expect(getDecisionActionLabel('watch', null, '持有', 'Advice', englishLabels)).toBe('Watch');
   });
 
   it('keeps legacy fallback compatible with negated buy advice', () => {
     expect(getLegacyDecisionActionLabel('不建议买入，等待确认')).toBe('回避');
-    expect(getDecisionActionLabel(null, null, '避免买入', '建议')).toBe('回避');
-    expect(getLegacyDecisionActionLabel('暂不买入，等待确认')).toBe('回避');
+    expect(getDecisionActionLabel(null, null, '避免买入', '建議')).toBe('回避');
+    expect(getLegacyDecisionActionLabel('暫不买入，等待確認')).toBe('回避');
     expect(getLegacyDecisionActionLabel('先不建仓，等待放量')).toBe('回避');
-    expect(getLegacyDecisionActionLabel('无需买入，等待确认')).toBe('回避');
-    expect(getLegacyDecisionActionLabel('无须建仓，继续观察')).toBe('回避');
-    expect(getLegacyDecisionActionLabel('无需布局，等待突破')).toBe('回避');
+    expect(getLegacyDecisionActionLabel('無需买入，等待確認')).toBe('回避');
+    expect(getLegacyDecisionActionLabel('無須建仓，继续观察')).toBe('回避');
+    expect(getLegacyDecisionActionLabel('無需布局，等待突破')).toBe('回避');
     expect(getLegacyDecisionActionLabel('no buy until breakout')).toBe('回避');
     expect(getLegacyDecisionActionLabel('no need to buy before confirmation')).toBe('回避');
     expect(getLegacyDecisionActionLabel('cannot buy before confirmation')).toBe('回避');
@@ -52,13 +52,13 @@ describe('decisionAction helpers', () => {
   });
 
   it('keeps legacy fallback compatible with negated sell and add advice', () => {
-    expect(getLegacyDecisionActionLabel('不建议卖出，继续观察')).toBe('持有');
+    expect(getLegacyDecisionActionLabel('不建議卖出，继续观察')).toBe('持有');
     expect(getLegacyDecisionActionLabel('洗盘观察')).toBe('持有');
     expect(getLegacyDecisionActionLabel('洗盘观察', englishLabels)).toBe('Hold');
-    expect(getLegacyDecisionActionLabel('无需减仓，维持仓位')).toBe('持有');
-    expect(getLegacyDecisionActionLabel('无须减仓，维持仓位')).toBe('持有');
-    expect(getLegacyDecisionActionLabel('不建议加仓，等待回踩')).toBe('持有');
-    expect(getLegacyDecisionActionLabel('无须加仓，等待回踩')).toBe('持有');
+    expect(getLegacyDecisionActionLabel('無需减仓，維持倉位')).toBe('持有');
+    expect(getLegacyDecisionActionLabel('無須减仓，維持倉位')).toBe('持有');
+    expect(getLegacyDecisionActionLabel('不建議加仓，等待回踩')).toBe('持有');
+    expect(getLegacyDecisionActionLabel('無須加仓，等待回踩')).toBe('持有');
     expect(getLegacyDecisionActionLabel('no add before confirmation')).toBe('持有');
     expect(getLegacyDecisionActionLabel('cannot add before confirmation')).toBe('持有');
     expect(getLegacyDecisionActionLabel('no need to accumulate here')).toBe('持有');
@@ -77,7 +77,7 @@ describe('decisionAction helpers', () => {
     expect(getLegacyDecisionActionLabel('avoid selling into weakness', englishLabels)).toBe('Hold');
     expect(getLegacyDecisionActionLabel('avoid trimming before earnings', englishLabels)).toBe('Hold');
     expect(getLegacyDecisionActionLabel('avoid reducing exposure before earnings', englishLabels)).toBe('Hold');
-    expect(getDecisionActionTone(null, null, '不建议卖出，继续观察')).toBe('success');
+    expect(getDecisionActionTone(null, null, '不建議卖出，继续观察')).toBe('success');
   });
 
   it('does not turn ambiguous English advice into a badge action', () => {
@@ -112,9 +112,9 @@ describe('decisionAction helpers', () => {
   it('does not match Chinese financial context words as legacy actions', () => {
     expect(getLegacyDecisionActionLabel('买盘增强，继续观察')).toBeNull();
     expect(getLegacyDecisionActionLabel('卖压缓解，继续观察')).toBeNull();
-    expect(getLegacyDecisionActionLabel('卖方评级分歧')).toBeNull();
-    expect(getDecisionActionLabel(null, null, '买盘增强，继续观察', '建议')).toBe('建议');
-    expect(getDecisionActionLabel(null, null, '卖压缓解，继续观察', '建议')).toBe('建议');
+    expect(getLegacyDecisionActionLabel('卖方評級分歧')).toBeNull();
+    expect(getDecisionActionLabel(null, null, '买盘增强，继续观察', '建議')).toBe('建議');
+    expect(getDecisionActionLabel(null, null, '卖压缓解，继续观察', '建議')).toBe('建議');
   });
 
   it('keeps multi-guard legacy advice empty instead of prioritizing avoid or alert', () => {

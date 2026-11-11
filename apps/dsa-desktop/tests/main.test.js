@@ -688,7 +688,7 @@ test('evaluateReleaseUpdate reports update-available when release is newer', (t)
   assert.equal(state.releaseUrl, 'https://github.com/ZhuLinsen/daily_stock_analysis/releases/tag/v3.13.0');
   assert.equal(state.checkedAt, '2026-04-25T01:02:00Z');
   assert.equal(state.publishedAt, '2026-04-25T01:00:00Z');
-  assert.match(state.message, /发现新版本 3\.13\.0/);
+  assert.match(state.message, /發現新版本 3\.13\.0/);
 });
 
 test('evaluateReleaseUpdate reports up-to-date when version is current', (t) => {
@@ -721,7 +721,7 @@ test('evaluateReleaseUpdate reports error when current version is invalid', (t) 
   });
 
   assert.equal(state.status, mainModule.UPDATE_STATUS.ERROR);
-  assert.match(state.message, /不是有效的语义化版本/);
+  assert.match(state.message, /不是有效的語義化版本/);
 });
 
 test('checkForDesktopUpdates delegates to release fetcher', async (t) => {
@@ -817,7 +817,7 @@ test('auto download prompt falls back to error when install path fails', async (
     },
     quitAndInstall: (...args) => {
       quitAndInstallArgs = args;
-      throw new Error('安装进程启动失败');
+      throw new Error('安裝進程啟動失敗');
     },
   };
 
@@ -860,7 +860,7 @@ test('auto download prompt falls back to error when install path fails', async (
   }
 
   assert.equal(state.status, mainModule.UPDATE_STATUS.ERROR);
-  assert.match(state.message, /更新安装失败/);
+  assert.match(state.message, /更新安裝失敗/);
   assert.equal(state.updateMode, mainModule.UPDATE_MODE.AUTO);
   assert.deepEqual(quitAndInstallArgs, [true, true]);
   assert.equal(fakeUpdater.installDirectory, exeDir);

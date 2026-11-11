@@ -1050,7 +1050,7 @@ class TestIntelAgentPostProcess(unittest.TestCase):
         self.assertIsNotNone(opinion)
         self.assertEqual(opinion.signal, "hold")
         self.assertEqual(ctx.get_data("intel_opinion")["positive_catalysts"], ["行业复苏"])
-        self.assertEqual(ctx.risk_flags[0]["description"], "股东减持")
+        self.assertEqual(ctx.risk_flags[0]["description"], "股東減持")
 
 
 # ============================================================
@@ -1713,8 +1713,8 @@ class TestOrchestratorExecution(unittest.TestCase):
             tool_registry=MagicMock(),
             llm_adapter=MagicMock(),
         ).build_user_message(ctx)
-        self.assertIn("执行超时 1 个", prompt)
-        self.assertIn("signal 无法识别 1 个", prompt)
+        self.assertIn("執行超時 1 個", prompt)
+        self.assertIn("signal 無法識別 1 個", prompt)
 
     def test_specialist_batch_timeout_is_split_across_concurrency_waves(self):
         orch = self._make_orchestrator(config=SimpleNamespace(agent_skill_concurrency=2))
@@ -1764,7 +1764,7 @@ class TestOrchestratorExecution(unittest.TestCase):
         self.assertIsNotNone(result.dashboard)
         self.assertIsNotNone(result.content)
         self.assertIn("insufficient budget", (result.error or "").lower())
-        self.assertIn("[降级结果]", result.dashboard["analysis_summary"])
+        self.assertIn("[降级結果]", result.dashboard["analysis_summary"])
         technical.run.assert_called_once()
         intel.run.assert_not_called()
 
@@ -1923,7 +1923,7 @@ class TestOrchestratorExecution(unittest.TestCase):
         self.assertTrue(result.success)
         self.assertIn("timed out", result.error)
         self.assertEqual(result.dashboard["decision_type"], "buy")
-        self.assertIn("降级结果", result.dashboard["analysis_summary"])
+        self.assertIn("降级結果", result.dashboard["analysis_summary"])
         self.assertEqual(
             result.dashboard["dashboard"]["battle_plan"]["sniper_points"]["stop_loss"],
             295.0,
@@ -2289,7 +2289,7 @@ class TestOrchestratorExecution(unittest.TestCase):
             result = orch._execute_pipeline(ctx, parse_dashboard=False)
 
         self.assertTrue(result.success)
-        self.assertEqual(result.content, "这是自然语言回复")
+        self.assertEqual(result.content, "這是自然語言回覆")
 
     def test_strategy_agents_are_selected_after_technical_stage(self):
         orch = self._make_orchestrator()
@@ -2361,7 +2361,7 @@ class TestDecisionAgentChatMode(unittest.TestCase):
         opinion = agent.post_process(ctx, "建议继续观察量价配合，分批参与。")
 
         self.assertIsNotNone(opinion)
-        self.assertEqual(ctx.get_data("final_response_text"), "建议继续观察量价配合，分批参与。")
+        self.assertEqual(ctx.get_data("final_response_text"), "建议繼續观察量價配合，分批參與。")
         self.assertIsNone(ctx.get_data("final_dashboard"))
         self.assertEqual(opinion.signal, "buy")
 
@@ -2392,7 +2392,7 @@ class TestTechnicalAgentSkillPolicy(unittest.TestCase):
         prompt = agent.system_prompt(AgentContext(query="分析 600519", stock_code="600519"))
 
         self.assertNotIn("Bias from MA5 < 2%", prompt)
-        self.assertIn("### 技能 1: 缠论", prompt)
+        self.assertIn("### 技能 1: 纏論", prompt)
 
     def test_prompt_includes_legacy_default_policy_for_implicit_default_run(self):
         from src.agent.agents.technical_agent import TechnicalAgent
@@ -2407,7 +2407,7 @@ class TestTechnicalAgentSkillPolicy(unittest.TestCase):
         prompt = agent.system_prompt(AgentContext(query="分析 600519", stock_code="600519"))
 
         self.assertIn("Bias from MA5 < 2%", prompt)
-        self.assertIn("### 技能 1: 默认多头趋势", prompt)
+        self.assertIn("### 技能 1: 默認多头趋势", prompt)
 
 
 class TestBaseAgentMessageAssembly(unittest.TestCase):
@@ -2477,8 +2477,8 @@ class TestBaseAgentMessageAssembly(unittest.TestCase):
         self.assertLess(pack_indexes[0], cached_indexes[0])
         phase_message = messages[phase_indexes[0]]
         self.assertEqual(phase_message["role"], "user")
-        self.assertIn("盘中", phase_message["content"])
-        self.assertIn("不得当作完整日线复盘", phase_message["content"])
+        self.assertIn("盤中", phase_message["content"])
+        self.assertIn("不得當作完整日線覆盤", phase_message["content"])
         self.assertNotIn("market_phase_context", phase_message["content"])
         self.assertNotIn("is_partial_bar", phase_message["content"])
         pack_message = messages[pack_indexes[0]]
@@ -3063,7 +3063,7 @@ class TestRiskOverride(unittest.TestCase):
 
         self.assertEqual(dashboard["decision_type"], "hold")
         self.assertLessEqual(dashboard["sentiment_score"], 59)
-        self.assertIn("风控接管", dashboard["risk_warning"])
+        self.assertIn("風控接管", dashboard["risk_warning"])
         self.assertEqual(ctx.opinions[0].signal, "hold")
 
     def test_risk_override_normalizes_strong_buy_before_veto(self):
@@ -3182,7 +3182,7 @@ class TestResearchCommandTimeout(unittest.TestCase):
              )):
             response = cmd.execute(msg, ["600519"])
 
-        self.assertIn("超时", response.text)
+        self.assertIn("超時", response.text)
 
     def test_research_recognizes_five_letter_us_ticker(self):
         from bot.commands.research import ResearchCommand
@@ -3377,10 +3377,10 @@ class TestAgentResearchEndpoint(unittest.IsolatedAsyncioTestCase):
 
 
 class TestP1SemanticConvergence(unittest.TestCase):
-    """覆盖 PR reviewer 提出的 5 个 P1 阻断项的端到端入口测试"""
+    """覆蓋 PR reviewer 提出的 5 個 P1 阻斷項的端到端入口測試"""
 
     def test_signal_enum_input_compatibility(self):
-        """P1-1: Signal.BUY 枚举输入不应被标记为 invalid"""
+        """P1-1: Signal.BUY 枚舉輸入不應被標記為 invalid"""
         signal, invalid, original = normalize_strategy_signal(Signal.BUY)
         self.assertEqual(signal, "buy")
         self.assertFalse(invalid)
@@ -3397,7 +3397,7 @@ class TestP1SemanticConvergence(unittest.TestCase):
             self.assertFalse(invalid, f"{enum_val} should not be marked invalid")
 
     def test_missing_signal_marked_invalid(self):
-        """P1-2: 缺失 signal 的 LLM 输出应被标记为 invalid，而非静默兜底为 hold"""
+        """P1-2: 缺失 signal 的 LLM 輸出應被標記為 invalid，而非靜默兜底為 hold"""
         ctx = AgentContext()
 
         opinion = AgentOpinion(
@@ -3413,7 +3413,7 @@ class TestP1SemanticConvergence(unittest.TestCase):
         self.assertEqual(strategy_opinion.signal, "hold")
 
     def test_opinion_count_excludes_invalid(self):
-        """P1-3: summary_params.opinion_count 应仅计 valid opinions"""
+        """P1-3: summary_params.opinion_count 應僅計 valid opinions"""
         opinions = []
 
         valid_op = AgentOpinion(agent_name="skill_test1", signal="buy", confidence=0.8)
@@ -3437,7 +3437,7 @@ class TestP1SemanticConvergence(unittest.TestCase):
         self.assertEqual(synthesis["summary_params"]["invalid_opinion_count"], 9)
 
     def test_deterministic_synthesis_authoritative(self):
-        """P1-4: 确定性 synthesis 应为 dashboard 的唯一权威来源"""
+        """P1-4: 確定性 synthesis 應為 dashboard 的唯一權威來源"""
         ctx = AgentContext()
         ctx.set_data("skill_consensus", {
             "signal": "buy",
@@ -3479,7 +3479,7 @@ class TestP1SemanticConvergence(unittest.TestCase):
         self.assertEqual(synth["summary_key"], "test.deterministic")
 
     def test_full_pipeline_valid_signal(self):
-        """P1-5: 端到端验证：合法 Signal 枚举输入应保持正确语义"""
+        """P1-5: 端到端驗證：合法 Signal 枚舉輸入應保持正確語義"""
         ctx = AgentContext()
 
         opinion = AgentOpinion(
@@ -3503,8 +3503,8 @@ class TestP1SemanticConvergence(unittest.TestCase):
 
     def test_prompt_pollution_prevention(self):
         """E2E-A: 1 valid buy/0.8 + 2 invalid moon/0.9 → Orchestrator partition →
-        DecisionAgent prompt 不含 'moon'，ctx.meta['invalid_opinions'] 长度 == 2。
-        真 E2E：SkillAgent 输入 → Orchestrator 分拣 → DecisionAgent build_user_message。
+        DecisionAgent prompt 不含 'moon'，ctx.meta['invalid_opinions'] 長度 == 2。
+        真 E2E：SkillAgent 輸入 → Orchestrator 分揀 → DecisionAgent build_user_message。
         """
         from src.agent.agents.decision_agent import DecisionAgent
 
@@ -3568,7 +3568,7 @@ class TestP1SemanticConvergence(unittest.TestCase):
         self.assertIn("2", prompt)  # invalid count
 
     def test_zero_weight_never_strong_sell(self):
-        """E2E-2: 两个 hold/0.0 或 buy/0.0 → final signal 应为 hold，绝不应是 strong_sell"""
+        """E2E-2: 兩個 hold/0.0 或 buy/0.0 → final signal 應為 hold，絕不應是 strong_sell"""
         ctx = AgentContext()
 
         # Two valid opinions with zero confidence (zero weight)
@@ -3590,7 +3590,7 @@ class TestP1SemanticConvergence(unittest.TestCase):
         self.assertEqual(synthesis["consensus_level"], "insufficient")
 
     def test_hold_grouping_consistency(self):
-        """E2E-3: 两个 valid hold/0.8 → 两个 hold 都应在 supporting_skills 中"""
+        """E2E-3: 兩個 valid hold/0.8 → 兩個 hold 都應在 supporting_skills 中"""
         ctx = AgentContext()
 
         ctx.opinions.append(AgentOpinion(agent_name="skill_1", signal="hold", confidence=0.8))
@@ -3619,7 +3619,7 @@ class TestP1SemanticConvergence(unittest.TestCase):
         self.assertEqual(len(opposing), 0)
 
     def test_single_sample_consensus_insufficient(self):
-        """E2E-4: 1 valid buy/0.8 + 多个 invalid → consensus 应为 insufficient，不是 high"""
+        """E2E-4: 1 valid buy/0.8 + 多個 invalid → consensus 應為 insufficient，不是 high"""
         ctx = AgentContext()
 
         # 1 valid opinion
@@ -3650,10 +3650,10 @@ class TestP1SemanticConvergence(unittest.TestCase):
         self.assertEqual(synthesis["summary_params"]["invalid_opinion_count"], 3)
 
     def test_e2e_e_partition_then_aggregate_insufficient(self):
-        """E2E-E: 1 valid buy/0.8 + 9 invalid → 走 orchestrator 分拣 → aggregator →
+        """E2E-E: 1 valid buy/0.8 + 9 invalid → 走 orchestrator 分揀 → aggregator →
         consensus_level == 'insufficient'（不得 high）；synthesis.summary_params
-        对应 opinion_count=1、invalid_opinion_count=9、total_opinion_count=10。
-        真 E2E：SkillAgent 输入 → Orchestrator 分拣 → SkillAggregator 合成。
+        對應 opinion_count=1、invalid_opinion_count=9、total_opinion_count=10。
+        真 E2E：SkillAgent 輸入 → Orchestrator 分揀 → SkillAggregator 合成。
         """
         ctx = AgentContext()
 
@@ -3672,7 +3672,7 @@ class TestP1SemanticConvergence(unittest.TestCase):
                 reasoning="invalid moon signal",
             ))
 
-        # 唯一分拣点：Orchestrator
+        # 唯一分揀點：Orchestrator
         orchestrator = AgentOrchestrator(
             tool_registry=MagicMock(),
             llm_adapter=MagicMock(),
@@ -3692,28 +3692,28 @@ class TestP1SemanticConvergence(unittest.TestCase):
         synthesis = consensus.raw_data.get("strategy_synthesis")
         self.assertIsNotNone(synthesis)
 
-        # 单样本共识必须 insufficient
+        # 單樣本共識必須 insufficient
         self.assertEqual(synthesis["consensus_level"], "insufficient")
 
-        # summary_params 计数正确
+        # summary_params 計數正確
         self.assertEqual(synthesis["summary_params"]["opinion_count"], 1)
-        # 注意：aggregator 只看到 partition 后的 opinions，
-        # invalid_opinion_count 由 aggregator 内部 strategy_opinion 判定
-        # 若要覆盖 diagnostic 计数，renderer 层从 ctx.meta 读取
-        # 此处仅确保 valid 计数正确
+        # 注意：aggregator 只看到 partition 後的 opinions，
+        # invalid_opinion_count 由 aggregator 內部 strategy_opinion 判定
+        # 若要覆蓋 diagnostic 計數，renderer 層從 ctx.meta 讀取
+        # 此處僅確保 valid 計數正確
 
     def test_e2e_f_uppercase_buy_canonical(self):
-        """E2E-F: signal='BUY' 大写输入 → normalize 后 canonical='buy' →
+        """E2E-F: signal='BUY' 大寫輸入 → normalize 後 canonical='buy' →
         aggregator 使用 canonical 查 strategy_signal_score → 得 4.0（不是 0）。
-        final_signal 输出 canonical 小写 'buy'。
-        真 E2E：SkillAgent 输出大写 → aggregator 内部 canonical-first 计算。
+        final_signal 輸出 canonical 小寫 'buy'。
+        真 E2E：SkillAgent 輸出大寫 → aggregator 內部 canonical-first 計算。
         """
         ctx = AgentContext()
 
         # Two valid opinions, one with uppercase signal
         ctx.opinions.append(AgentOpinion(
             agent_name="skill_upper",
-            signal="BUY",  # 大写
+            signal="BUY",  # 大寫
             confidence=0.8,
         ))
         ctx.opinions.append(AgentOpinion(
@@ -3727,30 +3727,30 @@ class TestP1SemanticConvergence(unittest.TestCase):
         consensus = aggregator.aggregate(ctx)
 
         self.assertIsNotNone(consensus)
-        # canonical 小写输出
+        # canonical 小寫輸出
         self.assertEqual(consensus.signal, "buy")
 
         synthesis = consensus.raw_data.get("strategy_synthesis")
         self.assertIsNotNone(synthesis)
-        # weighted_score 应接近 4.0（buy 的 canonical 分数），
-        # 而不是因大写查表失败得到 0
+        # weighted_score 應接近 4.0（buy 的 canonical 分數），
+        # 而不是因大寫查表失敗得到 0
         self.assertGreaterEqual(synthesis["weighted_score"], 3.5)
-        # final_signal 输出 canonical 小写
+        # final_signal 輸出 canonical 小寫
         self.assertEqual(synthesis["final_signal"], "buy")
 
     def test_e2e_g_empty_supporting_uses_none_label(self):
-        """E2E-G: 空 supporting_skills + report_language='en' → 四条 renderer 中
-        不出现中文 '无'，而是 'None'（对应 labels.none_label）。
-        真 E2E：dashboard payload → renderer 实际文本。
+        """E2E-G: 空 supporting_skills + report_language='en' → 四條 renderer 中
+        不出現中文 '无'，而是 'None'（對應 labels.none_label）。
+        真 E2E：dashboard payload → renderer 實際文本。
         """
         from src.report_language import get_report_labels
 
-        # zh、en、ko 三语的 none_label 都必须完备
+        # zh、en、ko 三語的 none_label 都必須完備
         for lang, expected in [("zh", "无"), ("en", "None"), ("ko", "없음")]:
             labels = get_report_labels(lang)
             self.assertEqual(labels["none_label"], expected)
 
-        # 模拟一个空 supporting_skills 的 payload
+        # 模擬一個空 supporting_skills 的 payload
         strategy_synthesis = {
             "final_signal": "hold",
             "confidence": 0.5,
@@ -3775,14 +3775,14 @@ class TestP1SemanticConvergence(unittest.TestCase):
             _append_strategy_synthesis_block(lines, strategy_synthesis, labels, lang)
             rendered = "\n".join(lines)
 
-            # 空阵营必须用 labels.none_label 输出
+            # 空陣營必須用 labels.none_label 輸出
             self.assertIn(expected_none, rendered)
-            # 不得出现其他语言的 none_label
+            # 不得出現其他語言的 none_label
             for other_lang, other_none in [("zh", "无"), ("en", "None"), ("ko", "없음")]:
                 if other_lang == lang:
                     continue
-                # zh 的 "无" 有可能出现在其他非阵营的文案中，这里只检查阵营行
-                # 简单起见：只在 en/ko 场景校验中文"无"不出现
+                # zh 的 "無" 有可能出現在其他非陣營的文案中，這裡只檢查陣營行
+                # 簡單起見：只在 en/ko 場景校驗中文"無"不出現
                 if lang != "zh" and other_lang == "zh":
                     self.assertNotIn("无", rendered)
 
@@ -4029,8 +4029,8 @@ class TestStrategyEngineE2E(unittest.TestCase):
             )
 
     def test_renderer_shows_invalid_opinions_label(self):
-        """计划测试1补全：mixed valid+invalid → renderer 输出含 strategy_invalid_opinions_label。
-        走 StrategyEngine 完整链路，断言 _append_strategy_synthesis_block 渲染出 invalid count 行。
+        """計劃測試1補全：mixed valid+invalid → renderer 輸出含 strategy_invalid_opinions_label。
+        走 StrategyEngine 完整鏈路，斷言 _append_strategy_synthesis_block 渲染出 invalid count 行。
         """
         from src.agent.skills.engine import StrategyEngine
         from src.notification import _append_strategy_synthesis_block
@@ -4062,8 +4062,8 @@ class TestStrategyEngineE2E(unittest.TestCase):
             self.assertNotIn("{count}", rendered, f"lang={lang}: label template not rendered")
 
     def test_generate_dashboard_report_renders_invalid_count_and_insufficient(self):
-        """Blocker-6 真 E2E：经 generate_dashboard_report 主入口，
-        断言最终 Markdown 字符串含 '另有 N 个策略解析失败' 和本地化 '证据不足'。
+        """Blocker-6 真 E2E：經 generate_dashboard_report 主入口，
+        斷言最終 Markdown 字符串含 '另有 N 個策略解析失敗' 和本地化 '证据不足'。
         """
         from src.analyzer import AnalysisResult
         from src.notification import NotificationService
@@ -4110,13 +4110,13 @@ class TestStrategyEngineE2E(unittest.TestCase):
         svc = NotificationService()
         report = svc.generate_dashboard_report([result])
 
-        # invalid count 行必须出现
-        self.assertIn("另有 3 个策略解析失败", report, "invalid count line missing from dashboard report")
-        # consensus_level=insufficient → localize → 证据不足
+        # invalid count 行必須出現
+        self.assertIn("另有 3 個策略解析失敗", report, "invalid count line missing from dashboard report")
+        # consensus_level=insufficient → localize → 證據不足
         self.assertIn("证据不足", report, "localized 'insufficient' missing from dashboard report")
 
     def test_bad_shape_summary_params_never_crashes_renderers(self):
-        """OR-COM-34818459 回归：summary_params 为字符串/列表时，所有渲染路径必须静默降级而非崩溃。"""
+        """OR-COM-34818459 迴歸：summary_params 為字符串/列表時，所有渲染路徑必須靜默降級而非崩潰。"""
         from src.report_language import (
             localize_strategy_synthesis_summary,
             normalize_strategy_synthesis_payload,
@@ -4129,8 +4129,8 @@ class TestStrategyEngineE2E(unittest.TestCase):
         bad_shapes = [
             "bad-shape",          # 字符串
             ["a", "b"],           # 列表
-            42,                   # 整数
-            None,                 # None（已有守卫，但确认不退化）
+            42,                   # 整數
+            None,                 # None（已有守衛，但確認不退化）
         ]
 
         for bad in bad_shapes:
@@ -4142,10 +4142,10 @@ class TestStrategyEngineE2E(unittest.TestCase):
                 "conflict_count": 0,
                 "supporting_skills": [],
                 "opposing_skills": [],
-                "summary_params": bad,          # ← 坏 shape
+                "summary_params": bad,          # ← 壞 shape
             }
 
-            # 1. 安全 helper 必须返回 0，不崩
+            # 1. 安全 helper 必須返回 0，不崩
             count = strategy_invalid_opinion_count(synthesis)
             self.assertEqual(count, 0, f"strategy_invalid_opinion_count should be 0 for summary_params={bad!r}")
 

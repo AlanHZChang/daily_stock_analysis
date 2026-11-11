@@ -74,10 +74,10 @@ class MainScheduleModeTestCase(unittest.TestCase):
         os.chdir(self.temp_dir.name)
         self.env_patch = patch.dict(os.environ, {"ENV_FILE": str(self.env_path)}, clear=False)
         self.env_patch.start()
-        # CI runner 自动注入 GITHUB_ACTIONS=true，会让无显式环境的 main.main()
-        # 测试误入 Actions STOCK_LIST 分类分支（其 _DummyConfig 不含
-        # stock_list 属性）。类级默认关闭，Actions 入口相关测试在用例内
-        # 显式 patch 为 true 覆盖。
+        # CI runner 自動注入 GITHUB_ACTIONS=true，會讓無顯式環境的 main.main()
+        # 測試誤入 Actions STOCK_LIST 分類分支（其 _DummyConfig 不含
+        # stock_list 屬性）。類級默認關閉，Actions 入口相關測試在用例內
+        # 顯式 patch 為 true 覆蓋。
         self.actions_env_patch = patch.dict(
             os.environ, {"GITHUB_ACTIONS": "false"}, clear=False
         )
@@ -243,8 +243,8 @@ class MainScheduleModeTestCase(unittest.TestCase):
                 stock_codes,
             )
 
-        # 已登记指数按 market=cn 参与过滤，CN 休市时被剔除；AAPL 因 US 开市保留；
-        # 市场未知的非指数 code（XYZ123）继续 fail-open 保留。
+        # 已登記指數按 market=cn 參與過濾，CN 休市時被剔除；AAPL 因 US 開市保留；
+        # 市場未知的非指數 code（XYZ123）繼續 fail-open 保留。
         self.assertEqual(filtered_codes, ["AAPL", "XYZ123"])
         self.assertIsNone(effective_region)
         self.assertFalse(should_skip_all)
@@ -545,7 +545,7 @@ class MainScheduleModeTestCase(unittest.TestCase):
             exit_code = main.main()
 
         self.assertEqual(exit_code, 0)
-        # 刷新必须先于 --stocks 解析执行。
+        # 刷新必須先於 --stocks 解析執行。
         self.assertEqual(calls[0][0], "refresh")
         self.assertEqual(calls[1][0], "parse")
         self.assertEqual(calls[1][1], ["csi930955"])
@@ -553,8 +553,8 @@ class MainScheduleModeTestCase(unittest.TestCase):
         self.assertEqual(calls[1][2][0].canonical_id, "csi930955")
 
     def test_standalone_run_rejects_unsupported_stocks_token(self) -> None:
-        """`--stocks` 携带未登记 `.CSI` 目标时在入口明确报错并返回非零，
-        不再静默走股票路径或发起 provider 调用。"""
+        """`--stocks` 攜帶未登記 `.CSI` 目標時在入口明確報錯並返回非零，
+        不再靜默走股票路徑或發起 provider 調用。"""
         args = self._make_args(stocks="600519,930956.CSI")
         config = self._make_config(run_immediately=True)
 
@@ -569,9 +569,9 @@ class MainScheduleModeTestCase(unittest.TestCase):
         run_full_analysis.assert_not_called()
 
     def test_standalone_run_actions_stock_list_builds_index_targets(self) -> None:
-        """`GITHUB_ACTIONS=true` 且无 `--stocks` 时，`main.main()` 把默认
-        `STOCK_LIST` 的显式指数 token 分类为 INDEX target、个股 token 保持
-        legacy 语义（与一次性 `--stocks` 构造等价）。"""
+        """`GITHUB_ACTIONS=true` 且無 `--stocks` 時，`main.main()` 把默認
+        `STOCK_LIST` 的顯式指數 token 分類為 INDEX target、個股 token 保持
+        legacy 語義（與一次性 `--stocks` 構造等價）。"""
         args = self._make_args()
         config = self._make_config(run_immediately=True)
         config.stock_list = ["sh000016", "600519", "930955.CSI"]
@@ -599,8 +599,8 @@ class MainScheduleModeTestCase(unittest.TestCase):
         )
 
     def test_standalone_run_local_default_does_not_build_targets(self) -> None:
-        """非 Actions 环境的无参数默认路径不构造结构化 targets（本地/
-        `--schedule` 热刷新语义保持不变）。"""
+        """非 Actions 環境的無參數默認路徑不構造結構化 targets（本地/
+        `--schedule` 熱刷新語義保持不變）。"""
         args = self._make_args()
         config = self._make_config(run_immediately=True)
         config.stock_list = ["600519"]
@@ -639,8 +639,8 @@ class MainScheduleModeTestCase(unittest.TestCase):
                 classify.assert_not_called()
 
     def test_actions_backtest_with_bad_stock_list_reaches_backtest_service(self) -> None:
-        """Review 反例：`GITHUB_ACTIONS=true` + `--backtest` 时不消费个股列表，
-        含未登记 `.CSI` 的 STOCK_LIST 不得整批拒绝，必须进入回测分支。"""
+        """Review 反例：`GITHUB_ACTIONS=true` + `--backtest` 時不消費個股列表，
+        含未登記 `.CSI` 的 STOCK_LIST 不得整批拒絕，必須進入回測分支。"""
         args = self._make_args(backtest=True)
         config = self._make_config(run_immediately=True)
         config.stock_list = ["930956.CSI"]
@@ -678,8 +678,8 @@ class MainScheduleModeTestCase(unittest.TestCase):
         )
 
     def test_actions_backtest_stock_list_classification_skipped_when_no_backtest(self) -> None:
-        """对照组：`GITHUB_ACTIONS=true` 无模式参数的坏 STOCK_LIST 仍整批拒绝
-        （分类契约未回归）。"""
+        """對照組：`GITHUB_ACTIONS=true` 無模式參數的壞 STOCK_LIST 仍整批拒絕
+        （分類契約未迴歸）。"""
         args = self._make_args()
         config = self._make_config(run_immediately=True)
         config.stock_list = ["930956.CSI"]
@@ -703,8 +703,8 @@ class MainScheduleModeTestCase(unittest.TestCase):
         )
 
     def test_portfolio_futu_with_bad_stocks_token_reaches_run_full_analysis(self) -> None:
-        """Review 反例：`--portfolio futu --stocks 930956.CSI` 同框时分类整体跳过，
-        坏 token 不拦截；run_full_analysis 内 portfolio 覆盖 `--stocks`。"""
+        """Review 反例：`--portfolio futu --stocks 930956.CSI` 同框時分類整體跳過，
+        壞 token 不攔截；run_full_analysis 內 portfolio 覆蓋 `--stocks`。"""
         args = self._make_args(portfolio="futu", stocks="930956.CSI")
         config = self._make_config(run_immediately=True)
 
@@ -731,10 +731,10 @@ class MainScheduleModeTestCase(unittest.TestCase):
         run_with_lock.assert_called_once_with(config, args, None, None)
 
     def test_portfolio_futu_with_bad_stocks_token_runs_portfolio_codes(self) -> None:
-        """对照组：`--portfolio futu --stocks 600519` 时 run_full_analysis 内
-        portfolio 覆盖 `--stocks`，覆盖语义不回归。走真实运行时锁路径
-        （threading.Lock，无进程/磁盘副作用），验证 loader 被调用且进入
-        run_full_analysis 的代码为 portfolio 持仓。"""
+        """對照組：`--portfolio futu --stocks 600519` 時 run_full_analysis 內
+        portfolio 覆蓋 `--stocks`，覆蓋語義不迴歸。走真實運行時鎖路徑
+        （threading.Lock，無進程/磁盤副作用），驗證 loader 被調用且進入
+        run_full_analysis 的代碼為 portfolio 持倉。"""
         args = self._make_args(portfolio="futu", stocks="600519")
         config = self._make_config(run_immediately=True)
 
@@ -758,8 +758,8 @@ class MainScheduleModeTestCase(unittest.TestCase):
         loader.assert_called_once_with()
 
     def test_actions_portfolio_futu_with_bad_stock_list_reaches_run_full_analysis(self) -> None:
-        """Review 反例补格：`GITHUB_ACTIONS=true` + `--portfolio futu` 时 Actions
-        分支的 STOCK_LIST 分类同样整体跳过，坏 watchlist 不拦截 portfolio 覆盖。"""
+        """Review 反例補格：`GITHUB_ACTIONS=true` + `--portfolio futu` 時 Actions
+        分支的 STOCK_LIST 分類同樣整體跳過，壞 watchlist 不攔截 portfolio 覆蓋。"""
         args = self._make_args(portfolio="futu")
         config = self._make_config(run_immediately=True)
         config.stock_list = ["930956.CSI"]
@@ -787,8 +787,8 @@ class MainScheduleModeTestCase(unittest.TestCase):
         run_with_lock.assert_called_once_with(config, args, None, None)
 
     def test_portfolio_futu_with_bad_stocks_token_runs_pipeline_with_portfolio_codes(self) -> None:
-        """断言到达真实风险层：portfolio 覆盖后 pipeline.run 收到的 stock_codes
-        来自 Futu loader，与 `--stocks` 无关。"""
+        """斷言到達真實風險層：portfolio 覆蓋後 pipeline.run 收到的 stock_codes
+        來自 Futu loader，與 `--stocks` 無關。"""
         args = self._make_args(portfolio="futu", stocks="930956.CSI")
         config = self._make_config(run_immediately=True)
 
@@ -814,8 +814,8 @@ class MainScheduleModeTestCase(unittest.TestCase):
         self.assertIsNone(pipeline_run_kwargs["analysis_targets"])
 
     def test_schedule_mode_with_bad_stocks_token_reaches_scheduler(self) -> None:
-        """Review 反例：`--schedule --stocks 930956.CSI` 不因坏 token 分类退出，
-        进入 scheduler，且保留既有"忽略启动快照"警告。"""
+        """Review 反例：`--schedule --stocks 930956.CSI` 不因壞 token 分類退出，
+        進入 scheduler，且保留既有"忽略啟動快照"警告。"""
         args = self._make_args(schedule=True, stocks="930956.CSI")
         config = self._make_config(schedule_enabled=False)
         scheduled_call = {}
@@ -867,8 +867,8 @@ class MainScheduleModeTestCase(unittest.TestCase):
         )
 
     def test_serve_only_with_bad_stocks_token_enters_service_loop(self) -> None:
-        """Review 反例：`--serve-only --stocks 930956.CSI` 不因坏 token 分类退出，
-        进入仅服务模式循环（time.sleep 以 KeyboardInterrupt 收尾）。"""
+        """Review 反例：`--serve-only --stocks 930956.CSI` 不因壞 token 分類退出，
+        進入僅服務模式循環（time.sleep 以 KeyboardInterrupt 收尾）。"""
         args = self._make_args(serve_only=True, stocks="930956.CSI")
         config = self._make_config(webui_enabled=False)
 
@@ -888,8 +888,8 @@ class MainScheduleModeTestCase(unittest.TestCase):
         classify.assert_not_called()
 
     def test_standalone_run_actions_stock_list_rejects_unsupported(self) -> None:
-        """Actions STOCK_LIST 携带未登记 `.CSI` token 时与 `--stocks` 同样
-        在入口明确拒绝并返回非零，不会静默丢弃该 token 后继续运行。"""
+        """Actions STOCK_LIST 攜帶未登記 `.CSI` token 時與 `--stocks` 同樣
+        在入口明確拒絕並返回非零，不會靜默丟棄該 token 後繼續運行。"""
         args = self._make_args()
         config = self._make_config(run_immediately=True)
         config.stock_list = ["sh000016", "930956.CSI"]
@@ -906,9 +906,9 @@ class MainScheduleModeTestCase(unittest.TestCase):
         run_full_analysis.assert_not_called()
 
     def test_standalone_run_actions_market_only_skips_token_classification(self) -> None:
-        """Actions 的 market-only 模式（`--market-review`）不经个股列表分析，
-        STOCK_LIST 分类入口必须整体跳过（含 unsupported 拒绝），保持既有
-        大盘复盘行为。"""
+        """Actions 的 market-only 模式（`--market-review`）不經個股列表分析，
+        STOCK_LIST 分類入口必須整體跳過（含 unsupported 拒絕），保持既有
+        大盤覆盤行為。"""
         args = self._make_args(market_review=True)
         config = self._make_config(run_immediately=True)
         config.stock_list = ["930956.CSI"]
@@ -2049,7 +2049,7 @@ class MainScheduleModeTestCase(unittest.TestCase):
                 return_full_report=True,
             )
 
-        self.assertEqual(summary, "历史复盘摘要")
+        self.assertEqual(summary, "歷史覆盤摘要")
         self.assertEqual(full_report, "")
         service_cls.assert_called_once_with(db_manager=pipeline.db)
         call_kwargs = service.get_context.call_args.kwargs
@@ -2099,8 +2099,8 @@ class MainScheduleModeTestCase(unittest.TestCase):
                 require_current_query_match=True,
             )
 
-        self.assertEqual(summary, "本轮运行时复盘摘要")
-        self.assertEqual(full_report, "本轮运行时完整复盘")
+        self.assertEqual(summary, "本輪運行時覆盤摘要")
+        self.assertEqual(full_report, "本輪運行時完整覆盤")
         self.assertTrue(service.get_context.call_args.kwargs["require_query_id_match"])
 
     def test_run_full_analysis_generates_full_market_review_once_after_stock_analysis(self) -> None:
@@ -2212,7 +2212,7 @@ class MainScheduleModeTestCase(unittest.TestCase):
         run_with_lock.assert_not_called()
         run_market_review.assert_not_called()
         pipeline.notifier.send.assert_called_once()
-        self.assertIn("## 本轮运行时完整复盘", pipeline.notifier.send.call_args.args[0])
+        self.assertIn("## 本輪運行時完整覆盤", pipeline.notifier.send.call_args.args[0])
         self.assertEqual(pipeline.notifier.send.call_args.kwargs["route_type"], "report")
         query_scoped_read = unittest.mock.call(
             config,
@@ -2284,7 +2284,7 @@ class MainScheduleModeTestCase(unittest.TestCase):
         pipeline.notifier.save_report_to_file.assert_called_once()
         saved_content, saved_filename = pipeline.notifier.save_report_to_file.call_args.args
         self.assertTrue(saved_content.startswith("# 🎯 大盘复盘\n\n"))
-        self.assertIn("## 本轮运行时完整复盘", saved_content)
+        self.assertIn("## 本輪運行時完整覆盤", saved_content)
         self.assertTrue(saved_filename.startswith("market_review_"))
         self.assertTrue(saved_filename.endswith(".md"))
         self.assertEqual(prime_context.call_count, 3)
@@ -2534,7 +2534,7 @@ class MainScheduleModeTestCase(unittest.TestCase):
                 send_notification=False,
             )
 
-        self.assertEqual(result, "复盘结果")
+        self.assertEqual(result, "覆盤結果")
         acquire_lock.assert_called_once_with(config)
         run_review.assert_called_once_with(config=config, send_notification=False)
         release_lock.assert_called_once_with(unittest.mock.ANY)
@@ -2571,7 +2571,7 @@ class MainScheduleModeTestCase(unittest.TestCase):
             )
 
         self.assertEqual(summary, "多市场复盘摘要")
-        self.assertEqual(full_report, "完整复盘正文")
+        self.assertEqual(full_report, "完整覆盤正文")
         service_cls.assert_called_once_with(db_manager=pipeline.db)
         regional_service.get_context.assert_called_once()
         self.assertIsNot(
@@ -2783,7 +2783,7 @@ class MainScheduleModeTestCase(unittest.TestCase):
 
         self.assertEqual(exit_code, 1)
         output = capture_stream.getvalue()
-        self.assertIn("加载配置失败", output)
+        self.assertIn("加載配置失敗", output)
         self.assertIn("config boom", output)
 
     def test_bootstrap_logging_failure_does_not_block_startup(self) -> None:
@@ -2831,9 +2831,9 @@ class MainScheduleModeTestCase(unittest.TestCase):
         self.assertEqual(exit_code, 0)
         run_mock.assert_called_once()
         output = capture_stream.getvalue()
-        self.assertIn("文件日志初始化失败，已降级为控制台日志输出", output)
+        self.assertIn("文件日誌初始化失敗，已降级為控制檯日誌輸出", output)
         self.assertIn("/app/logs", output)
-        self.assertIn("官方 Docker 镜像启动入口会自动修复默认挂载目录权限", output)
+        self.assertIn("官方 Docker 鏡像啟動入口會自動修復默認掛載目錄權限", output)
 
     def test_run_full_analysis_import_failure_propagates(self) -> None:
         """P1: import failures in run_full_analysis must propagate, not be swallowed."""

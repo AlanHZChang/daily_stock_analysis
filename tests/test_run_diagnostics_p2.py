@@ -286,7 +286,7 @@ class RunDiagnosticsP2TestCase(unittest.TestCase):
         daily = summary["components"]["daily_data"]
         self.assertEqual(summary["status"], "degraded")
         self.assertEqual(daily["status"], "degraded")
-        self.assertIn("未进入本次分析输入", daily["message"])
+        self.assertIn("未進入本次分析輸入", daily["message"])
         self.assertEqual(daily["details"]["analysis_input_status"], "missing")
         self.assertEqual(
             daily["details"]["analysis_input_missing_reasons"],
@@ -316,8 +316,8 @@ class RunDiagnosticsP2TestCase(unittest.TestCase):
 
         news = summary["components"]["news"]
         self.assertEqual(news["status"], "unknown")
-        self.assertIn("未进入本次分析输入", news["message"])
-        self.assertIn("后续检索", news["message"])
+        self.assertIn("未進入本次分析輸入", news["message"])
+        self.assertIn("後續檢索", news["message"])
         self.assertEqual(news["details"]["analysis_input_status"], "missing")
 
     def test_news_results_with_missing_analysis_input_are_degraded(self) -> None:
@@ -348,8 +348,8 @@ class RunDiagnosticsP2TestCase(unittest.TestCase):
         self.assertEqual(news["details"]["record_count"], 3)
         self.assertEqual(news["details"]["analysis_input_status"], "missing")
         self.assertEqual(news["details"]["evidence_scope"], "retrieval_vs_analysis_input")
-        self.assertIn("新闻检索返回 3 条结果", news["message"])
-        self.assertIn("未进入本次分析输入", news["message"])
+        self.assertIn("新闻檢索返回 3 條結果", news["message"])
+        self.assertIn("未進入本次分析輸入", news["message"])
 
     def test_summary_marks_llm_failure_as_failed(self) -> None:
         diagnostics = _diagnostic_snapshot()
@@ -374,7 +374,7 @@ class RunDiagnosticsP2TestCase(unittest.TestCase):
 
         self.assertEqual(summary["status"], "failed")
         self.assertEqual(summary["components"]["llm"]["status"], "failed")
-        self.assertIn("LLM 失败", summary["reason"])
+        self.assertIn("LLM 失敗", summary["reason"])
         self.assertNotIn("secret-value", summary["copy_text"])
 
     def test_copy_text_redacts_authorization_bearer_tokens(self) -> None:

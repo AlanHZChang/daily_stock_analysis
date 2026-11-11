@@ -98,8 +98,8 @@ class SearchNewsFreshnessTestCase(unittest.TestCase):
         response = service.search_topic_news("影视传媒", max_results=2)
 
         self.assertTrue(response.success)
-        self.assertEqual(response.results[0].title, "影视传媒订单与政策催化")
-        self.assertIn('"影视传媒"', mock_search.call_args.args[0])
+        self.assertEqual(response.results[0].title, "影視傳媒訂單與政策催化")
+        self.assertIn('"影視傳媒"', mock_search.call_args.args[0])
         self.assertEqual(mock_search.call_args.kwargs["days"], 3)
 
     def test_invalid_profile_falls_back_to_short(self) -> None:
@@ -487,7 +487,7 @@ class SearchNewsFreshnessTestCase(unittest.TestCase):
 
         resp = service.search_stock_news("600519", "贵州茅台", max_results=2)
 
-        self.assertEqual(resp.results[0].title, "贵州茅台 600519 发布回购公告")
+        self.assertEqual(resp.results[0].title, "貴州茅臺 600519 發佈回購公告")
         self.assertEqual(resp.results[0].relevance_category, "direct_company_news")
         self.assertIn("股票代码", "；".join(resp.results[0].relevance_reasons or []))
         p1.search.assert_called_once()
@@ -629,7 +629,7 @@ class SearchNewsFreshnessTestCase(unittest.TestCase):
         )
 
     def test_outer_market_phrase_is_not_filtered_as_adult_spam(self) -> None:
-        """`外围市场` market-context headlines should not be treated as adult spam."""
+        """`外圍市場` market-context headlines should not be treated as adult spam."""
         fresh = datetime.now().date().isoformat()
         service, _ = self._create_service_with_mock_provider(
             news_max_age_days=3,
@@ -967,7 +967,7 @@ class SearchNewsFreshnessTestCase(unittest.TestCase):
         self.assertEqual([item.title for item in resp.results], ["腾讯控股 00700 发布业绩公告"])
 
     def test_finance_client_boilerplate_does_not_trigger_download_filter(self) -> None:
-        """Finance media boilerplate such as 客户端讯 should not look like an app page."""
+        """Finance media boilerplate such as 客戶端訊 should not look like an app page."""
         fresh = datetime.now().date().isoformat()
         service, _ = self._create_service_with_mock_provider(
             news_max_age_days=3,
@@ -991,7 +991,7 @@ class SearchNewsFreshnessTestCase(unittest.TestCase):
         self.assertEqual(resp.results[0].relevance_category, "direct_company_news")
 
     def test_market_peripheral_phrase_does_not_trigger_adult_spam_filter(self) -> None:
-        """Finance usage of 外围市场 should not be treated as adult-service spam."""
+        """Finance usage of 外圍市場 should not be treated as adult-service spam."""
         fresh = datetime.now().date().isoformat()
         service, _ = self._create_service_with_mock_provider(
             news_max_age_days=3,
@@ -1018,7 +1018,7 @@ class SearchNewsFreshnessTestCase(unittest.TestCase):
         self.assertEqual(resp.results[0].relevance_category, "direct_company_news")
 
     def test_business_full_service_phrase_does_not_trigger_adult_spam_filter(self) -> None:
-        """Business-safe 全套服务 wording should require adult-service context."""
+        """Business-safe 全套服務 wording should require adult-service context."""
         fresh = datetime.now().date().isoformat()
         service, _ = self._create_service_with_mock_provider(
             news_max_age_days=3,
@@ -1330,7 +1330,7 @@ class SearchNewsFreshnessTestCase(unittest.TestCase):
         )
         official_result = resp.results[1]
         self.assertGreater(official_result.relevance_score or 0, 0)
-        self.assertIn("来源接近公告或交易所渠道", official_result.relevance_reasons)
+        self.assertIn("來源接近公告或交易所渠道", official_result.relevance_reasons)
 
     def test_full_chinese_official_source_label_is_honored_without_url(self) -> None:
         """Full Chinese exchange labels without URL should retain official-source treatment."""
@@ -1366,7 +1366,7 @@ class SearchNewsFreshnessTestCase(unittest.TestCase):
         )
         official_result = resp.results[1]
         self.assertGreater(official_result.relevance_score or 0, 0)
-        self.assertIn("来源接近公告或交易所渠道", official_result.relevance_reasons)
+        self.assertIn("來源接近公告或交易所渠道", official_result.relevance_reasons)
 
     def test_spoofed_official_tokens_do_not_bypass_news_admission(self) -> None:
         """Official exemptions should require trusted parsed hosts or exact source labels."""
@@ -1515,7 +1515,7 @@ class SearchNewsFreshnessTestCase(unittest.TestCase):
 
         resp = service.search_stock_news("600519", "贵州茅台", max_results=1)
 
-        self.assertEqual(resp.results[0].title, "贵州茅台 600519 发布回购公告")
+        self.assertEqual(resp.results[0].title, "貴州茅臺 600519 發佈回購公告")
         self.assertEqual(resp.results[0].relevance_category, "direct_company_news")
         p1.search.assert_called_once()
         p2.search.assert_called_once()
@@ -1554,7 +1554,7 @@ class SearchNewsFreshnessTestCase(unittest.TestCase):
 
         resp = service.search_stock_news("hk00700", "腾讯控股", max_results=2)
 
-        self.assertEqual(resp.results[0].title, "腾讯控股 00700 公告：回购股份")
+        self.assertEqual(resp.results[0].title, "騰訊控股 00700 公告：回購股份")
         self.assertEqual(resp.results[0].relevance_category, "direct_company_news")
         self.assertEqual(len(resp.results), 1)
 
@@ -1571,7 +1571,7 @@ class SearchNewsFreshnessTestCase(unittest.TestCase):
         )
 
         self.assertNotEqual(result.relevance_category, "direct_company_news")
-        self.assertNotIn("股票代码 700", "；".join(result.relevance_reasons or []))
+        self.assertNotIn("股票代碼 700", "；".join(result.relevance_reasons or []))
 
     def test_us_stock_ticker_relevance_beats_ambiguous_company_word(self) -> None:
         """US ticker hits should outrank ambiguous common-word company-name noise."""
@@ -1854,9 +1854,9 @@ class SearchNewsFreshnessTestCase(unittest.TestCase):
         )
         context = SearchResponse(query="贵州茅台", results=[result], provider="Unit").to_context()
 
-        self.assertIn("关联度", context)
+        self.assertIn("關聯度", context)
         self.assertIn("direct_company_news", context)
-        self.assertIn("标题命中股票代码 600519", context)
+        self.assertIn("標題命中股票代碼 600519", context)
 
     def test_search_stock_news_brave_locale_matches_market_context(self) -> None:
         """Brave locale should follow Chinese-preferred vs US-stock contexts."""
@@ -2266,7 +2266,7 @@ class SearchNewsFreshnessTestCase(unittest.TestCase):
                 )
                 self.assertEqual(scored.relevance_category, "direct_company_news")
                 joined_reasons = "；".join(scored.relevance_reasons or [])
-                self.assertIn("英文别名", joined_reasons)
+                self.assertIn("英文別名", joined_reasons)
 
     def test_search_stock_news_query_uses_english_alias_for_chinese_display_name(self) -> None:
         """massif-01 blocker 1: foreign query path must use canonical English alias, not Chinese name."""
@@ -2418,8 +2418,8 @@ class SearchNewsFreshnessTestCase(unittest.TestCase):
         self.assertLess(scored.relevance_score, 38)
         # Should have exactly one hit on the alias term
         reasons = "；".join(scored.relevance_reasons or [])
-        self.assertIn("摘要命中公司英文别名 Apple", reasons)
-        self.assertNotIn("标题命中公司英文别名", reasons)
+        self.assertIn("摘要命中公司英文別名 Apple", reasons)
+        self.assertNotIn("標題命中公司英文別名", reasons)
 
 if __name__ == "__main__":
     unittest.main()

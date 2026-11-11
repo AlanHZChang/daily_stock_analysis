@@ -1534,7 +1534,7 @@ class SystemConfigServiceTestCase(unittest.TestCase):
         self.assertEqual(checks["llm_primary"]["status"], "configured")
         self.assertEqual(checks["stock_list"]["status"], "configured")
         self.assertEqual(checks["llm_agent"]["status"], "needs_action")
-        self.assertIn("local CLI 主生成方式不会被自动继承", checks["llm_agent"]["message"])
+        self.assertIn("local CLI 主生成方式不會被自動繼承", checks["llm_agent"]["message"])
         self.assertEqual(status["required_missing_keys"], ["llm_agent"])
 
     def test_get_setup_status_codex_cli_missing_reports_backend_path(self) -> None:
@@ -1550,9 +1550,9 @@ class SystemConfigServiceTestCase(unittest.TestCase):
 
         checks = {check["key"]: check for check in status["checks"]}
         self.assertEqual(checks["llm_primary"]["status"], "needs_action")
-        self.assertIn("后端进程当前 PATH", checks["llm_primary"]["message"])
+        self.assertIn("後端進程当前 PATH", checks["llm_primary"]["message"])
         self.assertIn("Codex CLI 交互窗口", checks["llm_primary"]["next_step"])
-        self.assertNotIn("请先安装并登录", checks["llm_primary"]["next_step"])
+        self.assertNotIn("請先安装並登錄", checks["llm_primary"]["next_step"])
 
     def test_get_setup_status_codex_primary_agent_model_explains_litellm_split(self) -> None:
         self._rewrite_env(
@@ -1632,7 +1632,7 @@ class SystemConfigServiceTestCase(unittest.TestCase):
 
         checks = {check["key"]: check for check in status["checks"]}
         self.assertEqual(checks["llm_agent"]["status"], "needs_action")
-        self.assertIn("暂不支持 codex_cli", checks["llm_agent"]["message"])
+        self.assertIn("暫不支持 codex_cli", checks["llm_agent"]["message"])
 
     def test_get_setup_status_rejects_agent_claude_and_opencode_tool_backends(self) -> None:
         for backend in ("claude_code_cli", "opencode_cli"):
@@ -1678,7 +1678,7 @@ class SystemConfigServiceTestCase(unittest.TestCase):
 
         checks = {check["key"]: check for check in status["checks"]}
         self.assertEqual(checks["llm_agent"]["status"], "needs_action")
-        self.assertIn("未检测到可用 LiteLLM 模型配置", checks["llm_agent"]["message"])
+        self.assertIn("未檢測到可用 LiteLLM 模型配置", checks["llm_agent"]["message"])
         self.assertNotIn("需要 LiteLLM backend", checks["llm_agent"]["message"])
 
     def test_get_setup_status_accepts_anspire_one_key_llm(self) -> None:
@@ -3498,7 +3498,7 @@ class SystemConfigServiceTestCase(unittest.TestCase):
         self.assertFalse(payload["success"])
         self.assertEqual(payload["error_code"], "send_failed")
         self.assertTrue(payload["retryable"])
-        self.assertIn("失败", payload["message"])
+        self.assertIn("失敗", payload["message"])
         self.assertIn("0/2", payload["message"])
         self.assertEqual(len(payload["attempts"]), 2)
         self.assertTrue(all(attempt["retryable"] for attempt in payload["attempts"]))
@@ -3867,7 +3867,7 @@ class SystemConfigServiceTestCase(unittest.TestCase):
         self.assertIn("LLM_HERMES_API_KEYS", joined)
         self.assertIn("LLM_HERMES_EXTRA_HEADERS", joined)
         self.assertIn("LLM_HERMES_API_KEY", joined)
-        self.assertIn(".env 备份", joined)
+        self.assertIn(".env 備份", joined)
         current_map = self.manager.read_config_map()
         self.assertEqual(current_map["LLM_HERMES_API_KEYS"], "")
         self.assertEqual(current_map["LLM_HERMES_EXTRA_HEADERS"], "")
@@ -4694,9 +4694,9 @@ class SystemConfigServiceTestCase(unittest.TestCase):
         self.assertIn("runtime scheduler", schedule_warning)
         self.assertIn("CLI schedule", schedule_warning)
         self.assertIn("SCHEDULE_RUN_IMMEDIATELY", schedule_run_warning)
-        self.assertIn("不会因为本次保存启动、停止或重建 scheduler", schedule_run_warning)
-        self.assertIn("以 schedule 模式重新启动后生效", schedule_run_warning)
-        self.assertNotIn("它属于启动期单次运行配置", schedule_run_warning)
+        self.assertIn("不會因為本次保存啟動、停止或重建 scheduler", schedule_run_warning)
+        self.assertIn("以 schedule 模式重新啟動後生效", schedule_run_warning)
+        self.assertNotIn("它屬於啟動期單次運行配置", schedule_run_warning)
 
     def test_update_appends_schedule_time_runtime_rebind_warning(self) -> None:
         response = self.service.update(
@@ -4712,11 +4712,11 @@ class SystemConfigServiceTestCase(unittest.TestCase):
             if "SCHEDULE_TIME=09:30 已写入 .env" in warning
         )
 
-        self.assertIn("已经以 schedule 模式运行", schedule_time_warning)
-        self.assertIn("自动重建 daily job", schedule_time_warning)
-        self.assertIn("不会启动 scheduler", schedule_time_warning)
-        self.assertNotIn("重启当前进程", schedule_time_warning)
-        self.assertNotIn("不会因为本次保存启动、停止或重建 scheduler", schedule_time_warning)
+        self.assertIn("已經以 schedule 模式運行", schedule_time_warning)
+        self.assertIn("自動重建 daily job", schedule_time_warning)
+        self.assertIn("不會啟動 scheduler", schedule_time_warning)
+        self.assertNotIn("重啟当前進程", schedule_time_warning)
+        self.assertNotIn("不會因為本次保存啟動、停止或重建 scheduler", schedule_time_warning)
 
     def test_update_schedule_time_blank_warning_reports_effective_default(self) -> None:
         response = self.service.update(
@@ -4748,9 +4748,9 @@ class SystemConfigServiceTestCase(unittest.TestCase):
             if "WEBUI_HOST" in warning and "WEBUI_PORT" in warning
         )
 
-        self.assertIn("启动期监听配置", bind_warning)
-        self.assertIn("不会因为本次保存重新绑定监听地址或端口", bind_warning)
-        self.assertIn("重启当前进程、Docker 容器或服务管理器后生效", bind_warning)
+        self.assertIn("啟動期監聽配置", bind_warning)
+        self.assertIn("不會因為本次保存重新綁定監聽地址或端口", bind_warning)
+        self.assertIn("重啟当前進程、Docker 容器或服務管理器後生效", bind_warning)
 
     def test_update_warns_when_runtime_model_references_are_cleared(self) -> None:
         self._rewrite_env(
@@ -4784,8 +4784,8 @@ class SystemConfigServiceTestCase(unittest.TestCase):
             for warning in response["warnings"]
             if "已同步清理失效的运行时模型引用" in warning
         )
-        self.assertIn("主模型 / Agent 主模型 / Vision 模型 / 备选模型中的失效项", warning)
-        self.assertIn("桌面端导出备份", warning)
+        self.assertIn("主模型 / Agent 主模型 / Vision 模型 / 備選模型中的失效項", warning)
+        self.assertIn("桌面端導出備份", warning)
 
     def test_update_market_review_region_does_not_trigger_runtime_model_cleanup(self) -> None:
         litellm_config_path = Path(self.temp_dir.name) / "litellm_config.yaml"

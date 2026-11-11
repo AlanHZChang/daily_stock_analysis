@@ -1,28 +1,28 @@
 #!/bin/bash
 # ===================================
-# A股/港股/美股 智能分析系统 - 测试脚本
+# A股/港股/美股 智能分析系統 - 測試腳本
 # ===================================
 #
 # 使用方法：
-#   ./scripts/test.sh [测试场景]
+#   ./scripts/test.sh [測試場景]
 #
-# 测试场景：
-#   market      - 仅大盘复盘
-#   a-stock     - A股个股分析（茅台、平安银行）
-#   etf         - etf分析(卫星etf 563230)
-#   hk-stock    - 港股分析（腾讯、阿里）
-#   us-stock    - 美股分析（苹果、特斯拉）
-#   mixed       - 混合市场分析
-#   single      - 单股模式测试
-#   dry-run     - 仅获取数据不分析
-#   full        - 完整流程测试
-#   quick       - 快速测试（单只股票）
-#   all         - 运行所有测试
+# 測試場景：
+#   market      - 僅大盤覆盤
+#   a-stock     - A股個股分析（茅臺、平安銀行）
+#   etf         - etf分析(衛星etf 563230)
+#   hk-stock    - 港股分析（騰訊、阿里）
+#   us-stock    - 美股分析（蘋果、特斯拉）
+#   mixed       - 混合市場分析
+#   single      - 單股模式測試
+#   dry-run     - 僅獲取數據不分析
+#   full        - 完整流程測試
+#   quick       - 快速測試（單隻股票）
+#   all         - 運行所有測試
 #
 # 示例：
-#   ./scripts/test.sh market      # 测试大盘复盘
-#   ./scripts/test.sh us-stock    # 测试美股分析
-#   ./scripts/test.sh quick       # 快速测试
+#   ./scripts/test.sh market      # 測試大盤覆盤
+#   ./scripts/test.sh us-stock    # 測試美股分析
+#   ./scripts/test.sh quick       # 快速測試
 #
 
 set -e
@@ -31,14 +31,14 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 cd "$REPO_ROOT"
 
-# 颜色定义
+# 顏色定義
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# 打印带颜色的信息
+# 打印帶顏色的信息
 info() {
     echo -e "${BLUE}[INFO]${NC} $1"
 }
@@ -63,7 +63,7 @@ header() {
     echo ""
 }
 
-# 检查Python环境
+# 檢查Python環境
 check_python() {
     if ! command -v python3 &> /dev/null; then
         error "Python3 未安装"
@@ -72,7 +72,7 @@ check_python() {
     info "Python版本: $(python3 --version)"
 }
 
-# 检查依赖
+# 檢查依賴
 check_deps() {
     info "检查依赖..."
     python3 -c "import yfinance" 2>/dev/null || { warn "yfinance 未安装，美股测试可能失败"; }
@@ -80,9 +80,9 @@ check_deps() {
     success "依赖检查完成"
 }
 
-# ==================== 测试场景 ====================
+# ==================== 測試場景 ====================
 
-# 测试1: 大盘复盘
+# 測試1: 大盤覆盤
 test_market() {
     header "测试场景: 大盘复盘"
     info "运行大盘复盘分析..."
@@ -90,7 +90,7 @@ test_market() {
     success "大盘复盘测试完成"
 }
 
-# 测试2: A股分析
+# 測試2: A股分析
 test_a_stock() {
     header "测试场景: A股分析"
     info "分析A股: 600519(茅台), 000001(平安银行)"
@@ -98,7 +98,7 @@ test_a_stock() {
     success "A股分析测试完成"
 }
 
-# 测试2.5: ETF分析
+# 測試2.5: ETF分析
 test_etf() {
     header "测试场景: ETF分析"
     info "分析ETF: 563230(卫星ETF)"
@@ -106,7 +106,7 @@ test_etf() {
     success "ETF分析测试完成"
 }
 
-# 测试3: 港股分析
+# 測試3: 港股分析
 test_hk_stock() {
     header "测试场景: 港股分析"
     info "分析港股: hk00700(腾讯), hk09988(阿里)"
@@ -114,16 +114,16 @@ test_hk_stock() {
     success "港股分析测试完成"
 }
 
-# 测试4: 美股分析
+# 測試4: 美股分析
 test_us_stock() {
     header "测试场景: 美股分析"
     info "分析美股: AAPL(苹果), TSLA(特斯拉)"
-    # 允许透传参数，默认不带 --no-notify
+    # 允許透傳參數，默認不帶 --no-notify
     python3 main.py --stocks AAPL --no-market-review "$@"
     success "美股分析测试完成"
 }
 
-# 测试5: 混合市场
+# 測試5: 混合市場
 test_mixed() {
     header "测试场景: 混合市场分析"
     info "分析混合市场: 600519(A股), hk00700(港股), AAPL(美股)"
@@ -131,7 +131,7 @@ test_mixed() {
     success "混合市场测试完成"
 }
 
-# 测试6: 单股推送模式
+# 測試6: 單股推送模式
 test_single() {
     header "测试场景: 单股推送模式"
     info "测试单股推送模式..."
@@ -139,7 +139,7 @@ test_single() {
     success "单股推送模式测试完成"
 }
 
-# 测试7: dry-run模式
+# 測試7: dry-run模式
 test_dry_run() {
     header "测试场景: Dry-Run 模式"
     info "仅获取数据，不进行AI分析..."
@@ -147,7 +147,7 @@ test_dry_run() {
     success "Dry-Run 测试完成"
 }
 
-# 测试8: 完整流程
+# 測試8: 完整流程
 test_full() {
     header "测试场景: 完整流程"
     info "运行完整分析流程（个股+大盘）..."
@@ -155,7 +155,7 @@ test_full() {
     success "完整流程测试完成"
 }
 
-# 测试9: 快速测试
+# 測試9: 快速測試
 test_quick() {
     header "测试场景: 快速测试"
     info "单只股票快速测试..."
@@ -163,7 +163,7 @@ test_quick() {
     success "快速测试完成"
 }
 
-# 测试10: 代码识别测试
+# 測試10: 代碼識別測試
 test_code_recognition() {
     header "测试场景: 代码识别"
     info "测试股票代码识别逻辑..."
@@ -174,7 +174,7 @@ sys.path.insert(0, '.')
 from data_provider.akshare_fetcher import _is_hk_code, _is_us_code
 
 test_cases = [
-    # (代码, 预期HK, 预期US, 描述)
+    # (代碼, 預期HK, 預期US, 描述)
     ("AAPL", False, True, "美股-苹果"),
     ("TSLA", False, True, "美股-特斯拉"),
     ("BRK.B", False, True, "美股-伯克希尔B"),
@@ -204,7 +204,7 @@ PYTEST
     success "代码识别测试完成"
 }
 
-# 测试11: YFinance代码转换测试
+# 測試11: YFinance代碼轉換測試
 test_yfinance_convert() {
     header "测试场景: YFinance 代码转换"
     info "测试YFinance代码转换逻辑..."
@@ -244,7 +244,7 @@ PYTEST
     success "YFinance 代码转换测试完成"
 }
 
-# 测试12: 语法检查
+# 測試12: 語法檢查
 test_syntax() {
     header "测试场景: Python 语法检查"
     info "检查所有Python文件语法..."
@@ -257,7 +257,7 @@ test_syntax() {
     success "语法检查通过"
 }
 
-# 测试13: Flake8 静态检查
+# 測試13: Flake8 靜態檢查
 test_flake8() {
     header "测试场景: Flake8 静态检查"
     info "运行 Flake8 检查严重错误..."
@@ -270,7 +270,7 @@ test_flake8() {
     fi
 }
 
-# 运行所有测试
+# 運行所有測試
 test_all() {
     header "运行所有测试"
 
@@ -359,30 +359,30 @@ main() {
             test_all "$@"
             ;;
         help|--help|-h|*)
-            echo "使用方法: $0 [测试场景]"
+            echo "使用方法: $0 [測試場景]"
             echo ""
-            echo "测试场景:"
-            echo "  market      - 仅大盘复盘"
-            echo "  a-stock     - A股个股分析"
+            echo "測試場景:"
+            echo "  market      - 僅大盤覆盤"
+            echo "  a-stock     - A股個股分析"
             echo "  etf         - ETF分析"
             echo "  hk-stock    - 港股分析"
             echo "  us-stock    - 美股分析"
-            echo "  mixed       - 混合市场分析"
-            echo "  single      - 单股推送模式"
-            echo "  dry-run     - 仅获取数据"
+            echo "  mixed       - 混合市場分析"
+            echo "  single      - 單股推送模式"
+            echo "  dry-run     - 僅獲取數據"
             echo "  full        - 完整流程"
-            echo "  quick       - 快速测试（推荐）"
-            echo "  code        - 代码识别测试"
-            echo "  yfinance    - YFinance转换测试"
-            echo "  syntax      - 语法检查"
-            echo "  flake8      - 静态检查"
-            echo "  all         - 运行所有测试"
+            echo "  quick       - 快速測試（推薦）"
+            echo "  code        - 代碼識別測試"
+            echo "  yfinance    - YFinance轉換測試"
+            echo "  syntax      - 語法檢查"
+            echo "  flake8      - 靜態檢查"
+            echo "  all         - 運行所有測試"
             echo ""
             echo "示例:"
-            echo "  $0 quick     # 快速测试"
-            echo "  $0 us-stock  # 测试美股"
-            echo "  $0 code      # 测试代码识别"
-            echo "  $0 all       # 运行所有测试"
+            echo "  $0 quick     # 快速測試"
+            echo "  $0 us-stock  # 測試美股"
+            echo "  $0 code      # 測試代碼識別"
+            echo "  $0 all       # 運行所有測試"
             ;;
     esac
 }

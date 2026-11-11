@@ -55,7 +55,7 @@ router = APIRouter(dependencies=[Security(admin_session_cookie)])
 AUTH_RESPONSE = {
     401: {
         "model": ErrorResponse,
-        "description": "未登录或管理员会话无效（ADMIN_AUTH_ENABLED=true 时）",
+        "description": "未登錄或管理員會話無效（ADMIN_AUTH_ENABLED=true 時）",
     },
 }
 
@@ -104,17 +104,17 @@ def _guardrail_blocked(exc: DecisionSignalReassessGuardrailBlockedError) -> HTTP
     response_model=DecisionSignalMutationResponse,
     responses={
         **AUTH_RESPONSE,
-        400: {"model": ErrorResponse, "description": "请求字段非法"},
-        422: {"model": ErrorResponse, "description": "请求体或路径参数校验失败"},
-        500: {"model": ErrorResponse, "description": "创建失败"},
+        400: {"model": ErrorResponse, "description": "請求字段非法"},
+        422: {"model": ErrorResponse, "description": "請求體或路徑參數校驗失敗"},
+        500: {"model": ErrorResponse, "description": "創建失敗"},
     },
-    summary="创建或去重决策信号",
+    summary="創建或去重決策信號",
     description=(
-        "显式写入 DecisionSignal。未传 horizon/expires_at 时由服务补默认生命周期；"
-        "命中同源去重键或窄 relaxed 去重时返回已有记录和 created=false；"
-        "active 新建或 expired 续期会失效同股旧 active 相反信号，"
-        "active duplicate retry 也会重跑该修复；普通旧 duplicate/replay 不作为新的激活事件；"
-        "不保证并发绝对幂等。"
+        "顯式寫入 DecisionSignal。未傳 horizon/expires_at 時由服務補默認生命週期；"
+        "命中同源去重鍵或窄 relaxed 去重時返回已有記錄和 created=false；"
+        "active 新建或 expired 續期會失效同股舊 active 相反信號，"
+        "active duplicate retry 也會重跑該修復；普通舊 duplicate/replay 不作為新的激活事件；"
+        "不保證併發絕對冪等。"
     ),
     operation_id="createDecisionSignal",
 )
@@ -213,15 +213,15 @@ def list_signals(
     response_model=DecisionSignalOutcomeRunResponse,
     responses={
         **AUTH_RESPONSE,
-        400: {"model": ErrorResponse, "description": "请求字段非法"},
+        400: {"model": ErrorResponse, "description": "請求字段非法"},
         404: {"model": ErrorResponse, "description": "信号不存在"},
-        422: {"model": ErrorResponse, "description": "请求体校验失败"},
-        500: {"model": ErrorResponse, "description": "后验计算失败"},
+        422: {"model": ErrorResponse, "description": "請求體校驗失敗"},
+        500: {"model": ErrorResponse, "description": "後驗計算失敗"},
     },
-    summary="触发决策信号后验评估",
+    summary="觸發決策信號後驗評估",
     description=(
-        "显式触发 signal-level outcome 计算；默认跳过 completed 和终态 unable，"
-        "但会重算缺少行情数据等可恢复 unable；force=true 会重算并覆盖同一 "
+        "顯式觸發 signal-level outcome 計算；默認跳過 completed 和終態 unable，"
+        "但會重算缺少行情數據等可恢復 unable；force=true 會重算並覆蓋同一 "
         "signal_id+horizon+engine_version。"
     ),
     operation_id="runDecisionSignalOutcomes",
@@ -359,15 +359,15 @@ def get_stock_review(
     response_model=DecisionSignalReassessResponse,
     responses={
         **AUTH_RESPONSE,
-        400: {"model": DecisionSignalReassessErrorResponse, "description": "历史报告不适用或持久化被风控阻断"},
-        404: {"model": ErrorResponse, "description": "来源历史报告不存在"},
-        422: {"model": ErrorResponse, "description": "请求体校验失败"},
-        500: {"model": ErrorResponse, "description": "重评估失败"},
+        400: {"model": DecisionSignalReassessErrorResponse, "description": "歷史報告不適用或持久化被風控阻斷"},
+        404: {"model": ErrorResponse, "description": "來源歷史報告不存在"},
+        422: {"model": ErrorResponse, "description": "請求體校驗失敗"},
+        500: {"model": ErrorResponse, "description": "重評估失敗"},
     },
-    summary="重评估决策风格并可选保存",
+    summary="重評估決策風格並可選保存",
     description=(
-        "基于 source_report_id 对应的持久化历史报告快照重新计算 decision_profile 信号；"
-        "persist=false 返回只读 preview，persist=true 将通过 guardrail 的服务端结果写入 DecisionSignal。"
+        "基於 source_report_id 對應的持久化歷史報告快照重新計算 decision_profile 信號；"
+        "persist=false 返回只讀 preview，persist=true 將通過 guardrail 的服務端結果寫入 DecisionSignal。"
     ),
     operation_id="reassessDecisionSignalPreview",
 )
@@ -504,13 +504,13 @@ def get_feedback(signal_id: int) -> DecisionSignalFeedbackItem:
     response_model=DecisionSignalFeedbackItem,
     responses={
         **AUTH_RESPONSE,
-        400: {"model": ErrorResponse, "description": "请求字段非法"},
+        400: {"model": ErrorResponse, "description": "請求字段非法"},
         404: {"model": ErrorResponse, "description": "信号不存在"},
-        422: {"model": ErrorResponse, "description": "请求体或路径参数校验失败"},
-        500: {"model": ErrorResponse, "description": "更新失败"},
+        422: {"model": ErrorResponse, "description": "請求體或路徑參數校驗失敗"},
+        500: {"model": ErrorResponse, "description": "更新失敗"},
     },
-    summary="写入决策信号用户反馈",
-    description="按 signal_id upsert 最新 useful/not_useful 反馈。",
+    summary="寫入決策信號用户反饋",
+    description="按 signal_id upsert 最新 useful/not_useful 反饋。",
     operation_id="putDecisionSignalFeedback",
 )
 def put_feedback(signal_id: int, request: DecisionSignalFeedbackRequest) -> DecisionSignalFeedbackItem:
@@ -538,16 +538,16 @@ def put_feedback(signal_id: int, request: DecisionSignalFeedbackRequest) -> Deci
     response_model=DecisionSignalItem,
     responses={
         **AUTH_RESPONSE,
-        400: {"model": ErrorResponse, "description": "状态非法"},
+        400: {"model": ErrorResponse, "description": "狀態非法"},
         404: {"model": ErrorResponse, "description": "信号不存在"},
-        422: {"model": ErrorResponse, "description": "请求体或路径参数校验失败"},
-        500: {"model": ErrorResponse, "description": "更新失败"},
+        422: {"model": ErrorResponse, "description": "請求體或路徑參數校驗失敗"},
+        500: {"model": ErrorResponse, "description": "更新失敗"},
     },
-    summary="更新决策信号状态",
+    summary="更新決策信號狀態",
     description=(
-        "只更新合法状态和可选 metadata；省略 metadata 时保留原值，null 时清空，"
-        "object 时按整包替换并保持正式 decision_profile 身份。"
-        "expired/invalidated/closed/archived 等 terminal 状态不能直接 PATCH 回 active。"
+        "只更新合法狀態和可選 metadata；省略 metadata 時保留原值，null 時清空，"
+        "object 時按整包替換並保持正式 decision_profile 身份。"
+        "expired/invalidated/closed/archived 等 terminal 狀態不能直接 PATCH 回 active。"
     ),
     operation_id="updateDecisionSignalStatus",
 )

@@ -39,12 +39,12 @@ class TestTwCurrencyLabel(unittest.TestCase):
     def test_twd_amount_labeled_new_taiwan_dollar_not_rmb(self):
         twd = NotificationService._format_amount_cn(1_134_103_440_000.0, "TWD")
         cny = NotificationService._format_amount_cn(1_134_103_440_000.0, "CNY")
-        self.assertIn("新台币", twd)
-        self.assertNotIn("新台币", cny)
+        self.assertIn("新臺幣", twd)
+        self.assertNotIn("新臺幣", cny)
         self.assertNotEqual(twd, cny)  # a TWD amount must not be byte-identical to CNY
 
     def test_twd_per_share_labeled(self):
-        self.assertIn("新台币", NotificationService._format_per_share(24.0, "TWD"))
+        self.assertIn("新臺幣", NotificationService._format_per_share(24.0, "TWD"))
 
     def test_other_currencies_byte_identical(self):
         # strictly additive: cn / us / hk display unchanged
@@ -67,11 +67,11 @@ class TestTwInstitutionRender(unittest.TestCase):
 
     def test_institution_rendered_when_ok(self):
         out = self._render("ok", dict(_INST_REC))
-        self.assertIn("三大法人动向", out)
+        self.assertIn("三大法人動向", out)
         for token in ("外资", "投信", "自营商", "三大法人合计", "TWSE-T86", "20260630"):
             self.assertIn(token, out)
-        self.assertIn("-191.25 万股", out)   # foreign_net -1,912,490
-        self.assertIn("+65.25 万股", out)    # dealer_net +652,455 (net buy shows +)
+        self.assertIn("-191.25 萬股", out)   # foreign_net -1,912,490
+        self.assertIn("+65.25 萬股", out)    # dealer_net +652,455 (net buy shows +)
 
     def test_institution_not_rendered_when_not_supported(self):
         self.assertEqual(self._render("not_supported", {}), "")
@@ -100,10 +100,10 @@ class TestTwInstitutionRender(unittest.TestCase):
         self.assertIsNone(blocks2["institution_status"])
 
     def test_format_net_shares_signed(self):
-        self.assertEqual(NotificationService._format_net_shares(-1912490), "-191.25 万股")
-        self.assertEqual(NotificationService._format_net_shares(652455), "+65.25 万股")
+        self.assertEqual(NotificationService._format_net_shares(-1912490), "-191.25 萬股")
+        self.assertEqual(NotificationService._format_net_shares(652455), "+65.25 萬股")
         self.assertEqual(NotificationService._format_net_shares(0), "0 股")
-        self.assertEqual(NotificationService._format_net_shares(250000000), "+2.50 亿股")
+        self.assertEqual(NotificationService._format_net_shares(250000000), "+2.50 億股")
         self.assertEqual(NotificationService._format_net_shares(None), "N/A")
 
 
@@ -124,7 +124,7 @@ class TestTwInstitutionPrompt(unittest.TestCase):
 
     def test_institution_injected_when_ok(self):
         p = self._prompt({"institution": {"status": "ok", "data": dict(_INST_REC)}})
-        self.assertIn("三大法人动向", p)
+        self.assertIn("三大法人動向", p)
         for token in ("外资", "投信", "自营商", "筹码过滤器"):
             self.assertIn(token, p)
         self.assertIn("-1912490", p)   # raw foreign_net reaches the prompt
@@ -132,7 +132,7 @@ class TestTwInstitutionPrompt(unittest.TestCase):
 
     def test_institution_absent_when_not_supported(self):
         p = self._prompt({"institution": {"status": "not_supported", "data": {}}})
-        self.assertNotIn("三大法人动向", p)
+        self.assertNotIn("三大法人動向", p)
 
     def test_institution_absent_when_any_core_net_missing(self):
         # prompt gate matches the render / base.py gate: ALL four core nets required,
@@ -144,7 +144,7 @@ class TestTwInstitutionPrompt(unittest.TestCase):
         )
         for data in partials:
             p = self._prompt({"institution": {"status": "ok", "data": data}})
-            self.assertNotIn("三大法人动向", p, data)
+            self.assertNotIn("三大法人動向", p, data)
 
 
 if __name__ == "__main__":

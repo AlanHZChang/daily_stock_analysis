@@ -73,29 +73,29 @@ for (const state of ['complete', 'missing-price', 'snapshot-error', 'invalid-top
       await route.fulfill({ json });
     });
     await page.goto('/portfolio');
-    const dashboard = page.locator('section').filter({ has: page.getByText('风险与暴露看板', { exact: true }) });
+    const dashboard = page.locator('section').filter({ has: page.getByText('风险與暴露看板', { exact: true }) });
     await expect(dashboard).toBeVisible();
-    await expect(page.getByRole('button', { name: '刷新数据', exact: true })).toBeVisible();
+    await expect(page.getByRole('button', { name: '刷新數據', exact: true })).toBeVisible();
     if (state === 'snapshot-error') {
-      await expect(dashboard.getByText('总市值: --')).toBeVisible();
-      await expect(dashboard.getByText('持仓: --')).toBeVisible();
-      await expect(page.getByText('共 -- 项')).toBeVisible();
-      await expect(page.getByText('账户数: --')).toBeVisible();
+      await expect(dashboard.getByText('總市值: --')).toBeVisible();
+      await expect(dashboard.getByText('持倉: --')).toBeVisible();
+      await expect(page.getByText('共 -- 項')).toBeVisible();
+      await expect(page.getByText('賬戶數: --')).toBeVisible();
       await expect(page.getByText('最新', { exact: true })).toHaveCount(0);
-      await expect(page.getByText('持仓快照不可用', { exact: true })).toBeVisible();
+      await expect(page.getByText('持倉快照不可用', { exact: true })).toBeVisible();
     }
     if (state === 'empty') {
-      await expect(dashboard.getByText('总市值: CNY 0.00')).toBeVisible();
-      await expect(dashboard.getByText('持仓: 0')).toBeVisible();
-      await expect(dashboard.getByText('暂无暴露数据')).toHaveCount(2);
-      await expect(page.getByText('当前无持仓数据', { exact: true })).toBeVisible();
+      await expect(dashboard.getByText('總市值: CNY 0.00')).toBeVisible();
+      await expect(dashboard.getByText('持倉: 0')).toBeVisible();
+      await expect(dashboard.getByText('暫無暴露數據')).toHaveCount(2);
+      await expect(page.getByText('當前無持倉數據', { exact: true })).toBeVisible();
     }
     if (state === 'rounded-tail') {
       await expect(dashboard.getByText('Top1: 600519')).toBeVisible();
       await expect(dashboard.getByText('Top1: 白酒')).toBeVisible();
       await expect(dashboard.getByText('100.00%')).toHaveCount(4);
       await expect(page.locator('.recharts-pie-sector')).toHaveCount(1);
-      await expect(page.getByText('暂无集中度数据', { exact: true })).toHaveCount(0);
+      await expect(page.getByText('暫無集中度數據', { exact: true })).toHaveCount(0);
     }
     if (state === 'complete') {
       await expect(dashboard.getByText('Top1: 600519')).toBeVisible();
@@ -103,12 +103,12 @@ for (const state of ['complete', 'missing-price', 'snapshot-error', 'invalid-top
     }
     if (state === 'invalid-top') {
       await expect(dashboard.getByText('Top1: AAPL')).toHaveCount(0);
-      await expect(page.getByText('暂无集中度数据', { exact: true })).toBeVisible();
+      await expect(page.getByText('暫無集中度數據', { exact: true })).toBeVisible();
     }
     if (state === 'invalid-sector') {
       await expect(dashboard.getByText('Top1: 白酒')).toHaveCount(0);
       await expect(dashboard.getByText('Top1: 600519')).toBeVisible();
-      await expect(page.getByText('行业数据暂不可用，当前展示个股集中度', { exact: true })).toBeVisible();
+      await expect(page.getByText('行业數據暫不可用，當前展示個股集中度', { exact: true })).toBeVisible();
     }
     if (state === 'missing-price') await expect(dashboard.getByText('暴露不可用')).toHaveCount(2);
     for (const viewport of [{ width: 1440, height: 1000 }, { width: 390, height: 844 }]) {

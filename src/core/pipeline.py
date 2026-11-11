@@ -1597,7 +1597,7 @@ class StockAnalysisPipeline:
             if report_language in ("en", "ko"):
                 message = f"Analyze stock {code} ({stock_name}) and return the full decision dashboard JSON."
             else:
-                message = f"请分析股票 {code} ({stock_name})，並生成決策儀表盤報告。"
+                message = f"請分析股票 {code} ({stock_name})，並生成決策儀表盤報告。"
             llm_started_at = time.monotonic()
             # Agent 自己調用搜索工具取證，所以披露計數只能來自這些工具的真實返回；
             # 分析結束後補打的 search_stock_news() 與 Agent 消費的證據無關。
@@ -1856,7 +1856,7 @@ class StockAnalysisPipeline:
                             response=news_response,
                             query_context=query_context
                         )
-                        logger.info(f"[{code}] Agent 模式: 新聞情報已保存 {len(news_response.results)} 条")
+                        logger.info(f"[{code}] Agent 模式: 新聞情報已保存 {len(news_response.results)} 條")
                 except Exception as e:
                     logger.warning(f"[{code}] Agent 模式保存新聞情報失敗: {e}")
 

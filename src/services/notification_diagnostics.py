@@ -581,7 +581,7 @@ def format_notification_diagnostics(result: NotificationDiagnosticResult) -> str
 
     lines = [
         "通知配置诊断",
-        f"已配置渠道: {len(result.configured_channels)} 个",
+        f"已配置渠道: {len(result.configured_channels)} 個",
     ]
     if result.configured_channels:
         channel_names = [

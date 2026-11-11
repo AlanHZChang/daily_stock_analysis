@@ -60,7 +60,7 @@ class TestBareHKCodeRoutesToHK:
     """
 
     def test_bare_5digit_new_listing(self) -> None:
-        # 智谱 02513 — the exact case from issue #2091
+        # 智譜 02513 — the exact case from issue #2091
         assert YfinanceFetcher()._convert_stock_code("02513") == "2513.HK"
 
     def test_bare_5digit_tencent(self) -> None:
@@ -71,11 +71,11 @@ class TestBareHKCodeRoutesToHK:
         assert YfinanceFetcher()._convert_stock_code("09988") == "9988.HK"
 
     def test_bare_4digit_legacy_hk(self) -> None:
-        # 长江和记 0001 — 4-digit legacy HK code (per maintainer note)
+        # 長江和記 0001 — 4-digit legacy HK code (per maintainer note)
         assert YfinanceFetcher()._convert_stock_code("0001") == "0001.HK"
 
     def test_bare_4digitmobile_carrier(self) -> None:
-        # 中国移动 0941 — 4-digit HK code from issue context
+        # 中國移動 0941 — 4-digit HK code from issue context
         assert YfinanceFetcher()._convert_stock_code("0941") == "0941.HK"
 
 

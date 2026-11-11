@@ -152,7 +152,7 @@ LEGACY_DEFAULT_AGENT_SYSTEM_PROMPT = """你是一位專注於趨勢交易的{mar
         }},
         "signal_attribution": {{
             "technical_indicators": 技術指標貢獻度(0-100；有效非零貢獻度之和應為100；全零表示無有效信號),
-            "news_sentiment": 新聞輿情貢獻度(0-100；有效非零貢獻度之和應為100；全零表示無有效信號),
+            "news_sentiment": 新闻輿情貢獻度(0-100；有效非零貢獻度之和應為100；全零表示無有效信號),
             "fundamentals": 基本面貢獻度(0-100；有效非零貢獻度之和應為100；全零表示無有效信號),
             "market_conditions": 市場環境貢獻度(0-100；有效非零貢獻度之和應為100；全零表示無有效信號),
             "strongest_bullish_signal": "最強看多信號名稱",
@@ -221,7 +221,7 @@ LEGACY_DEFAULT_AGENT_SYSTEM_PROMPT = """你是一位專注於趨勢交易的{mar
 - 只有在接近支撐確認或有效突破壓力，且資金流/量價配合時，才能給出買入；接近壓力且資金流出時不得追買。
 - 只有在跌破關鍵支撐、主力資金持續流出或風險顯著放大時，才能給出賣出/減倉。
 - 必須輸出 `dashboard.phase_decision` 七字段；盤中/午休/臨近收盤要給出當前動作、觀察條件和下一次檢查點。
-- 建議輸出可選展示字段 `dashboard.signal_attribution` 六字段；解釋推薦理由的構成，包括技術指標、新聞輿情、基本面、市場環境的貢獻度，以及最強看多/看空信號。
+- 建議輸出可選展示字段 `dashboard.signal_attribution` 六字段；解釋推薦理由的構成，包括技術指標、新闻輿情、基本面、市場環境的貢獻度，以及最強看多/看空信號。
 - 盤前、非交易日或未知階段不得偽造今日盤中走勢；quote/daily_bars/technical 存在 stale、fallback、missing、fetch_failed、partial 或 estimated 時，`confidence_level` 不得為高。
 
 {language_section}
@@ -311,7 +311,7 @@ AGENT_SYSTEM_PROMPT = """你是一位{market_role}投資分析 Agent，擁有數
         }},
         "signal_attribution": {{
             "technical_indicators": 技術指標貢獻度(0-100；有效非零貢獻度之和應為100；全零表示無有效信號),
-            "news_sentiment": 新聞輿情貢獻度(0-100；有效非零貢獻度之和應為100；全零表示無有效信號),
+            "news_sentiment": 新闻輿情貢獻度(0-100；有效非零貢獻度之和應為100；全零表示無有效信號),
             "fundamentals": 基本面貢獻度(0-100；有效非零貢獻度之和應為100；全零表示無有效信號),
             "market_conditions": 市場環境貢獻度(0-100；有效非零貢獻度之和應為100；全零表示無有效信號),
             "strongest_bullish_signal": "最強看多信號名稱",
@@ -377,7 +377,7 @@ AGENT_SYSTEM_PROMPT = """你是一位{market_role}投資分析 Agent，擁有數
 - 只有在接近支撐確認或有效突破壓力，且資金流/量價配合時，才能給出買入；接近壓力且資金流出時不得追買。
 - 只有在跌破關鍵支撐、主力資金持續流出或風險顯著放大時，才能給出賣出/減倉。
 - 必須輸出 `dashboard.phase_decision` 七字段；盤中/午休/臨近收盤要給出當前動作、觀察條件和下一次檢查點。
-- 建議輸出可選展示字段 `dashboard.signal_attribution` 六字段；解釋推薦理由的構成，包括技術指標、新聞輿情、基本面、市場環境的貢獻度，以及最強看多/看空信號。
+- 建議輸出可選展示字段 `dashboard.signal_attribution` 六字段；解釋推薦理由的構成，包括技術指標、新闻輿情、基本面、市場環境的貢獻度，以及最強看多/看空信號。
 - 盤前、非交易日或未知階段不得偽造今日盤中走勢；quote/daily_bars/technical 存在 stale、fallback、missing、fetch_failed、partial 或 estimated 時，`confidence_level` 不得為高。
 
 {language_section}
@@ -578,7 +578,7 @@ def prepare_agent_chat(
         if effective_context.get("stock_code"):
             context_parts.append(f"股票代碼: {effective_context['stock_code']}")
         if effective_context.get("stock_name"):
-            context_parts.append(f"股票名称: {effective_context['stock_name']}")
+            context_parts.append(f"股票名稱: {effective_context['stock_name']}")
         if effective_context.get("previous_price"):
             context_parts.append(f"上次分析價格: {effective_context['previous_price']}")
         if effective_context.get("previous_change_pct"):

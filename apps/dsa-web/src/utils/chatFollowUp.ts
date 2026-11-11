@@ -107,7 +107,7 @@ export function parseFollowUpRecordId(recordId: string | null): number | undefin
 
 export function buildFollowUpPrompt(stockCode: string, stockName: string | null): string {
   const displayName = stockName ? `${stockName}(${stockCode})` : stockCode;
-  return `请深入分析 ${displayName}`;
+  return `請深入分析 ${displayName}`;
 }
 
 function reportIdentityKey(code: string, index: ReadonlyArray<RegisteredIndexIdentity>, type?: 'stock' | 'index'): string | null {

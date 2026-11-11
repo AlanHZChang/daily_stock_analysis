@@ -12,7 +12,7 @@ import { getReportText, normalizeReportLanguage } from '../../utils/reportLangua
 interface ReportSummaryProps {
   data: AnalysisResult | AnalysisReport;
   isHistory?: boolean;
-  /** 自选相关 */
+  /** 自選相關 */
   watchlist?: {
     isInWatchlist: (code: string) => boolean;
     onToggle: (code: string) => void;
@@ -23,8 +23,8 @@ interface ReportSummaryProps {
 }
 
 /**
- * 完整报告展示组件
- * 按主体内容优先、透明度信息后置的顺序展示报告。
+ * 完整報告展示組件
+ * 按主體內容優先、透明度信息後置的順序展示報告。
  */
 export const ReportSummary: React.FC<ReportSummaryProps> = ({
   data,
@@ -32,9 +32,9 @@ export const ReportSummary: React.FC<ReportSummaryProps> = ({
   watchlist,
   onOpenRunFlow,
 }) => {
-  // 兼容 AnalysisResult 和 AnalysisReport 两种数据格式
+  // 兼容 AnalysisResult 和 AnalysisReport 兩種數據格式
   const report: AnalysisReport = 'report' in data ? data.report : data;
-  // 使用 report id，因为 queryId 在批量分析时可能重复，且历史报告详情接口需要 recordId 来获取关联资讯和详情数据
+  // 使用 report id，因為 queryId 在批量分析時可能重複，且歷史報告詳情接口需要 recordId 來獲取關聯資訊和詳情數據
   const recordId = report.meta.id;
   const diagnosticSummary = 'diagnosticSummary' in data ? data.diagnosticSummary : undefined;
 

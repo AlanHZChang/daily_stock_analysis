@@ -21,7 +21,7 @@ from src.utils.data_processing import normalize_model_used, parse_json_field
 
 _LANES = [
     {"id": "entry", "label": "入口", "order": 1},
-    {"id": "data_source", "label": "数据来源", "order": 2},
+    {"id": "data_source", "label": "數據來源", "order": 2},
     {"id": "analysis", "label": "分析引擎", "order": 3},
     {"id": "artifact", "label": "產物", "order": 4},
 ]
@@ -1161,7 +1161,7 @@ def _context_block_message(block: Dict[str, Any]) -> str:
 def _provider_run_message(label: str, provider: str, run: Dict[str, Any], *, success: bool) -> str:
     if success:
         record_count = _safe_int(run.get("record_count"))
-        suffix = f"，返回 {record_count} 条" if record_count is not None else ""
+        suffix = f"，返回 {record_count} 條" if record_count is not None else ""
         return f"{label} {provider} 成功{suffix}"
     error = _safe_text(run.get("error_message_sanitized") or run.get("error_type"), max_length=160)
     return f"{label} {provider} 失敗：{error or '未知错误'}"

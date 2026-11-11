@@ -48,8 +48,8 @@ function renderHighlightedLine(line: string): React.ReactNode[] {
 }
 
 /**
- * JSON 结构化展示组件
- * 支持语法高亮和折叠
+ * JSON 結構化展示組件
+ * 支持語法高亮和摺疊
  */
 export const JsonViewer: React.FC<JsonViewerProps> = ({
   data,

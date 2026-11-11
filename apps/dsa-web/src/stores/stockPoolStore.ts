@@ -950,7 +950,7 @@ export const useStockPoolStore = create<StockPoolState>((set, get) => ({
 
       if (error instanceof DuplicateTaskError) {
         set({
-          duplicateError: `股票 ${error.stockCode} 正在分析中，请等待完成`,
+          duplicateError: `股票 ${error.stockCode} 正在分析中，請等待完成`,
         });
         return;
       }

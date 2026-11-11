@@ -206,7 +206,7 @@ class TestAnalyzerSchemaFallback(unittest.TestCase):
         })
         result = analyzer._parse_response(response, "600519", "股票600519")
         self.assertEqual(result.dashboard["decision_stability"]["applied"], True)
-        self.assertEqual(result.dashboard["decision_stability"]["reason"], "回测验证")
+        self.assertEqual(result.dashboard["decision_stability"]["reason"], "回測驗證")
 
     def test_parse_response_repairs_single_json_candidate(self) -> None:
         analyzer = GeminiAnalyzer()

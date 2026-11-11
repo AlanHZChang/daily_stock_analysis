@@ -15,7 +15,7 @@ const report: AnalysisReport = {
     createdAt: '2026-03-20T08:00:00Z',
   },
   summary: {
-    analysisSummary: '等待确认',
+    analysisSummary: '等待確認',
     operationAdvice: '买入',
     action: 'avoid',
     actionLabel: '回避',

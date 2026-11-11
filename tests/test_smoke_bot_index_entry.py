@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Offline contract tests for the Bot 指数入口 online E2E smoke runner
+"""Offline contract tests for the Bot 指數入口 online E2E smoke runner
 (``scripts/smoke_bot_index_entry.py``).
 
 Covers, without touching the network or spawning real children:
@@ -299,9 +299,9 @@ class TestParentSpawn(unittest.TestCase):
 
         killed = []
         buf = io.StringIO()
-        # 第一次 monotonic 调用计算 deadline；后续调用（轮询循环内）必须越过
-        # deadline。用单调递增序列而非固定两项列表，容忍实现中任何无害的
-        # 额外 ``time.monotonic()`` 调用。
+        # 第一次 monotonic 調用計算 deadline；後續調用（輪詢循環內）必須越過
+        # deadline。用單調遞增序列而非固定兩項列表，容忍實現中任何無害的
+        # 額外 ``time.monotonic()`` 調用。
         monotonic_values = iter([1000.0, 1061.0, 1062.0, 1063.0])
         with patch.object(
             subprocess, "Popen", side_effect=_NeverEndingProc
@@ -688,10 +688,10 @@ class TestWorkerCodeMismatch(unittest.TestCase):
         self.assertIn("submitted code mismatch", payload["error"])
         self.assertIn("expected 'sh000016'", payload["error"])
         self.assertIn("got 'csi930955'", payload["error"])
-        # 结构化 ``stock_code`` 携带实际提交的 code（与 error 中的实际值一致）。
+        # 結構化 ``stock_code`` 攜帶實際提交的 code（與 error 中的實際值一致）。
         self.assertEqual(payload["stock_code"], "csi930955")
-        # 不是成功响应文本。
-        self.assertNotIn("分析任务已提交", payload["error"])
+        # 不是成功響應文本。
+        self.assertNotIn("分析任務已提交", payload["error"])
 
     def test_code_mismatch_with_missing_stock_code_emits_null_structured_code(self):
         """When the response has a task id but no ``extra.stock_code``, the
@@ -754,7 +754,7 @@ class TestWorkerSuccessPath(unittest.TestCase):
             def get_task_status(self, task_id):
                 self.polls += 1
                 if self.polls == 1:
-                    return None  # 空初始状态：等待
+                    return None  # 空初始狀態：等待
                 return {
                     "status": "completed",
                     "code": "sh000016",
@@ -802,7 +802,7 @@ class TestWorkerSuccessPath(unittest.TestCase):
             if line.startswith("E2E_EVENT ")
         ]
         self.assertEqual([e["phase"] for e in events], ["failed"])
-        self.assertIn("提交分析任务失败", events[0]["error"])
+        self.assertIn("提交分析任務失敗", events[0]["error"])
 
 
 class TestWorkerExceptionContract(unittest.TestCase):
@@ -1129,7 +1129,7 @@ class TestPollOnce(unittest.TestCase):
             "sh000016",
         )
         self.assertEqual(event["phase"], "failed")
-        self.assertIn("数据源不可用", event.get("error", ""))
+        self.assertIn("數據源不可用", event.get("error", ""))
 
     def test_completed_but_incomplete_result_emits_failed_event(self):
         event = smoke._poll_once(

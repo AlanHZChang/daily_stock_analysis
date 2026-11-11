@@ -38,7 +38,7 @@ export class SystemConfigValidationError extends Error {
     this.name = 'SystemConfigValidationError';
     this.issues = issues;
     this.parsedError = parsedError ?? createParsedApiError({
-      title: '配置校验失败',
+      title: '配置校驗失敗',
       message,
       rawMessage: message,
       status: 400,
@@ -56,7 +56,7 @@ export class SystemConfigConflictError extends Error {
     this.name = 'SystemConfigConflictError';
     this.currentConfigVersion = currentConfigVersion;
     this.parsedError = parsedError ?? createParsedApiError({
-      title: '配置版本冲突',
+      title: '配置版本衝突',
       message,
       rawMessage: message,
       status: 409,
@@ -121,7 +121,7 @@ function toSnakeNotificationTestPayload(payload: TestNotificationChannelRequest)
     })),
     mask_token: payload.maskToken ?? '******',
     title: payload.title ?? 'DSA 通知测试',
-    content: payload.content ?? '这是一条来自 DSA Web 设置页的通知测试消息。',
+    content: payload.content ?? '這是一條來自 DSA Web 設置頁的通知测试消息。',
     timeout_seconds: payload.timeoutSeconds ?? 20,
   };
 }
@@ -318,7 +318,7 @@ export const systemConfigApi = {
         if (status === 400) {
           const validationError = toCamelCase<SystemConfigValidationErrorResponse>(payloadData ?? {});
           throw new SystemConfigValidationError(
-            parsed.message || validationError.message || '配置校验失败',
+            parsed.message || validationError.message || '配置校驗失敗',
             validationError.issues || [],
             parsed,
           );
@@ -327,7 +327,7 @@ export const systemConfigApi = {
         if (status === 409) {
           const conflict = toCamelCase<SystemConfigConflictResponse>(payloadData ?? {});
           throw new SystemConfigConflictError(
-            parsed.message || conflict.message || '配置版本冲突',
+            parsed.message || conflict.message || '配置版本衝突',
             conflict.currentConfigVersion,
             parsed,
           );
@@ -339,7 +339,7 @@ export const systemConfigApi = {
   },
 
   /**
-   * 获取自选队列股票代码列表
+   * 獲取自選隊列股票代碼列表
    */
   getWatchlist: async (): Promise<string[]> => {
     const response = await apiClient.get<Record<string, unknown>>('/api/v1/stocks/watchlist');
@@ -348,7 +348,7 @@ export const systemConfigApi = {
   },
 
   /**
-   * 添加股票到自选队列
+   * 添加股票到自選隊列
    */
   addToWatchlist: async (stockCode: string): Promise<string[]> => {
     const response = await apiClient.post<Record<string, unknown>>('/api/v1/stocks/watchlist/add', {
@@ -359,7 +359,7 @@ export const systemConfigApi = {
   },
 
   /**
-   * 从自选队列移除股票
+   * 從自選隊列移除股票
    */
   removeFromWatchlist: async (stockCode: string): Promise<string[]> => {
     const response = await apiClient.post<Record<string, unknown>>('/api/v1/stocks/watchlist/remove', {

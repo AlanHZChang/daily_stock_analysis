@@ -1,28 +1,28 @@
-# 桌面端打包说明 (Electron + React UI)
+# 桌面端打包說明 (Electron + React UI)
 
-本项目可打包为桌面应用，使用 Electron 作为桌面壳，`apps/dsa-web` 的 React UI 作为界面。
+本項目可打包為桌面應用，使用 Electron 作為桌面殼，`apps/dsa-web` 的 React UI 作為界面。
 
-## 架构说明
+## 架構說明
 
-- React UI（Vite 构建）由本地 FastAPI 服务托管
-- Electron 启动时自动拉起后端服务，等待 `/api/health` 就绪后加载 UI
-- Windows 便携/安装模式下，用户配置文件 `.env` 和数据库放在 exe 同级目录；macOS 打包版使用 Electron 用户数据目录保存运行时配置
-- 桌面端会自动从本机 `8000-8100` 选择可用端口，并把实际选择的端口同步给内置后端；桌面端不依赖 `.env` 里的 `WEBUI_PORT` 来决定窗口连接地址，避免用户改端口后 Electron 仍等待旧端口导致启动超时
-- Desktop backend 默认随 `requirements.txt` 安装并冻结 `futu-api==10.8.6808`；Windows/macOS 构建脚本会在源码环境和 PyInstaller 产物中分别执行 `import futu`，防止发布包只安装但未携带 SDK。
-- 筹码分布依赖的 `py_mini_racer` 按构建环境实际安装版本完整收集 Python 模块、原生库和运行数据；不跨版本手工拼接 DLL、ICU 或 snapshot 文件。Windows/macOS 明确要求 `mini-racer>=0.13.2`，避免旧版冻结加载器从 bundle 根目录寻找原生库、与包目录收集布局不一致；Linux 继续沿用 AkShare 原有依赖。Windows/macOS 构建脚本会在源码环境和冻结后的后端中执行 `MiniRacer().eval('1 + 1')`，原生库缺失或版本不匹配会阻断打包。仅成功 `import py_mini_racer` 不足以验收；这一离线检查不代表在线东财接口一定可用。
-- 报告“分享”按钮使用 Electron 自带的隐藏 Chromium 窗口渲染本地后端输出的受限 HTML，并保存为 PNG；桌面安装包无需额外携带 `wkhtmltoimage`、`markdown-to-file` 或 Playwright 浏览器。
+- React UI（Vite 構建）由本地 FastAPI 服務託管
+- Electron 啟動時自動拉起後端服務，等待 `/api/health` 就緒後加載 UI
+- Windows 便攜/安裝模式下，用戶配置文件 `.env` 和數據庫放在 exe 同級目錄；macOS 打包版使用 Electron 用戶數據目錄保存運行時配置
+- 桌面端會自動從本機 `8000-8100` 選擇可用端口，並把實際選擇的端口同步給內置後端；桌面端不依賴 `.env` 裡的 `WEBUI_PORT` 來決定窗口連接地址，避免用戶改端口後 Electron 仍等待舊端口導致啟動超時
+- Desktop backend 默認隨 `requirements.txt` 安裝並凍結 `futu-api==10.8.6808`；Windows/macOS 構建腳本會在源碼環境和 PyInstaller 產物中分別執行 `import futu`，防止發佈包只安裝但未攜帶 SDK。
+- 籌碼分佈依賴的 `py_mini_racer` 按構建環境實際安裝版本完整收集 Python 模塊、原生庫和運行數據；不跨版本手工拼接 DLL、ICU 或 snapshot 文件。Windows/macOS 明確要求 `mini-racer>=0.13.2`，避免舊版凍結加載器從 bundle 根目錄尋找原生庫、與包目錄收集佈局不一致；Linux 繼續沿用 AkShare 原有依賴。Windows/macOS 構建腳本會在源碼環境和凍結後的後端中執行 `MiniRacer().eval('1 + 1')`，原生庫缺失或版本不匹配會阻斷打包。僅成功 `import py_mini_racer` 不足以驗收；這一離線檢查不代表在線東財接口一定可用。
+- 報告“分享”按鈕使用 Electron 自帶的隱藏 Chromium 窗口渲染本地後端輸出的受限 HTML，並保存為 PNG；桌面安裝包無需額外攜帶 `wkhtmltoimage`、`markdown-to-file` 或 Playwright 瀏覽器。
 
-## 本地开发
+## 本地開發
 
-一键启动（开发模式）：
+一鍵啟動（開發模式）：
 
 ```bash
 powershell -ExecutionPolicy Bypass -File scripts\run-desktop.ps1
 ```
 
-或手动执行：
+或手動執行：
 
-1) 构建 React UI（输出到 `static/`）
+1) 構建 React UI（輸出到 `static/`）
 
 ```bash
 cd apps/dsa-web
@@ -30,7 +30,7 @@ npm install
 npm run build
 ```
 
-2) 启动 Electron 应用（自动拉起后端）
+2) 啟動 Electron 應用（自動拉起後端）
 
 ```bash
 cd apps/dsa-desktop
@@ -38,87 +38,87 @@ npm install
 npm run dev
 ```
 
-首次运行时会自动从 `.env.example` 复制生成 `.env`。
+首次運行時會自動從 `.env.example` 複製生成 `.env`。
 
 ## 打包 (Windows)
 
-### 前置条件
+### 前置條件
 
 - Node.js 18+
 - Python 3.10+
-- 开启 Windows 开发者模式（electron-builder 需要创建符号链接）
-  - 设置 -> 隐私和安全性 -> 开发者选项 -> 开发者模式
+- 開啟 Windows 開發者模式（electron-builder 需要創建符號鏈接）
+  - 設置 -> 隱私和安全性 -> 開發者選項 -> 開發者模式
 
-### 一键打包
+### 一鍵打包
 
 ```bash
 powershell -ExecutionPolicy Bypass -File scripts\build-all.ps1
 ```
 
-该脚本会依次执行：
-1. 构建 React UI
-2. 安装 Python 依赖
-3. PyInstaller 打包后端
-4. electron-builder 打包桌面应用
+該腳本會依次執行：
+1. 構建 React UI
+2. 安裝 Python 依賴
+3. PyInstaller 打包後端
+4. electron-builder 打包桌面應用
 
-当前 Windows 安装包使用 NSIS 向导式安装流程，仅支持当前用户安装且已禁用管理员提权，安装时可手动选择目标目录（例如非 C 盘）。安装器通过 NSIS `.onVerifyInstDir` 回调在安装器层面阻止选择 `Program Files`、`Windows` 等系统保护目录——选择这些路径时"下一步"按钮会被自动禁用。安装完成后，桌面端仍会按现有逻辑在安装目录旁生成/读取 `.env`、`data/stock_analysis.db`（含 `data/stock_analysis.db-wal` / `data/stock_analysis.db-shm`）和 `logs/desktop.log`。推荐使用默认的 per-user 安装目录。如果不想安装，仍可继续分发 `win-unpacked` 免安装包。
+當前 Windows 安裝包使用 NSIS 嚮導式安裝流程，僅支持當前用戶安裝且已禁用管理員提權，安裝時可手動選擇目標目錄（例如非 C 盤）。安裝器通過 NSIS `.onVerifyInstDir` 回調在安裝器層面阻止選擇 `Program Files`、`Windows` 等系統保護目錄——選擇這些路徑時"下一步"按鈕會被自動禁用。安裝完成後，桌面端仍會按現有邏輯在安裝目錄旁生成/讀取 `.env`、`data/stock_analysis.db`（含 `data/stock_analysis.db-wal` / `data/stock_analysis.db-shm`）和 `logs/desktop.log`。推薦使用默認的 per-user 安裝目錄。如果不想安裝，仍可繼續分發 `win-unpacked` 免安裝包。
 
-## GitHub CI 自动打包并发布 Release
+## GitHub CI 自動打包併發布 Release
 
-仓库已支持通过 GitHub Actions 自动构建桌面端并上传到 GitHub Releases：
+倉庫已支持通過 GitHub Actions 自動構建桌面端並上傳到 GitHub Releases：
 
 - 工作流：`.github/workflows/desktop-release.yml`
-- 触发方式：
-  - 推送语义化 tag（如 `v3.2.12`）后自动触发
-  - 在 Actions 页面手动触发并指定 `release_tag`
-- 产物：
-  - Windows 安装包：Release 附件和本地 `apps/dsa-desktop/dist/` 中统一为 `daily-stock-analysis-windows-installer-<tag>.exe`
-  - Windows 自动更新元数据：Release 附件会额外保留 `latest.yml` 和 `*.blockmap`，供安装版桌面端后台下载与校验更新；普通用户无需手动下载这些元数据。下载完成后用户确认“重启安装”时，桌面端会先停止内置后端、备份运行时文件，并以静默模式执行安装器。
-  - Windows 免安装包：`daily-stock-analysis-windows-noinstall-<tag>.zip`
+- 觸發方式：
+  - 推送語義化 tag（如 `v3.2.12`）後自動觸發
+  - 在 Actions 頁面手動觸發並指定 `release_tag`
+- 產物：
+  - Windows 安裝包：Release 附件和本地 `apps/dsa-desktop/dist/` 中統一為 `daily-stock-analysis-windows-installer-<tag>.exe`
+  - Windows 自動更新元數據：Release 附件會額外保留 `latest.yml` 和 `*.blockmap`，供安裝版桌面端後臺下載與校驗更新；普通用戶無需手動下載這些元數據。下載完成後用戶確認“重啟安裝”時，桌面端會先停止內置後端、備份運行時文件，並以靜默模式執行安裝器。
+  - Windows 免安裝包：`daily-stock-analysis-windows-noinstall-<tag>.zip`
   - macOS Intel：`daily-stock-analysis-macos-x64-<tag>.dmg`
   - macOS Apple Silicon：`daily-stock-analysis-macos-arm64-<tag>.dmg`
 
-### macOS 提示“应用已损坏，无法打开”
+### macOS 提示“應用已損壞，無法打開”
 
-当前 macOS DMG 尚未使用 Apple Developer 证书签名和公证。构建配置会显式生成 unsigned 应用，在 PyInstaller 产物首次执行前清理残缺签名，并通过 electron-builder `afterPack` hook 在 DMG 创建前再次清理完整 `.app`；CI 还会检查 Electron 原始 `.app` 和 DMG 挂载后的 `.app`，阻止再次发布带有 `code has no resources but signature indicates they must be present` 等损坏签名的产物。该处理只能缓解 v3.27.0 的残缺签名缺陷，**不会让应用获得 Apple 信任**。通过浏览器下载后，macOS Gatekeeper 仍可能提示“无法验证开发者”、阻止启动，或要求用户人工确认。
+當前 macOS DMG 尚未使用 Apple Developer 證書籤名和公證。構建配置會顯式生成 unsigned 應用，在 PyInstaller 產物首次執行前清理殘缺簽名，並通過 electron-builder `afterPack` hook 在 DMG 創建前再次清理完整 `.app`；CI 還會檢查 Electron 原始 `.app` 和 DMG 掛載後的 `.app`，阻止再次發佈帶有 `code has no resources but signature indicates they must be present` 等損壞簽名的產物。該處理只能緩解 v3.27.0 的殘缺簽名缺陷，**不會讓應用獲得 Apple 信任**。通過瀏覽器下載後，macOS Gatekeeper 仍可能提示“無法驗證開發者”、阻止啟動，或要求用戶人工確認。
 
-请按以下顺序排查：
+請按以下順序排查：
 
-1. 只从项目的 [GitHub Releases](https://github.com/ZhuLinsen/daily_stock_analysis/releases) 下载附件，并确认安装包架构与 Mac 一致：Apple 芯片（M1/M2/M3/M4 等）使用 `daily-stock-analysis-macos-arm64-<tag>.dmg`，Intel 芯片使用 `daily-stock-analysis-macos-x64-<tag>.dmg`。不要对第三方转载或来源不明的安装包绕过 Gatekeeper。
-2. 打开 DMG，将 `Daily Stock Analysis` 拖入“应用程序”后尝试启动一次。若被拦截，进入“系统设置 -> 隐私与安全性”，在安全性提示处确认应用名称，然后点击“仍要打开”，按系统提示再次确认。较旧 macOS 的对应入口为“系统偏好设置 -> 安全性与隐私 -> 通用”。
-3. 仅当安装包确认来自上述官方 Release、且“仍要打开”仍无法放行时，打开“终端”清除该应用的下载隔离属性，然后重新启动：
+1. 只從項目的 [GitHub Releases](https://github.com/ZhuLinsen/daily_stock_analysis/releases) 下載附件，並確認安裝包架構與 Mac 一致：Apple 芯片（M1/M2/M3/M4 等）使用 `daily-stock-analysis-macos-arm64-<tag>.dmg`，Intel 芯片使用 `daily-stock-analysis-macos-x64-<tag>.dmg`。不要對第三方轉載或來源不明的安裝包繞過 Gatekeeper。
+2. 打開 DMG，將 `Daily Stock Analysis` 拖入“應用程序”後嘗試啟動一次。若被攔截，進入“系統設置 -> 隱私與安全性”，在安全性提示處確認應用名稱，然後點擊“仍要打開”，按系統提示再次確認。較舊 macOS 的對應入口為“系統偏好設置 -> 安全性與隱私 -> 通用”。
+3. 僅當安裝包確認來自上述官方 Release、且“仍要打開”仍無法放行時，打開“終端”清除該應用的下載隔離屬性，然後重新啟動：
 
 ```bash
 xattr -dr com.apple.quarantine "/Applications/Daily Stock Analysis.app"
 open "/Applications/Daily Stock Analysis.app"
 ```
 
-如果应用不在 `/Applications`，请将命令中的路径替换为实际 `.app` 路径。不要对整个“应用程序”目录执行 `xattr`，也不要对来源不明的应用执行此命令。不同 macOS 版本可能仍拒绝 unsigned 应用，清除 quarantine 不保证能够放行。长期彻底消除该提示需要在发布流程中接入 Apple Developer 签名与 notarization（公证），不属于上述临时放行步骤。
+如果應用不在 `/Applications`，請將命令中的路徑替換為實際 `.app` 路徑。不要對整個“應用程序”目錄執行 `xattr`，也不要對來源不明的應用執行此命令。不同 macOS 版本可能仍拒絕 unsigned 應用，清除 quarantine 不保證能夠放行。長期徹底消除該提示需要在發佈流程中接入 Apple Developer 簽名與 notarization（公證），不屬於上述臨時放行步驟。
 
-维护者可用以下命令区分“预期的 unsigned 拒绝”和“不可发布的残缺签名”：
+維護者可用以下命令區分“預期的 unsigned 拒絕”和“不可發佈的殘缺簽名”：
 
 ```bash
 codesign -d "/Applications/Daily Stock Analysis.app"
 spctl --assess --type execute --verbose=4 "/Applications/Daily Stock Analysis.app"
 ```
 
-当前 unsigned 产物的 `codesign -d` 预期包含 `code object is not signed at all`，`spctl` 预期拒绝；如果输出 `code has no resources but signature indicates they must be present` 或其它签名损坏信息，应视为发布阻断。
+當前 unsigned 產物的 `codesign -d` 預期包含 `code object is not signed at all`，`spctl` 預期拒絕；如果輸出 `code has no resources but signature indicates they must be present` 或其它簽名損壞信息，應視為發佈阻斷。
 
-建议发布流程：
+建議發佈流程：
 
-1. 合并代码到 `main`
-2. 由自动打 tag 工作流生成版本（或手动创建 tag）
-3. `desktop-release` 工作流自动构建并把两个平台安装包附加到对应 GitHub Release
+1. 合併代碼到 `main`
+2. 由自動打 tag 工作流生成版本（或手動創建 tag）
+3. `desktop-release` 工作流自動構建並把兩個平臺安裝包附加到對應 GitHub Release
 
-## 发版前可复现验证（桌面更新链路）
+## 發版前可復現驗證（桌面更新鏈路）
 
-桌面端自动更新链路依赖 Windows NSIS 安装产物、`latest.yml` 与 `*.blockmap` 元数据。当前桌面 CI 不覆盖 `desktop-release` 打包产物可发布链路，提交前建议补充如下本地验证：
+桌面端自動更新鏈路依賴 Windows NSIS 安裝產物、`latest.yml` 與 `*.blockmap` 元數據。當前桌面 CI 不覆蓋 `desktop-release` 打包產物可發佈鏈路，提交前建議補充如下本地驗證：
 
-说明：该清单专注于 Windows NSIS 安装版与 `electron-updater` 发布元数据。当前 Linux 环境无法直接产出 Windows 安装包和 updater 元数据（`latest.yml` / `*.blockmap`），此类链路需在 Windows 发布执行器或 Windows 本机环境复核。
+說明：該清單專注於 Windows NSIS 安裝版與 `electron-updater` 發佈元數據。當前 Linux 環境無法直接產出 Windows 安裝包和 updater 元數據（`latest.yml` / `*.blockmap`），此類鏈路需在 Windows 發佈執行器或 Windows 本機環境複核。
 
-若在非 Windows 环境无法完成上述验证，请在 PR 验收说明中明确补齐 Windows 发布链路复核人、复核时间窗及 `desktop-release` 产物检查结果（release/tag 与 `daily-stock-analysis-windows-installer-<tag>.exe`、`latest.yml`、`*.blockmap` 版本一致性与可下载性）。
+若在非 Windows 環境無法完成上述驗證，請在 PR 驗收說明中明確補齊 Windows 發佈鏈路複核人、複核時間窗及 `desktop-release` 產物檢查結果（release/tag 與 `daily-stock-analysis-windows-installer-<tag>.exe`、`latest.yml`、`*.blockmap` 版本一致性與可下載性）。
 
-1. 先构建 Web 静态产物（桌面端主窗口与设置页入口依赖）
+1. 先構建 Web 靜態產物（桌面端主窗口與設置頁入口依賴）
 
 ```bash
 cd apps/dsa-web
@@ -127,7 +127,7 @@ npm run lint
 npm run build
 ```
 
-2. 回到桌面端，补齐依赖、运行 preload 单测、再执行 Electron 打包
+2. 回到桌面端，補齊依賴、運行 preload 單測、再執行 Electron 打包
 
 ```bash
 cd ../dsa-desktop
@@ -136,22 +136,22 @@ npm test
 npm run build
 ```
 
-在 Windows 发布复核环境，还可额外执行：
+在 Windows 發佈複核環境，還可額外執行：
 
 ```powershell
 ./scripts/verify-desktop-updater-artifacts.ps1 -ReleaseTag v$(node -p "require('./apps/dsa-desktop/package.json').version")
 ```
 
-> 预期当前执行环境不支持生成 Windows NSIS 安装器时，请在交付说明中明确注明平台限制，并要求指定的 Windows 发布链路复核人补齐该项验证。
+> 預期當前執行環境不支持生成 Windows NSIS 安裝器時，請在交付說明中明確註明平臺限制，並要求指定的 Windows 發佈鏈路複核人補齊該項驗證。
 
-3. 检查更新元数据是否产出
+3. 檢查更新元數據是否產出
 
 ```bash
 ls -1 dist | sort
 ls -1 dist/*.yml dist/*.blockmap 2>/dev/null || true
 ```
 
-4. 强制对齐版本与发布附件（可在 Windows 环境或能产出 NSIS 产物的执行器上复核）
+4. 強制對齊版本與發佈附件（可在 Windows 環境或能產出 NSIS 產物的執行器上覆核）
 
 ```bash
 RELEASE_TAG="v$(node -p \"require('./package.json').version\")"
@@ -166,17 +166,17 @@ if [ -f dist/latest.yml ]; then
   grep -E \"^version:|^files:|^sha512:\" dist/latest.yml
 fi
 
-echo \"---- Release 清单（人工核对）----\"
+echo \"---- Release 清單（人工核對）----\"
 echo \"Release Tag: $RELEASE_TAG\"
 echo \"Release 地址: https://github.com/$REPO/releases/tag/$RELEASE_TAG\"
-echo \"应核对附件是否包含:\"
+echo \"應核對附件是否包含:\"
 echo \"- daily-stock-analysis-windows-installer-*.exe\"
 echo \"- latest.yml\"
 echo \"- *.blockmap\"
-echo \"并确保 latest.yml 中 version 与 tag 的语义化版本一致，path/url 与安装包附件名一致\"
+echo \"並確保 latest.yml 中 version 與 tag 的語義化版本一致，path/url 與安裝包附件名一致\"
 ```
 
-5a. 建议在 PR 描述里记录的“可复核输出”（Windows）：
+5a. 建議在 PR 描述裡記錄的“可複核輸出”（Windows）：
 
 ```bash
 echo "release-tag=${RELEASE_TAG}"
@@ -188,30 +188,30 @@ echo "packaging artifacts:"
 ls -1 dist/*.yml dist/*.blockmap dist/*installer*.exe 2>/dev/null | sort
 ```
 
-Windows 发布链路复核清单（在 PR 后由发布团队/维护者执行）：
+Windows 發佈鏈路複核清單（在 PR 後由發佈團隊/維護者執行）：
 
-- release/tag 与 `daily-stock-analysis-windows-installer-<tag>.exe` 的版本号一致；
-- `latest.yml`、`daily-stock-analysis-windows-installer-<tag>.exe`、`*.blockmap` 同 tag 同步出现且可下载；
-- `latest.yml` 中 `version` 与 Release tag 语义一致（去掉 `v` 前缀后比对），且 `path` / `files.url` 与安装包附件名一致；
-- 如缺少上述文件或 `release-tag` 不匹配，需标注阻断并补齐 `desktop-release` 打包流程。
+- release/tag 與 `daily-stock-analysis-windows-installer-<tag>.exe` 的版本號一致；
+- `latest.yml`、`daily-stock-analysis-windows-installer-<tag>.exe`、`*.blockmap` 同 tag 同步出現且可下載；
+- `latest.yml` 中 `version` 與 Release tag 語義一致（去掉 `v` 前綴後比對），且 `path` / `files.url` 與安裝包附件名一致；
+- 如缺少上述文件或 `release-tag` 不匹配，需標註阻斷並補齊 `desktop-release` 打包流程。
 
-5. Windows/NSIS 产物与发布附件一致性请在 Windows 环境手动验证（可人工触发发布流程），并在升级后核对运行时文件留存：
+5. Windows/NSIS 產物與發佈附件一致性請在 Windows 環境手動驗證（可人工觸發發佈流程），並在升級後核對運行時文件留存：
 
-   1. 安装前后分别记录安装目录中的 `.env`、`data/stock_analysis.db`、`data/stock_analysis.db-wal`、`data/stock_analysis.db-shm`、`logs/desktop.log` 的 SHA256；
-   2. 确认桌面端下一次启动后，上述文件仍存在且与安装前记录一致；
-   3. 如不一致，可在应用退出后检查用户数据目录中的 `.dsa-desktop-update-backup` 是否清理完整，并结合最新日志串联排查。
+   1. 安裝前後分別記錄安裝目錄中的 `.env`、`data/stock_analysis.db`、`data/stock_analysis.db-wal`、`data/stock_analysis.db-shm`、`logs/desktop.log` 的 SHA256；
+   2. 確認桌面端下一次啟動後，上述文件仍存在且與安裝前記錄一致；
+   3. 如不一致，可在應用退出後檢查用戶數據目錄中的 `.dsa-desktop-update-backup` 是否清理完整，並結合最新日誌串聯排查。
 
-Windows 平台建议使用 PowerShell 执行：
+Windows 平臺建議使用 PowerShell 執行：
 
 ```bash
 Get-FileHash .env,data\\stock_analysis.db,data\\stock_analysis.db-wal,data\\stock_analysis.db-shm,logs\\desktop.log -Algorithm SHA256
 ```
 
-说明：应用已在 Windows NSIS 安装版的“重启安装”前停止内置后端、备份安装目录旁上述运行时文件，并以静默模式运行更新安装器，目的是避免安装向导抢先覆盖仍在运行的桌面端进程，同时降低更新过程中文件丢失风险；若恢复失败，桌面端会显示更新安装错误并保留手动下载路径供回退处理。此次修复仅改动 Windows 更新安装链路与内置后端进程生命周期处理，不涉及设置保存语义、模型运行时清理策略或配置迁移行为。
+說明：應用已在 Windows NSIS 安裝版的“重啟安裝”前停止內置後端、備份安裝目錄旁上述運行時文件，並以靜默模式運行更新安裝器，目的是避免安裝嚮導搶先覆蓋仍在運行的桌面端進程，同時降低更新過程中文件丟失風險；若恢復失敗，桌面端會顯示更新安裝錯誤並保留手動下載路徑供回退處理。此次修復僅改動 Windows 更新安裝鏈路與內置後端進程生命週期處理，不涉及設置保存語義、模型運行時清理策略或配置遷移行為。
 
 ### 分步打包
 
-1) 构建 React UI
+1) 構建 React UI
 
 ```bash
 cd apps/dsa-web
@@ -219,7 +219,7 @@ npm install
 npm run build
 ```
 
-2) 按现有脚本打包 Python 后端（脚本会收集 DSA 选股引擎、Futu SDK 与 AkShare 数据文件）
+2) 按現有腳本打包 Python 後端（腳本會收集 DSA 選股引擎、Futu SDK 與 AkShare 數據文件）
 
 - Windows：
 
@@ -233,11 +233,11 @@ powershell -ExecutionPolicy Bypass -File scripts\build-backend.ps1
 bash scripts/build-backend-macos.sh
 ```
 
-macOS 后端打包会显式加入 `src/services/screening/strategies` YAML 资源目录；PyInstaller 参数数组回归测试通过真实 Bash 验证隐藏导入与独立 `main.py` 入口。
+macOS 後端打包會顯式加入 `src/services/screening/strategies` YAML 資源目錄；PyInstaller 參數數組迴歸測試通過真實 Bash 驗證隱藏導入與獨立 `main.py` 入口。
 
-该脚本会在安装依赖后执行 `--collect-all src.services.screening`、`--collect-all futu` 和 `--collect-data akshare`。构建完成后会通过冻结可执行文件校验 `src.services.screening.pipeline`、`futu`、`orjson` 均可导入，核对选股策略数量，并确认 AkShare 的 `file_fold/calendar.json` 已进入冻结产物，避免发行包在选股、热点题材、Futu 持仓导入或日线增强路径中因缺少模块/package data 降级。选股实现参考 AlphaSift。PR 主 CI 在 `requirements.txt`、Futu broker、Desktop 打包入口或相关 workflow 变化时，会分别运行 `desktop-futu-package-windows` 与 `desktop-futu-package-macos` 阻断检查。
+該腳本會在安裝依賴後執行 `--collect-all src.services.screening`、`--collect-all futu` 和 `--collect-data akshare`。構建完成後會通過凍結可執行文件校驗 `src.services.screening.pipeline`、`futu`、`orjson` 均可導入，核對選股策略數量，並確認 AkShare 的 `file_fold/calendar.json` 已進入凍結產物，避免發行包在選股、熱點題材、Futu 持倉導入或日線增強路徑中因缺少模塊/package data 降級。選股實現參考 AlphaSift。PR 主 CI 在 `requirements.txt`、Futu broker、Desktop 打包入口或相關 workflow 變化時，會分別運行 `desktop-futu-package-windows` 與 `desktop-futu-package-macos` 阻斷檢查。
 
-3) 打包 Electron 桌面应用
+3) 打包 Electron 桌面應用
 
 ```bash
 cd apps/dsa-desktop
@@ -245,112 +245,112 @@ npm install
 npm run build
 ```
 
-打包产物位于 `apps/dsa-desktop/dist/`。Windows 安装器会生成 `daily-stock-analysis-windows-installer-<tag>.exe`，安装向导中可选择安装目录。
+打包產物位於 `apps/dsa-desktop/dist/`。Windows 安裝器會生成 `daily-stock-analysis-windows-installer-<tag>.exe`，安裝嚮導中可選擇安裝目錄。
 
-## 目录结构
+## 目錄結構
 
-Windows 安装包模式下，安装器仅支持当前用户安装且已禁用管理员提权，用户可在安装向导中选择安装目录；安装器会在安装器层面阻止选择 `Program Files`、`Windows` 等系统保护目录（选择时"下一步"按钮自动禁用），安装完成后，应用会在安装目录旁生成/读取 `.env`、`data/stock_analysis.db`（含 `data/stock_analysis.db-wal` / `data/stock_analysis.db-shm`）和 `logs/desktop.log`。请保留默认的 per-user 安装位置或选择其他用户可写目录。
+Windows 安裝包模式下，安裝器僅支持當前用戶安裝且已禁用管理員提權，用戶可在安裝嚮導中選擇安裝目錄；安裝器會在安裝器層面阻止選擇 `Program Files`、`Windows` 等系統保護目錄（選擇時"下一步"按鈕自動禁用），安裝完成後，應用會在安裝目錄旁生成/讀取 `.env`、`data/stock_analysis.db`（含 `data/stock_analysis.db-wal` / `data/stock_analysis.db-shm`）和 `logs/desktop.log`。請保留默認的 per-user 安裝位置或選擇其他用戶可寫目錄。
 
-`win-unpacked` 免安装模式下，目录结构如下：
+`win-unpacked` 免安裝模式下，目錄結構如下：
 
 ```
 win-unpacked/
-  Daily Stock Analysis.exe    <- 双击启动
-  .env                        <- 用户配置文件（首次启动自动生成）
+  Daily Stock Analysis.exe    <- 雙擊啟動
+  .env                        <- 用戶配置文件（首次啟動自動生成）
   data/
-    stock_analysis.db         <- 数据库主文件
-    stock_analysis.db-wal     <- WAL 日志文件（更新备份/恢复）
-    stock_analysis.db-shm     <- WAL 共享元文件（更新备份/恢复）
+    stock_analysis.db         <- 數據庫主文件
+    stock_analysis.db-wal     <- WAL 日誌文件（更新備份/恢復）
+    stock_analysis.db-shm     <- WAL 共享元文件（更新備份/恢復）
   logs/
-    desktop.log               <- 运行日志
+    desktop.log               <- 運行日誌
   resources/
     .env.example              <- 配置模板
     backend/
-      stock_analysis.exe      <- 后端服务
+      stock_analysis.exe      <- 後端服務
 ```
 
-## 配置文件说明
+## 配置文件說明
 
-- Windows 桌面端的 `.env` 放在 exe 同目录下
-- macOS 打包版的 `.env`、`data/` 和 `logs/` 放在 Electron 用户数据目录，避免替换 `.app` 时丢失
-- 首次启动时自动从 `.env.example` 复制生成
-- 从旧版本升级时，如果旧 `.app` 包内部的 `.env`、`data/stock_analysis.db` 或日志文件仍可访问，新版本会在目标文件不存在时自动迁移到用户数据目录；已有目标文件不会被覆盖
-- 用户需要编辑 `.env` 配置以下内容：
+- Windows 桌面端的 `.env` 放在 exe 同目錄下
+- macOS 打包版的 `.env`、`data/` 和 `logs/` 放在 Electron 用戶數據目錄，避免替換 `.app` 時丟失
+- 首次啟動時自動從 `.env.example` 複製生成
+- 從舊版本升級時，如果舊 `.app` 包內部的 `.env`、`data/stock_analysis.db` 或日誌文件仍可訪問，新版本會在目標文件不存在時自動遷移到用戶數據目錄；已有目標文件不會被覆蓋
+- 用戶需要編輯 `.env` 配置以下內容：
   - `GEMINI_API_KEY` 或 `OPENAI_API_KEY`：AI 分析必需
-  - `STOCK_LIST`：自选股列表（逗号分隔）
-  - 其他可选配置参考 `.env.example`
+  - `STOCK_LIST`：自選股列表（逗號分隔）
+  - 其他可選配置參考 `.env.example`
 
-### 配置备份 / 恢复 `.env`
+### 配置備份 / 恢復 `.env`
 
-- WebUI 与桌面端都可以从 `系统设置 -> 配置备份` 看到 `导出 .env` 和 `导入 .env` 按钮
-- WebUI 非桌面运行时需要先开启管理员认证并完成登录；未开启认证时按钮会禁用，API 返回 `403`
-- `导出 .env` 会导出当前**已保存**的 `.env` 备份文件；页面上尚未点击“保存配置”的本地草稿不会被导出
-- `导入 .env` 会读取备份文件中的键值并合并到当前配置中，导入后会立即触发配置重载
-- 导入是“键级覆盖”而不是整文件替换：备份文件中出现的键会覆盖当前值，未出现的键保持不变
-- 如果当前页面还有未保存草稿，导入前会先提示确认，避免把本地草稿和已保存配置混在一起
-- Web 端默认 `ADMIN_AUTH_ENABLED=false` 时，设置页会展示按钮为禁用态并提示先启用管理员鉴权；桌面端不受该配置影响，仍可直接使用配置备份/恢复能力。
+- WebUI 與桌面端都可以從 `系統設置 -> 配置備份` 看到 `導出 .env` 和 `導入 .env` 按鈕
+- WebUI 非桌面運行時需要先開啟管理員認證並完成登錄；未開啟認證時按鈕會禁用，API 返回 `403`
+- `導出 .env` 會導出當前**已保存**的 `.env` 備份文件；頁面上尚未點擊“保存配置”的本地草稿不會被導出
+- `導入 .env` 會讀取備份文件中的鍵值併合併到當前配置中，導入後會立即觸發配置重載
+- 導入是“鍵級覆蓋”而不是整文件替換：備份文件中出現的鍵會覆蓋當前值，未出現的鍵保持不變
+- 如果當前頁面還有未保存草稿，導入前會先提示確認，避免把本地草稿和已保存配置混在一起
+- Web 端默認 `ADMIN_AUTH_ENABLED=false` 時，設置頁會展示按鈕為禁用態並提示先啟用管理員鑑權；桌面端不受該配置影響，仍可直接使用配置備份/恢復能力。
 
-> 建议：从旧版本升级的 macOS 用户仍可在升级前执行一次 `导出 .env` 作为保险；如果旧 `.app` 已经被整体替换，包内旧文件无法凭空恢复，只能通过备份导入。
+> 建議：從舊版本升級的 macOS 用戶仍可在升級前執行一次 `導出 .env` 作為保險；如果舊 `.app` 已經被整體替換，包內舊文件無法憑空恢復，只能通過備份導入。
 
-### 设置页版本信息
+### 設置頁版本信息
 
-- `系统设置 -> 版本信息` 中的“桌面端版本”由 Electron 主进程的 `app.getVersion()` 提供，并通过 preload bridge 暴露给前端
-- 开发态 `npm run dev` 与打包态 `npm run build` / 安装包都会复用同一条版本注入链路，不再在 `preload.js` 里维护独立硬编码版本号
-- `README.md` 继续保留安装和运行入口说明；这类桌面端运行时细节统一落在本专题文档维护，避免入门文档膨胀
+- `系統設置 -> 版本信息` 中的“桌面端版本”由 Electron 主進程的 `app.getVersion()` 提供，並通過 preload bridge 暴露給前端
+- 開發態 `npm run dev` 與打包態 `npm run build` / 安裝包都會複用同一條版本注入鏈路，不再在 `preload.js` 裡維護獨立硬編碼版本號
+- `README.md` 繼續保留安裝和運行入口說明；這類桌面端運行時細節統一落在本專題文檔維護，避免入門文檔膨脹
 
-### 局域网访问 Windows 桌面端 WebUI
+### 局域網訪問 Windows 桌面端 WebUI
 
-- 桌面端默认仍按 `WEBUI_HOST=127.0.0.1` 只允许本机访问，避免安装后无意暴露后端服务
-- 如需让同一局域网内其他设备访问，在桌面端 `.env` 或 `系统设置 -> WebUI 监听地址` 中设置 `WEBUI_HOST=0.0.0.0`，保存后重启桌面端
-- 桌面端会自动选择 `8000-8100` 中可用端口并传给后端；常见情况下仍是 `8000`，若端口被占用，可在 `logs/desktop.log` 查看 `Using port ...` 和 `Backend launch command=...`
-- Windows 防火墙或服务器安全组仍需放行实际监听端口；对外暴露前建议同时启用 `ADMIN_AUTH_ENABLED`
-- 即使后端绑定 `0.0.0.0`，桌面窗口自身仍会使用本机可访问地址完成健康检查和页面加载
+- 桌面端默認仍按 `WEBUI_HOST=127.0.0.1` 只允許本機訪問，避免安裝後無意暴露後端服務
+- 如需讓同一局域網內其他設備訪問，在桌面端 `.env` 或 `系統設置 -> WebUI 監聽地址` 中設置 `WEBUI_HOST=0.0.0.0`，保存後重啟桌面端
+- 桌面端會自動選擇 `8000-8100` 中可用端口並傳給後端；常見情況下仍是 `8000`，若端口被佔用，可在 `logs/desktop.log` 查看 `Using port ...` 和 `Backend launch command=...`
+- Windows 防火牆或服務器安全組仍需放行實際監聽端口；對外暴露前建議同時啟用 `ADMIN_AUTH_ENABLED`
+- 即使後端綁定 `0.0.0.0`，桌面窗口自身仍會使用本機可訪問地址完成健康檢查和頁面加載
 
 ### 桌面端更新提醒
 
-- 应用在主界面加载完成后会后台检查 GitHub Releases 的最新正式版，并与当前 `app.getVersion()` 做语义化版本比较
-- Windows NSIS 安装版会通过内置 GitHub 更新源自动下载新版本；下载完成后弹出一次性提醒，用户确认后静默重启并安装
-- 自动更新静默安装会复用当前安装目录；如果用户安装时选择了非默认目录或带空格目录，后续自动更新仍会覆盖同一目录
-- 桌面运行时会在全局右上角显示更新入口，可查看状态、手动检查、打开 Release 页或在更新已下载后执行“重启安装”；普通浏览器 WebUI 不显示该入口
-- `系统设置 -> 版本信息` 中的“桌面端更新”区域仍可作为详细入口和兜底；全局入口与设置页共用同一套更新状态，检查中、下载中或安装中时两侧入口都会禁用，不会重复发起手动检查
-- 主进程手动检查路径同样有 in-flight 防重，避免并发请求 GitHub Releases
-- Windows 免安装包、开发态和 macOS DMG 仍保持“提醒 + 跳转下载页”的兼容路径，不会因为网络失败而阻断桌面端启动
-- 版本检查失败、GitHub API 超时、更新元数据缺失或下载安装异常时，会记录到 `logs/desktop.log`，设置页或右上角入口手动检查时会展示错误状态
+- 應用在主界面加載完成後會後臺檢查 GitHub Releases 的最新正式版，並與當前 `app.getVersion()` 做語義化版本比較
+- Windows NSIS 安裝版會通過內置 GitHub 更新源自動下載新版本；下載完成後彈出一次性提醒，用戶確認後靜默重啟並安裝
+- 自動更新靜默安裝會複用當前安裝目錄；如果用戶安裝時選擇了非默認目錄或帶空格目錄，後續自動更新仍會覆蓋同一目錄
+- 桌面運行時會在全局右上角顯示更新入口，可查看狀態、手動檢查、打開 Release 頁或在更新已下載後執行“重啟安裝”；普通瀏覽器 WebUI 不顯示該入口
+- `系統設置 -> 版本信息` 中的“桌面端更新”區域仍可作為詳細入口和兜底；全局入口與設置頁共用同一套更新狀態，檢查中、下載中或安裝中時兩側入口都會禁用，不會重複發起手動檢查
+- 主進程手動檢查路徑同樣有 in-flight 防重，避免併發請求 GitHub Releases
+- Windows 免安裝包、開發態和 macOS DMG 仍保持“提醒 + 跳轉下載頁”的兼容路徑，不會因為網絡失敗而阻斷桌面端啟動
+- 版本檢查失敗、GitHub API 超時、更新元數據缺失或下載安裝異常時，會記錄到 `logs/desktop.log`，設置頁或右上角入口手動檢查時會展示錯誤狀態
 
-## 常见问题
+## 常見問題
 
-### 启动后一直显示 "Preparing backend..."
+### 啟動後一直顯示 "Preparing backend..."
 
-1. 检查 `logs/desktop.log` 查看错误信息
-2. 确认 `.env` 文件存在且配置正确
-3. 确认端口 8000-8100 未被占用；桌面端会自动选择其中一个可用端口，无需通过 `.env` 手动改 `WEBUI_PORT`
-4. 如果日志里显示 Electron 等待的端口和后端实际监听端口不一致，优先升级到包含桌面端端口同步修复的版本
+1. 檢查 `logs/desktop.log` 查看錯誤信息
+2. 確認 `.env` 文件存在且配置正確
+3. 確認端口 8000-8100 未被佔用；桌面端會自動選擇其中一個可用端口，無需通過 `.env` 手動改 `WEBUI_PORT`
+4. 如果日誌裡顯示 Electron 等待的端口和後端實際監聽端口不一致，優先升級到包含桌面端端口同步修復的版本
 
-### 后端启动报 ModuleNotFoundError
+### 後端啟動報 ModuleNotFoundError
 
-PyInstaller 打包时缺少模块，需要在 Windows 与 macOS 后端构建脚本中同步增加 `--hidden-import`，并对冻结产物执行运行时导入校验。当前脚本会显式安装、冻结并探测 LiteLLM 运行路径需要的 `orjson`；若日志包含 `No module named 'orjson'`，请升级到修复版本并重新构建，不能只在已发布目录中手工安装依赖。
+PyInstaller 打包時缺少模塊，需要在 Windows 與 macOS 後端構建腳本中同步增加 `--hidden-import`，並對凍結產物執行運行時導入校驗。當前腳本會顯式安裝、凍結並探測 LiteLLM 運行路徑需要的 `orjson`；若日誌包含 `No module named 'orjson'`，請升級到修復版本並重新構建，不能只在已發佈目錄中手工安裝依賴。
 
-如果日志提示缺少 `akshare/file_fold/calendar.json`，说明后端冻结产物没有完整收集 AkShare package data。请使用仓库当前的 `scripts/build-backend.ps1` 或 `scripts/build-backend-macos.sh` 重新构建；脚本会在生成桌面包前检查该文件，缺失时直接终止构建。
+如果日誌提示缺少 `akshare/file_fold/calendar.json`，說明後端凍結產物沒有完整收集 AkShare package data。請使用倉庫當前的 `scripts/build-backend.ps1` 或 `scripts/build-backend-macos.sh` 重新構建；腳本會在生成桌面包前檢查該文件，缺失時直接終止構建。
 
-### UI 加载空白
+### UI 加載空白
 
-确认 `static/index.html` 存在，如不存在需重新构建 React UI。
+確認 `static/index.html` 存在，如不存在需重新構建 React UI。
 
-### macOS 升级后配置迁移
+### macOS 升級後配置遷移
 
-旧版本曾把运行时 `.env`、数据库和日志写在 `.app` 包内部。新版本改为使用 Electron 用户数据目录，并在旧 `.app` 包内文件仍可访问时做一次性迁移。迁移规则是“目标不存在才复制”，避免覆盖用户已经在新版本中保存的配置。
+舊版本曾把運行時 `.env`、數據庫和日誌寫在 `.app` 包內部。新版本改為使用 Electron 用戶數據目錄，並在舊 `.app` 包內文件仍可訪問時做一次性遷移。遷移規則是“目標不存在才複製”，避免覆蓋用戶已經在新版本中保存的配置。
 
-如果旧 `.app` 已经被整体替换，旧包内 `.env` 无法由新版本自动恢复。此时可使用升级前导出的 `.env` 在 `系统设置 -> 配置备份` 中手动导入；完成一次迁移或重新配置后，后续版本会继续复用用户数据目录，不再随 `.app` 替换丢失。
+如果舊 `.app` 已經被整體替換，舊包內 `.env` 無法由新版本自動恢復。此時可使用升級前導出的 `.env` 在 `系統設置 -> 配置備份` 中手動導入；完成一次遷移或重新配置後，後續版本會繼續複用用戶數據目錄，不再隨 `.app` 替換丟失。
 
-## 分发给用户
+## 分發給用戶
 
-Windows 分发现在有两种方式：
+Windows 分發現在有兩種方式：
 
-1. 安装包：分发 `apps/dsa-desktop/dist/` 下的 `daily-stock-analysis-windows-installer-<tag>.exe`，用户安装时可自行选择目标目录
-2. 免安装包：将 `apps/dsa-desktop/dist/win-unpacked/` 整个文件夹打包发给用户
+1. 安裝包：分發 `apps/dsa-desktop/dist/` 下的 `daily-stock-analysis-windows-installer-<tag>.exe`，用戶安裝時可自行選擇目標目錄
+2. 免安裝包：將 `apps/dsa-desktop/dist/win-unpacked/` 整個文件夾打包發給用戶
 
-使用 `win-unpacked` 免安装包时，用户只需：
+使用 `win-unpacked` 免安裝包時，用戶只需：
 
-1. 解压文件夹
-2. 编辑 `.env` 配置 API Key 和股票列表
-3. 双击 `Daily Stock Analysis.exe` 启动
+1. 解壓文件夾
+2. 編輯 `.env` 配置 API Key 和股票列表
+3. 雙擊 `Daily Stock Analysis.exe` 啟動

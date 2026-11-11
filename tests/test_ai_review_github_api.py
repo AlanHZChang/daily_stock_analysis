@@ -194,7 +194,7 @@ def test_event_payload_non_utf8_logs_unicode_error(monkeypatch, tmp_path, capsys
     of degrading. The dedicated UnicodeDecodeError branch restores parity.
     """
     bad = tmp_path / 'event.json'
-    # 写入非法 UTF-8 字节序列 (0xff 0xfe 不构成合法 UTF-8 起始)
+    # 寫入非法 UTF-8 字節序列 (0xff 0xfe 不構成合法 UTF-8 起始)
     bad.write_bytes(b'\xff\xfe\x00\x00not-utf8')
     monkeypatch.setenv('GITHUB_EVENT_PATH', str(bad))
 

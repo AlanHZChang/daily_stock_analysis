@@ -616,11 +616,11 @@ instructions: |
             skill = load_skill_from_yaml(tmp_path)
             self.assertIsInstance(skill, Skill)
             self.assertEqual(skill.name, "test_yaml_strategy")
-            self.assertEqual(skill.display_name, "测试YAML策略")
+            self.assertEqual(skill.display_name, "測試YAML策略")
             self.assertEqual(skill.category, "trend")
             self.assertEqual(skill.core_rules, [1, 3])
             self.assertEqual(skill.required_tools, ["analyze_trend", "get_daily_history"])
-            self.assertIn("自然语言", skill.instructions)
+            self.assertIn("自然語言", skill.instructions)
             self.assertFalse(skill.enabled)
         finally:
             os.unlink(tmp_path)
@@ -862,7 +862,7 @@ instructions: 按照我的规则分析龙头股
             manager.load_custom_strategies(tmpdir)
 
             overridden = manager.get("dragon_head")
-            self.assertEqual(overridden.display_name, "自定义龙头策略")
+            self.assertEqual(overridden.display_name, "自定義龍頭策略")
             self.assertIn(tmpdir, overridden.source)
         finally:
             import shutil

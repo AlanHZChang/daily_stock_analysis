@@ -4,7 +4,7 @@
 股票分析命令
 ===================================
 
-分析指定股票或已登记指数，调用 AI 生成分析报告。
+分析指定股票或已登記指數，調用 AI 生成分析報告。
 """
 
 import logging
@@ -30,14 +30,14 @@ class AnalyzeCommand(BotCommand):
     """
     股票分析命令
     
-    分析指定股票代码或已登记指数，生成 AI 分析报告并推送。
+    分析指定股票代碼或已登記指數，生成 AI 分析報告並推送。
     
     用法：
-        /analyze 600519       - 分析贵州茅台（精简报告）
-        /analyze 600519 full  - 分析并生成完整报告
-        /analyze sh000016     - 分析上证50指数
-        /analyze 930955.CSI   - 分析红利低波100指数（alias 收敛）
-        /analyze 上证50       - 按注册名称分析上证50指数
+        /analyze 600519       - 分析貴州茅臺（精簡報告）
+        /analyze 600519 full  - 分析並生成完整報告
+        /analyze sh000016     - 分析上證50指數
+        /analyze 930955.CSI   - 分析紅利低波100指數（alias 收斂）
+        /analyze 上證50       - 按註冊名稱分析上證50指數
     """
     
     @property
@@ -54,21 +54,21 @@ class AnalyzeCommand(BotCommand):
     
     @property
     def usage(self) -> str:
-        return "/analyze <股票代码/指数代码/指数名称> [full]"
+        return "/analyze <股票代碼/指数代碼/指数名稱> [full]"
     
     def validate_args(self, args: List[str]) -> Optional[str]:
-        """验证参数（仅结构检查；语义校验在 execute 中完成）"""
+        """驗證參數（僅結構檢查；語義校驗在 execute 中完成）"""
         if not args:
-            return "请输入股票代码或指数名称"
+            return "请输入股票代码或指数名稱"
         return None
     
     def execute(self, message: BotMessage, args: List[str]) -> BotResponse:
-        """执行分析命令"""
+        """執行分析命令"""
         raw = (args[0] or "").strip()
         if not raw:
-            return BotResponse.error_response("请输入股票代码或指数名称")
+            return BotResponse.error_response("请输入股票代码或指数名稱")
 
-        # 检查是否需要完整报告（默认精简，传 full/完整/详细 切换）
+        # 檢查是否需要完整報告（默認精簡，傳 full/完整/詳細 切換）
         report_type = "simple"
         if len(args) > 1 and args[1].lower() in ["full", "完整", "详细"]:
             report_type = "full"
@@ -78,20 +78,20 @@ class AnalyzeCommand(BotCommand):
             if code is None:
                 error_msg = analysis_target
                 if not isinstance(error_msg, str):
-                    error_msg = "无法识别标的"
+                    error_msg = "無法識別标的"
                 return BotResponse.error_response(error_msg)
             if isinstance(analysis_target, str):
                 return BotResponse.error_response(analysis_target)
 
-            logger.info(f"[AnalyzeCommand] 分析标的: {code}, 报告类型: {report_type}")
+            logger.info(f"[AnalyzeCommand] 分析标的: {code}, 報告類型: {report_type}")
 
-            # 调用分析服务
+            # 調用分析服務
             from src.services.task_service import get_task_service
             from src.enums import ReportType
 
             service = get_task_service()
 
-            # 提交异步分析任务
+            # 提交異步分析任務
             result = service.submit_analysis(
                 code=code,
                 report_type=ReportType.from_str(report_type),
@@ -101,14 +101,14 @@ class AnalyzeCommand(BotCommand):
 
             if result.get("success"):
                 task_id = result.get("task_id", "")
-                # ``extra`` 仅供内部任务 identity 透传（transport-independent
-                # 消费者，如 E2E smoke），文本保持既有契约不变，平台适配器可忽略。
+                # ``extra`` 僅供內部任務 identity 透傳（transport-independent
+                # 消費者，如 E2E smoke），文本保持既有契約不變，平臺適配器可忽略。
                 response = BotResponse.markdown_response(
-                    f"✅ **分析任务已提交**\n\n"
+                    f"✅ **分析任務已提交**\n\n"
                     f"• 标的: `{code}`\n"
-                    f"• 报告类型: {ReportType.from_str(report_type).display_name}\n"
-                    f"• 任务 ID: `{task_id[:20]}...`\n\n"
-                    f"分析完成后将自动推送结果。"
+                    f"• 報告類型: {ReportType.from_str(report_type).display_name}\n"
+                    f"• 任務 ID: `{task_id[:20]}...`\n\n"
+                    f"分析完成後將自動推送結果。"
                 )
                 response.extra = {
                     "task_id": task_id,
@@ -116,10 +116,10 @@ class AnalyzeCommand(BotCommand):
                 }
                 return response
             error = result.get("error", "未知错误")
-            return BotResponse.error_response(f"提交分析任务失败: {error}")
+            return BotResponse.error_response(f"提交分析任務失敗: {error}")
 
         except Exception as e:
-            logger.error(f"[AnalyzeCommand] 执行失败: {e}")
+            logger.error(f"[AnalyzeCommand] 執行失敗: {e}")
             return BotResponse.error_response(f"分析失败: {str(e)[:100]}")
 
     def _resolve_analysis_input(
@@ -177,7 +177,7 @@ class AnalyzeCommand(BotCommand):
         #    a Chinese name must never become a parser identity alias.
         if registry.is_ambiguous_display_name(raw):
             return None, (
-                f"指数名称 `{raw}` 存在歧义，请改用显式代码（如 `sh000016`）"
+                f"指数名稱 `{raw}` 存在歧義，請改用顯式代碼（如 `sh000016`）"
             )
         entry = registry.find_by_display_name(raw)
         if entry is not None:
@@ -203,8 +203,8 @@ class AnalyzeCommand(BotCommand):
         #    ``.csi``) is covered, not only six-digit forms.
         normalized = unicodedata.normalize("NFKC", raw).strip().casefold()
         if re.fullmatch(r"(?:csi\d+|\d+\.csi)", normalized):
-            reason = target.unsupported_reason or f"无法识别标的: {raw}"
-            return None, f"无法分析 `{raw}`：{reason}"
+            reason = target.unsupported_reason or f"無法識別标的: {raw}"
+            return None, f"無法分析 `{raw}`：{reason}"
 
         # 5) Legacy stock-code gate — case-insensitive, exactly the shapes the
         #    old ``validate_args`` accepted. Matches keep the legacy code
@@ -223,8 +223,8 @@ class AnalyzeCommand(BotCommand):
         #    code shapes the parser rejected (``us1``, ``600519.BJ``,
         #    ``1234567.SH``) that the legacy gate above did not claim.
         if target.asset_type == ParseStatus.UNSUPPORTED:
-            reason = target.unsupported_reason or f"无法识别标的: {raw}"
-            return None, f"无法分析 `{raw}`：{reason}"
+            reason = target.unsupported_reason or f"無法識別标的: {raw}"
+            return None, f"無法分析 `{raw}`：{reason}"
 
         # 7) Code-like inputs the legacy gate rejected are explicit errors —
         #    never submitted, never routed into stock-name resolution. This
@@ -233,12 +233,12 @@ class AnalyzeCommand(BotCommand):
         #    a different exchange.
         if is_code_like(raw) or re.fullmatch(r"(?:sh|sz)\d{6}", normalized):
             return None, (
-                f"无效的标的代码: `{raw}`"
-                f"（A股6位数字 / HK+5位数字 / 美股1-5个字母 / 已登记指数代码或名称）"
+                f"無效的标的代碼: `{raw}`"
+                f"（A股6位數字 / HK+5位數字 / 美股1-5個字母 / 已登記指数代碼或名稱）"
             )
 
         # 8) Name input → stock-name fallback.
         code = resolve_name_to_code(raw)
         if not code:
-            return None, f"无法识别标的: {raw}"
+            return None, f"無法識別标的: {raw}"
         return code, None

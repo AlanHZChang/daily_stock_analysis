@@ -75,7 +75,7 @@ _MARKET_ROLES = {
         "en": "Korea stock",
     },
     "tw": {
-        "zh": "台股",
+        "zh": "臺股",
         "en": "Taiwan stock",
     },
 }

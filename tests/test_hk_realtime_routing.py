@@ -89,7 +89,7 @@ class TestHKRealtimeRouting(unittest.TestCase):
         self.assertIs(quote, akshare_quote)
         self.assertEqual(len(futu.calls), 1)
         self.assertEqual(akshare.calls, [((("HK01810",), {"source": "hk"}))])
-        # 首选源 Futu 失败、次源 AkShare 接管时，应保留 fallback_from 元数据。
+        # 首選源 Futu 失敗、次源 AkShare 接管時，應保留 fallback_from 元數據。
         self.assertEqual(getattr(quote, "fallback_from", None), "futu")
 
     @patch("data_provider.futu_fetcher.FutuFetcher.has_configured_endpoint", return_value=False)

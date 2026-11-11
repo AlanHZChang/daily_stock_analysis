@@ -42,7 +42,7 @@ export const validateStockCode = (value: string): ValidationResult => {
 
   return {
     valid,
-    message: valid ? undefined : '股票代码格式不正确',
+    message: valid ? undefined : '股票代碼格式不正確',
     normalized,
   };
 };

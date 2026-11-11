@@ -1,18 +1,18 @@
 # -*- coding: utf-8 -*-
-"""web_intent_tokenizer 六步分词管道单测。
+"""web_intent_tokenizer 六步分詞管道單測。
 
-只测分词与实体提取（不涉及 WebIntentResolver 的意图判定）：
-  Step 1   股票全名精确扫描（_split_by_stock_entities，管道首步，入口扩展）
-  Step 2   特殊标点切分（仅作用于 Step 1 的 gap）
-  Step 3   代码形提取（_split_by_codes：裸数字 → unknown_number）
-  Step 4   市场词提取（_split_market_tokens，"股"+"份"消歧）
-  Step 5   无歧义关键词（_tokenize_by_clean_keywords）
-  Step 6   多策略 DFS 匹配（_multi_match；板块词先于 DFS 整体 sector）
-  代码辨认 _identify_stock_codes（unknown_code → stock_code 附三元组 /
+只測分詞與實體提取（不涉及 WebIntentResolver 的意圖判定）：
+  Step 1   股票全名精確掃描（_split_by_stock_entities，管道首步，入口擴展）
+  Step 2   特殊標點切分（僅作用於 Step 1 的 gap）
+  Step 3   代碼形提取（_split_by_codes：裸數字 → unknown_number）
+  Step 4   市場詞提取（_split_market_tokens，"股"+"份"消歧）
+  Step 5   無歧義關鍵詞（_tokenize_by_clean_keywords）
+  Step 6   多策略 DFS 匹配（_multi_match；板塊詞先於 DFS 整體 sector）
+  代碼辨認 _identify_stock_codes（unknown_code → stock_code 附三元組 /
   wrong_{market}_code / unknown_{market}_code）
 
-AkShare 扩展在管道 Step 1 入口触发（幂等），测试 mock 为最小全量 A 股
-数据（_MOCK_AKSHARE_A_SHARES）保证离线确定性；mock 之外的库外名称仍不可
+AkShare 擴展在管道 Step 1 入口觸發（冪等），測試 mock 為最小全量 A 股
+數據（_MOCK_AKSHARE_A_SHARES）保證離線確定性；mock 之外的庫外名稱仍不可
 解析。
 """
 
@@ -61,8 +61,8 @@ from src.agent.web_intent_types import (
     wrong_code_tag,
 )
 
-# AkShare 扩展由下游 resolver_name_to_code_list 的 CJK 路径触发（分词层不扩展）。
-# 本测试模块 mock 一份最小全量 A 股数据：确定、离线、不依赖真实网络。
+# AkShare 擴展由下游 resolver_name_to_code_list 的 CJK 路徑觸發（分詞層不擴展）。
+# 本測試模塊 mock 一份最小全量 A 股數據：確定、離線、不依賴真實網絡。
 _MOCK_AKSHARE_A_SHARES = {
     "酒鬼酒": "000799",
     "三花智控": "002050",
@@ -81,7 +81,7 @@ def _mock_akshare_extension():
 
 @pytest.fixture(autouse=True)
 def _restore_resolver_state():
-    """快照/还原 name_to_code_resolver 模块级可变状态，用例间互不泄漏。"""
+    """快照/還原 name_to_code_resolver 模塊級可變狀態，用例間互不洩漏。"""
     from src.services import name_to_code_resolver as resolver_mod
 
     db = dict(resolver_mod.stockDB)
@@ -93,18 +93,18 @@ def _restore_resolver_state():
     resolver_mod.stockAliases.clear()
     resolver_mod.stockAliases.update(aliases)
     resolver_mod._akshare_merged = merged
-    # stockDB 原地增删，按对象身份缓存的名称/拼音列表可能已陈旧，强制重建
+    # stockDB 原地增刪，按對象身份緩存的名稱/拼音列表可能已陳舊，強制重建
     resolver_mod._names_cache[:] = [None, None, None]
     resolver_mod._pinyin_cache[:] = [None, None]
 
 
 # =========================================================================
-# Step 3 — 代码形提取
+# Step 3 — 代碼形提取
 # =========================================================================
 
 class TestSplitByCodes:
-    """任意位裸数字在 _split_by_codes 阶段直接打 unknown_number；
-    带交易所前缀/后缀与美股 ticker 形态打 unknown_code。"""
+    """任意位裸數字在 _split_by_codes 階段直接打 unknown_number；
+    帶交易所前綴/後綴與美股 ticker 形態打 unknown_code。"""
 
     def test_year_tag(self):
         assert _split_by_codes("2024") == [Token("2024", TAG_UNKNOWN_NUMBER)]
@@ -145,11 +145,11 @@ class TestSplitByCodes:
     def test_date_splits_into_three_number_tokens(self):
         tokens = _split_by_codes("2024-08-12")
         assert [t.tag for t in tokens if t.tag] == [TAG_UNKNOWN_NUMBER] * 3
-        # "-" 不在标点切分集合（可能出现在代码/名称中），作为间隙 token 保留
+        # "-" 不在標點切分集合（可能出現在代碼/名稱中），作為間隙 token 保留
         assert [t.text for t in tokens if not t.tag] == ["-", "-"]
 
     def test_overlapping_spans_merge_to_longest(self):
-        # "HK3294384923"：前缀正则 (0,12) 与裸数字正则 (2,12) 合并为最长 span
+        # "HK3294384923"：前綴正則 (0,12) 與裸數字正則 (2,12) 合併為最長 span
         assert _split_by_codes("HK3294384923") == [
             Token("HK3294384923", TAG_UNKNOWN_CODE),
         ]
@@ -162,7 +162,7 @@ class TestSplitByCodes:
         ]
 
     def test_lowercase_words_not_code_candidates(self):
-        # 普通小写英文单词不是代码形候选（美股 ticker 要求大写/带 .us）
+        # 普通小寫英文單詞不是代碼形候選（美股 ticker 要求大寫/帶 .us）
         assert _split_by_codes("tell us about") == [Token("tell us about")]
 
     def test_empty_text_returns_no_tokens(self):
@@ -170,16 +170,16 @@ class TestSplitByCodes:
 
 
 # =========================================================================
-# Step 2 — 含数字指数词放行（CJK+数字复合词不被裸数字提取破坏）
+# Step 2 — 含數字指數詞放行（CJK+數字複合詞不被裸數字提取破壞）
 # =========================================================================
 
 class TestDigitKeywordRelease:
-    """"沪深300"/"中证1000" 等含数字枚举指数词：数字段受 _DIGIT_KEYWORDS_RE
-    保护区放行，整词交 Step 4/5 命中 subject_index；裸数字本身行为不变。"""
+    """"沪深300"/"中证1000" 等含數字枚舉指數詞：數字段受 _DIGIT_KEYWORDS_RE
+    保護區放行，整詞交 Step 4/5 命中 subject_index；裸數字本身行為不變。"""
 
     @pytest.mark.parametrize("keyword", [
-        "沪深300", "科创50",                       # 既有词池
-        "中证A500", "中证1000", "中证2000",        # 本次补充（含用户指定）
+        "沪深300", "科创50",                       # 既有詞池
+        "中证A500", "中证1000", "中证2000",        # 本次補充（含用戶指定）
         "中证500", "中证800", "中证100",
         "上证50", "北证50", "深证100", "创业板50",
     ])
@@ -187,7 +187,7 @@ class TestDigitKeywordRelease:
         _, tokens = _preprocess_text(f"{keyword}怎么样")
         pairs = [(t.text, t.tag) for t in tokens]
         assert (keyword, TAG_SUBJECT_INDEX) in pairs
-        # 关键词的数字段不得泄漏为独立裸数字 token
+        # 關鍵詞的數字段不得洩漏為獨立裸數字 token
         assert all(
             t.tag != TAG_UNKNOWN_NUMBER or keyword.find(t.text) < 0
             for t in tokens
@@ -208,13 +208,13 @@ class TestDigitKeywordRelease:
         ]
 
     def test_bare_numbers_untouched(self):
-        # 放行只作用于"完全包含于关键词 span"的数字段，裸数字行为不变
+        # 放行只作用於"完全包含於關鍵詞 span"的數字段，裸數字行為不變
         assert _split_by_codes("300") == [Token("300", TAG_UNKNOWN_NUMBER)]
         assert _split_by_codes("1000") == [Token("1000", TAG_UNKNOWN_NUMBER)]
         assert _split_by_codes("50") == [Token("50", TAG_UNKNOWN_NUMBER)]
 
     def test_number_adjacent_to_digit_keyword(self):
-        # "2024年沪深300"：年份照常裸数字，指数整词命中，互不干扰
+        # "2024年滬深300"：年份照常裸數字，指數整詞命中，互不干擾
         _, tokens = _preprocess_text("2024年沪深300")
         pairs = [(t.text, t.tag) for t in tokens]
         assert ("2024", TAG_UNKNOWN_NUMBER) in pairs
@@ -227,19 +227,19 @@ class TestDigitKeywordRelease:
         assert ("600519", TAG_UNKNOWN_NUMBER) in pairs
 
     def test_partial_overlap_not_released(self):
-        # 数字段仅部分重叠关键词（"沪深3000" ≠ "沪深300"+0）不适用保护：
-        # 维持裸数字提取，前缀交下游
+        # 數字段僅部分重疊關鍵詞（"滬深3000" ≠ "滬深300"+0）不適用保護：
+        # 維持裸數字提取，前綴交下游
         tokens = _split_by_codes("沪深3000")
         pairs = [(t.text, t.tag) for t in tokens]
         assert ("3000", TAG_UNKNOWN_NUMBER) in pairs
 
 
 # =========================================================================
-# 代码辨认 — unknown_code → stock_code / wrong_{market}_code / unknown_{market}_code
+# 代碼辨認 — unknown_code → stock_code / wrong_{market}_code / unknown_{market}_code
 # =========================================================================
 
 class TestIdentifyStockCodes:
-    """库命中附完整三元组 + 规范化拼写；未命中按市场库全量与否细分 wrong/unknown。"""
+    """庫命中附完整三元組 + 規範化拼寫；未命中按市場庫全量與否細分 wrong/unknown。"""
 
     @staticmethod
     def _identify(token_text, tag=TAG_UNKNOWN_CODE):
@@ -266,8 +266,8 @@ class TestIdentifyStockCodes:
         ]
 
     def test_hk_short_suffix_padded_before_validation(self):
-        # 4 位短码后缀（1810.HK=小米）：构造 canonical 时先补零再过 5 位
-        # 闸门，token 文本用规范拼写 HK01810（对齐 stock_code_utils zfill(5)）
+        # 4 位短碼後綴（1810.HK=小米）：構造 canonical 時先補零再過 5 位
+        # 閘門，token 文本用規範拼寫 HK01810（對齊 stock_code_utils zfill(5)）
         assert self._identify("1810.HK") == [
             Token("HK01810", TAG_STOCK_CODE, stocks=(Stock("HK01810", "小米集团", "hk"),))
         ]
@@ -278,13 +278,13 @@ class TestIdentifyStockCodes:
         ]
 
     def test_hk_short_prefix_padded(self):
-        # 前缀短码同样补零：HK700 → HK00700 腾讯
+        # 前綴短碼同樣補零：HK700 → HK00700 騰訊
         assert self._identify("HK700") == [
             Token("HK00700", TAG_STOCK_CODE, stocks=(Stock("HK00700", "腾讯控股", "hk"),))
         ]
 
     def test_hk_one_digit_suffix_padded(self):
-        # 单位极端例：700.HK → HK00700（与 stock_scope 正则 \d{1,5}\.HK 同口径）
+        # 單位極端例：700.HK → HK00700（與 stock_scope 正則 \d{1,5}\.HK 同口徑）
         assert self._identify("700.HK") == [
             Token("HK00700", TAG_STOCK_CODE, stocks=(Stock("HK00700", "腾讯控股", "hk"),))
         ]
@@ -295,31 +295,31 @@ class TestIdentifyStockCodes:
         ]
 
     def test_us_ticker_lowercase_suffix_canonicalized(self):
-        # aapl.us → 规范大写 AAPL（extract 的美股正则只认大写，回退大写拼写）
+        # aapl.us → 規範大寫 AAPL（extract 的美股正則只認大寫，回退大寫拼寫）
         assert self._identify("aapl.us") == [
             Token("AAPL", TAG_STOCK_CODE, stocks=(Stock("AAPL", "苹果", "us"),))
         ]
 
     def test_prefixed_illegal_code_is_wrong_a(self):
-        # 带前缀的非法代码（SH777777）与裸 777777 一样按 A 股形态进 wrong_a_code，
-        # 不得因前缀形态被放行（形态非法由交易所静态规则断定，与库状态无关）
+        # 帶前綴的非法代碼（SH777777）與裸 777777 一樣按 A 股形態進 wrong_a_code，
+        # 不得因前綴形態被放行（形態非法由交易所靜態規則斷定，與庫狀態無關）
         assert self._identify("SH777777") == [Token("SH777777", wrong_code_tag("a"))]
 
     def test_hk_bad_digit_count_is_wrong_hk(self):
-        # HK + 11 位：位数不符形态非法 → wrong_hk_code
+        # HK + 11 位：位數不符形態非法 → wrong_hk_code
         assert self._identify("HK3294384923") == [
             Token("HK3294384923", wrong_code_tag("hk"))
         ]
 
     def test_hk_prefix_with_ashare_digits_is_wrong_hk(self):
-        # HK 前缀 + 6 位（A 股位数）→ 与标注矛盾判 wrong_hk，
-        # 不得静默解析成 A 股 600519 贵州茅台
+        # HK 前綴 + 6 位（A 股位數）→ 與標註矛盾判 wrong_hk，
+        # 不得靜默解析成 A 股 600519 貴州茅臺
         assert self._identify("HK600519") == [
             Token("HK600519", wrong_code_tag("hk"))
         ]
 
     def test_sh_prefix_with_hk_digits_is_wrong_a(self):
-        # SH 前缀 + 5 位（港股位数）→ wrong_a，不得静默变 HK00700 腾讯
+        # SH 前綴 + 5 位（港股位數）→ wrong_a，不得靜默變 HK00700 騰訊
         assert self._identify("SH00700") == [
             Token("SH00700", wrong_code_tag("a"))
         ]
@@ -330,33 +330,33 @@ class TestIdentifyStockCodes:
         ]
 
     def test_hk_suffix_with_ashare_digits_is_wrong_hk(self):
-        # .HK 后缀 + 6 位 → wrong_hk：不得从数字中段截取片段与后缀拼接
-        # 解析（多候选只取首个的顺序依赖同样不允许）
+        # .HK 後綴 + 6 位 → wrong_hk：不得從數字中段截取片段與後綴拼接
+        # 解析（多候選只取首個的順序依賴同樣不允許）
         assert self._identify("600519.HK") == [
             Token("600519.HK", wrong_code_tag("hk"))
         ]
 
     def test_sh_marker_with_sz_digits_is_wrong_a(self):
-        # SH 前缀 + 深市代码（000001=平安银行）：交易所标注与数字形态矛盾
-        # → wrong_a，不得静默解析成平安银行（SH000001 本意是上证指数）
+        # SH 前綴 + 深市代碼（000001=平安銀行）：交易所標註與數字形態矛盾
+        # → wrong_a，不得靜默解析成平安銀行（SH000001 本意是上證指數）
         assert self._identify("SH000001") == [
             Token("SH000001", wrong_code_tag("a"))
         ]
 
     def test_bj_marker_with_sh_digits_is_wrong_a(self):
-        # BJ 前缀 + 沪市代码（600519=贵州茅台）→ wrong_a，不得静默解析成茅台
+        # BJ 前綴 + 滬市代碼（600519=貴州茅臺）→ wrong_a，不得靜默解析成茅臺
         assert self._identify("BJ600519") == [
             Token("BJ600519", wrong_code_tag("a"))
         ]
 
     def test_sz_marker_with_sh_digits_is_wrong_a(self):
-        # SZ 后缀 + 沪市代码 → wrong_a（后缀标注与形态同样受一致性闸门约束）
+        # SZ 後綴 + 滬市代碼 → wrong_a（後綴標註與形態同樣受一致性閘門約束）
         assert self._identify("600519.SZ") == [
             Token("600519.SZ", wrong_code_tag("a"))
         ]
 
     def test_consistent_sz_marker_resolves(self):
-        # 标注一致（SZ+000001 深市代码）照常命中：一致性闸门不误伤正确标注
+        # 標註一致（SZ+000001 深市代碼）照常命中：一致性閘門不誤傷正確標註
         assert self._identify("SZ000001") == [
             Token("000001", TAG_STOCK_CODE, stocks=(Stock("000001", "平安银行", "a"),))
         ]
@@ -372,7 +372,7 @@ class TestIdentifyStockCodes:
         ]
 
     def test_contradictory_double_marker_is_wrong(self):
-        # 前后缀标注市场互斥：按后缀市场判 wrong，不取数字段静默解析
+        # 前後綴標註市場互斥：按後綴市場判 wrong，不取數字段靜默解析
         assert self._identify("HK600519.SH") == [
             Token("HK600519.SH", wrong_code_tag("a"))
         ]
@@ -384,34 +384,34 @@ class TestIdentifyStockCodes:
         ]
 
     def test_out_of_db_ticker_kept_unknown_us(self):
-        # SOFI 不在本地库：美股库永不视为全量，存疑 unknown_us_code 交下游 LLM
+        # SOFI 不在本地庫：美股庫永不視為全量，存疑 unknown_us_code 交下游 LLM
         assert self._identify("SOFI") == [Token("SOFI", unknown_code_tag("us"))]
 
     def test_plain_english_word_kept_unknown_us(self):
         assert self._identify("OK") == [Token("OK", unknown_code_tag("us"))]
 
     def test_absent_ashare_code_before_extension_unknown(self, monkeypatch):
-        # A 股库未扩展（_akshare_merged 为 None）：格式合法但库未命中 → 存疑
+        # A 股庫未擴展（_akshare_merged 為 None）：格式合法但庫未命中 → 存疑
         from src.services import name_to_code_resolver as resolver_mod
 
         monkeypatch.setattr(resolver_mod, "_akshare_merged", None)
         assert self._identify("SH603999") == [Token("SH603999", unknown_code_tag("a"))]
 
     def test_absent_ashare_code_after_extension_wrong(self, monkeypatch):
-        # AkShare 已并入仍命中失败 → 确定不存在 wrong_a_code
+        # AkShare 已併入仍命中失敗 → 確定不存在 wrong_a_code
         from src.services import name_to_code_resolver as resolver_mod
 
         monkeypatch.setattr(resolver_mod, "_akshare_merged", {"贵州茅台": "600519"})
         assert self._identify("SH603999") == [Token("SH603999", wrong_code_tag("a"))]
 
     def test_hk_absent_code_always_unknown(self):
-        # 港股本地库永不视为全量：格式合法但库未命中（HK39999）→ 存疑
+        # 港股本地庫永不視為全量：格式合法但庫未命中（HK39999）→ 存疑
         assert self._identify("HK39999") == [Token("HK39999", unknown_code_tag("hk"))]
 
     def test_mock_akshare_merge_makes_code_matched(self):
-        # mock 的 AkShare 全量并入后：SZ000799（酒鬼酒，深市代码配深市标注）
-        # 辨认命中并附三元组
-        resolver_name_to_code_list("酒鬼酒")  # CJK 触发下游扩展（mock 并入）
+        # mock 的 AkShare 全量併入後：SZ000799（酒鬼酒，深市代碼配深市標註）
+        # 辨認命中並附三元組
+        resolver_name_to_code_list("酒鬼酒")  # CJK 觸發下游擴展（mock 併入）
         assert self._identify("SZ000799") == [
             Token("000799", TAG_STOCK_CODE, stocks=(Stock("000799", "酒鬼酒", "a"),))
         ]
@@ -422,11 +422,11 @@ class TestIdentifyStockCodes:
 
 
 # =========================================================================
-# Step 1 — 股票全名精确扫描（管道首步）
+# Step 1 — 股票全名精確掃描（管道首步）
 # =========================================================================
 
 class TestFullNameScan:
-    """窗口必须整体等于库中股票全名（4~3 字）；缩写与非全名留给 Step 6。"""
+    """窗口必須整體等於庫中股票全名（4~3 字）；縮寫與非全名留給 Step 6。"""
 
     def test_full_name_inside_sentence(self):
         tokens = _split_by_stock_entities("分析贵州茅台走势")
@@ -436,22 +436,22 @@ class TestFullNameScan:
         assert [s.code for s in name_token.stocks] == ["600519"]
 
     def test_cross_market_same_name_carries_candidates(self):
-        # 阿里巴巴 → hk 09988 / us BABA 同名多只，token 携带多候选
+        # 阿里巴巴 → hk 09988 / us BABA 同名多隻，token 攜帶多候選
         tokens = _split_by_stock_entities("阿里巴巴")
         assert len(tokens) == 1
         assert tokens[0].tag == TAG_STOCK_NAME
         assert {s.code for s in tokens[0].stocks} == {"HK09988", "BABA"}
 
     def test_abbreviation_not_matched_here(self):
-        # 一对一缩写（茅台）非全名，Step 1 不做匹配，交由 Step 6 承接
+        # 一對一縮寫（茅臺）非全名，Step 1 不做匹配，交由 Step 6 承接
         assert _split_by_stock_entities("茅台") == [Token("茅台")]
 
     def test_non_name_text_untouched(self):
         assert _split_by_stock_entities("大港股份怎么样") == [Token("大港股份怎么样")]
 
     def test_intra_name_space_matched_after_compact(self):
-        # 契约：窗口匹配前输入端统一删去空格（与库内压平拼写对齐），
-        # 带空格指称与常规书写同样整名命中，token 文本为压平拼写
+        # 契約：窗口匹配前輸入端統一刪去空格（與庫內壓平拼寫對齊），
+        # 帶空格指稱與常規書寫同樣整名命中，token 文本為壓平拼寫
         tokens = _split_by_stock_entities("贵 州 茅 台怎么样")
         assert [(t.text, t.tag) for t in tokens] == [
             ("贵州茅台", TAG_STOCK_NAME), ("怎么样", "")
@@ -462,7 +462,7 @@ class TestFullNameScan:
         ]
 
     def test_spaced_name_pipeline_resolves(self):
-        # 全管道：带空格指称整名命中，余文关键词照常提取
+        # 全管道：帶空格指稱整名命中，余文關鍵詞照常提取
         _, tokens = _preprocess_text("五 粮 液怎么样")
         assert [(t.text, t.tag) for t in tokens] == [
             ("五粮液", TAG_STOCK_NAME),
@@ -471,19 +471,19 @@ class TestFullNameScan:
         assert [s.code for s in tokens[0].stocks] == ["000858"]
 
     def test_pure_ascii_short_circuit(self):
-        # 纯英文段直接原样返回（交 Step 6 拼音/美股代码兜底）
+        # 純英文段直接原樣返回（交 Step 6 拼音/美股代碼兜底）
         assert _split_by_stock_entities("TSLA") == [Token("TSLA")]
 
     def test_two_char_full_name_matched(self):
-        # 8~2 窗口契约（原"2 字名不扫描"已反转）：2 字全名（美团=03690）
-        # 整名精确命中，不再依赖 Step 6 模糊路径
+        # 8~2 窗口契約（原"2 字名不掃描"已反轉）：2 字全名（美團=03690）
+        # 整名精確命中，不再依賴 Step 6 模糊路徑
         tokens = _split_by_stock_entities("美团")
         assert [(t.text, t.tag) for t in tokens] == [("美团", TAG_STOCK_NAME)]
         assert [s.code for s in tokens[0].stocks] == ["HK03690"]
 
     def test_six_char_full_name_matched_whole(self):
-        # 6 字全名（中国海洋石油=00883）整名命中：不再落给 DFS 拆成
-        # "中国海洋"+"石油" 错误边界（"石油"子串曾带入未提及的中国石油）
+        # 6 字全名（中國海洋石油=00883）整名命中：不再落給 DFS 拆成
+        # "中國海洋"+"石油" 錯誤邊界（"石油"子串曾帶入未提及的中國石油）
         tokens = _split_by_stock_entities("中国海洋石油怎么样")
         assert [(t.text, t.tag) for t in tokens] == [
             ("中国海洋石油", TAG_STOCK_NAME),
@@ -492,8 +492,8 @@ class TestFullNameScan:
         assert [s.code for s in tokens[0].stocks] == ["HK00883"]
 
     def test_spaced_six_char_name_matched_whole(self):
-        # 单空格书写的 6 字全名（raw 11 字符，超压缩长度上限 8）：空白收敛
-        # + 跨度上界（2*max_len-1）下整名命中，token 文本为压平拼写
+        # 單空格書寫的 6 字全名（raw 11 字符，超壓縮長度上限 8）：空白收斂
+        # + 跨度上界（2*max_len-1）下整名命中，token 文本為壓平拼寫
         tokens = _split_by_stock_entities("中 国 海 洋 石 油怎么样")
         assert [(t.text, t.tag) for t in tokens] == [
             ("中国海洋石油", TAG_STOCK_NAME),
@@ -502,8 +502,8 @@ class TestFullNameScan:
         assert [s.code for s in tokens[0].stocks] == ["HK00883"]
 
     def test_spaced_long_name_pipeline_resolves(self):
-        # 全管道：带空格 6 字全名整名命中——Step 2 按空白切分会把名撕裂成
-        # 单字且 Step 6 无从复原，Step 1 必须在此消费
+        # 全管道：帶空格 6 字全名整名命中——Step 2 按空白切分會把名撕裂成
+        # 單字且 Step 6 無從復原，Step 1 必須在此消費
         _, tokens = _preprocess_text("中 国 海 洋 石 油怎么样")
         assert [(t.text, t.tag) for t in tokens] == [
             ("中国海洋石油", TAG_STOCK_NAME),
@@ -512,9 +512,9 @@ class TestFullNameScan:
         assert [s.code for s in tokens[0].stocks] == ["HK00883"]
 
     def test_multi_space_and_tab_separated_name_matched(self):
-        # 多空格/tab/连续空白分隔的全名同样整名命中：入口把空白收敛为单空格，
-        # 统一 Step 1 删 ' ' 与 Step 2 按 \s 切分的两套口径（旧实现 tab 分
-        # 隔两头落空）
+        # 多空格/tab/連續空白分隔的全名同樣整名命中：入口把空白收斂為單空格，
+        # 統一 Step 1 刪 ' ' 與 Step 2 按 \s 切分的兩套口徑（舊實現 tab 分
+        # 隔兩頭落空）
         tokens = _split_by_stock_entities("贵  州\t茅   台怎么样")
         assert [(t.text, t.tag) for t in tokens] == [
             ("贵州茅台", TAG_STOCK_NAME),
@@ -524,22 +524,22 @@ class TestFullNameScan:
 
 
 # =========================================================================
-# 港股代码身份不变量 — 名称路径与代码路径共享同一拼写
+# 港股代碼身份不變量 — 名稱路徑與代碼路徑共享同一拼寫
 # =========================================================================
 
 class TestHkCodeIdentityInvariant:
-    """token 层代码身份契约：a=6 位裸数字、hk=HK+5 位、us=大写 ticker
-    （单一定义点 _canonical_stock_code）。名称路径（Step 1 实体/别名扫描、
-    Step 6 子串/拼音匹配）与代码路径（_identify_stock_codes）产出必须一致，
-    否则同一股票跨轮次出现多重身份（recent_stocks 去重/事件比较失效）。
-    stockDB 港股键为裸 5 位，归一化只在 token 层发生，resolver 契约不变。"""
+    """token 層代碼身份契約：a=6 位裸數字、hk=HK+5 位、us=大寫 ticker
+    （單一定義點 _canonical_stock_code）。名稱路徑（Step 1 實體/別名掃描、
+    Step 6 子串/拼音匹配）與代碼路徑（_identify_stock_codes）產出必須一致，
+    否則同一股票跨輪次出現多重身份（recent_stocks 去重/事件比較失效）。
+    stockDB 港股鍵為裸 5 位，歸一化只在 token 層發生，resolver 契約不變。"""
 
     @pytest.mark.parametrize("name, code", [
         ("腾讯控股", "HK00700"),
         ("美团", "HK03690"),
     ])
     def test_name_path_matches_code_path(self, name, code):
-        # P1-1 回归：同一条消息里名称指称与代码指称必须解析到同一代码拼写
+        # P1-1 迴歸：同一條消息里名稱指稱與代碼指稱必須解析到同一代碼拼寫
         _, tokens = _preprocess_text(f"{name}怎么样")
         name_codes = {s.code for t in tokens if t.tag == TAG_STOCK_NAME
                       for s in (t.stocks or ())}
@@ -548,7 +548,7 @@ class TestHkCodeIdentityInvariant:
         assert name_codes == code_codes == {code}
 
     def test_step1_alias_hit_canonical(self):
-        # Step 1 别名分支：命中展示当前规范名 + canonical 拼写
+        # Step 1 別名分支：命中展示當前規範名 + canonical 拼寫
         from src.services import name_to_code_resolver as resolver_mod
 
         resolver_mod.stockAliases.setdefault("00700", set()).add("老腾讯名")
@@ -567,20 +567,20 @@ class TestHkCodeIdentityInvariant:
             resolver_mod._names_cache[:] = [None, None, None]
 
     def test_dfs_cjk_substring_path_canonical(self):
-        # Step 6 CJK 循环经 resolver 子串命中港股（腾讯 ⊂ 腾讯控股）
+        # Step 6 CJK 循環經 resolver 子串命中港股（騰訊 ⊂ 騰訊控股）
         _, tokens = _preprocess_text("腾讯怎么样")
         assert [s.code for t in tokens if t.tag == TAG_STOCK_NAME
                 for s in (t.stocks or ())] == ["HK00700"]
 
     def test_dfs_alpha_pinyin_path_canonical(self):
-        # Step 6 alpha 路径经拼音命中港股（tengxun ⊂ tengxunkonggu）
+        # Step 6 alpha 路徑經拼音命中港股（tengxun ⊂ tengxunkonggu）
         _, tokens = _preprocess_text("tengxun怎么样")
         assert [s.code for t in tokens if t.tag == TAG_STOCK_NAME
                 for s in (t.stocks or ())] == ["HK00700"]
 
     def test_no_bare_hk_code_in_any_token(self):
-        # 不变量扫描：任何 token 的 stocks 不得出现 market=="hk" 且纯数字 code
-        # （跨市场名"理想汽车"= LI + 02015 同 token 内按市场逐候选归一）
+        # 不變量掃描：任何 token 的 stocks 不得出現 market=="hk" 且純數字 code
+        # （跨市場名"理想汽車"= LI + 02015 同 token 內按市場逐候選歸一）
         for msg in ["腾讯控股和美团对比", "阿里巴巴vs贵州茅台", "港股腾讯控股",
                     "分析hk00700和腾讯控股", "理想汽车怎么样"]:
             _, tokens = _preprocess_text(msg)
@@ -590,20 +590,20 @@ class TestHkCodeIdentityInvariant:
 
 
 # =========================================================================
-# Step 1 实体扫描前置 — 含 ASCII 大写子串的库内全名不被代码形提取撕裂
+# Step 1 實體掃描前置 — 含 ASCII 大寫子串的庫內全名不被代碼形提取撕裂
 # =========================================================================
 
 class TestAsciiContainedFullName:
-    """P1-1 回归：库内全名含形同美股 ticker 的大写 ASCII 子串（"TCL科技"
-    的 "TCL"）时，Step 1 实体扫描（管道首步，入口先扩展）必须整名消费。
-    旧序（代码形提取先于实体扫描）会把 "TCL" 撕成 unknown_code、把
-    "科技" 误打成 sector_name——实体丢失且产出错误的行业/市场信号，
-    冷热库行为一致地坏。"""
+    """P1-1 迴歸：庫內全名含形同美股 ticker 的大寫 ASCII 子串（"TCL科技"
+    的 "TCL"）時，Step 1 實體掃描（管道首步，入口先擴展）必須整名消費。
+    舊序（代碼形提取先於實體掃描）會把 "TCL" 撕成 unknown_code、把
+    "科技" 誤打成 sector_name——實體丟失且產出錯誤的行業/市場信號，
+    冷熱庫行為一致地壞。"""
 
     _TCL_MOCK = {"TCL科技": "000100"}
 
     def _run(self, msg):
-        """冷启动前提：重置扩展态，首条消息即在 Step 1 入口面对扩展。"""
+        """冷啟動前提：重置擴展態，首條消息即在 Step 1 入口面對擴展。"""
         from src.services import name_to_code_resolver as resolver_mod
 
         with patch(
@@ -625,8 +625,8 @@ class TestAsciiContainedFullName:
         assert [s.code for s in tokens[1].stocks] == ["000100"]
 
     def test_bare_name_message(self):
-        # 整条消息即全名（无标点词界）：同样必须整名消费——Step 6 DFS 的
-        # 长度循环无法处理 ASCII+CJK 混段（alpha 路径只取纯字母前缀）
+        # 整條消息即全名（無標點詞界）：同樣必須整名消費——Step 6 DFS 的
+        # 長度循環無法處理 ASCII+CJK 混段（alpha 路徑只取純字母前綴）
         tokens = self._run("TCL科技")
         assert [(t.text, t.tag) for t in tokens] == [("TCL科技", TAG_STOCK_NAME)]
         assert [(s.code, s.name, s.market) for s in tokens[0].stocks] == [
@@ -650,22 +650,22 @@ class TestAsciiContainedFullName:
         ]
 
     def test_out_of_db_ascii_name_degrades_gracefully(self):
-        # 已知限制：库外含 ASCII 名（如港股 "TCL电子"）不在库中，Step 1
-        # 无法整名消费，"TCL" 照旧降级为 unknown_us_code 交下游 LLM 兜底
-        # （形态层面本质歧义：大写字母后接 CJK 一律放行会误伤 "TSLA怎么样"）
+        # 已知限制：庫外含 ASCII 名（如港股 "TCL電子"）不在庫中，Step 1
+        # 無法整名消費，"TCL" 照舊降級為 unknown_us_code 交下游 LLM 兜底
+        # （形態層面本質歧義：大寫字母后接 CJK 一律放行會誤傷 "TSLA怎麼樣"）
         tokens = self._run("TCL电子怎么样")
         pairs = [(t.text, t.tag) for t in tokens]
         assert ("TCL", unknown_code_tag("us")) in pairs
 
 
 # =========================================================================
-# 关键词大小写不敏感 — 大写存储词的小写形态同构命中
+# 關鍵詞大小寫不敏感 — 大寫存儲詞的小寫形態同構命中
 # =========================================================================
 
 class TestCaseInsensitiveKeywordClassification:
-    """P1-2 回归：关键词大小写不敏感与 (?i:) 编译声明同构——存储为大写的
-    关键词（"AI"/"中证A500"）的小写形态（"ai赛道"/"中证a500"）必须与
-    大写原形产出完全一致，不得整体失效或被裸数字提取撕裂。"""
+    """P1-2 迴歸：關鍵詞大小寫不敏感與 (?i:) 編譯聲明同構——存儲為大寫的
+    關鍵詞（"AI"/"中证A500"）的小寫形態（"ai賽道"/"中證a500"）必須與
+    大寫原形產出完全一致，不得整體失效或被裸數字提取撕裂。"""
 
     def test_lowercase_ai_sector_pair(self):
         _, tokens = _preprocess_text("ai赛道")
@@ -675,8 +675,8 @@ class TestCaseInsensitiveKeywordClassification:
         ]
 
     def test_lowercase_digit_index_keyword_kept_whole(self):
-        # "中证a500" 的数字段受保护区放行（大小写不敏感），整词命中
-        # subject_index，不被撕成 "中证a" + "500"
+        # "中證a500" 的數字段受保護區放行（大小寫不敏感），整詞命中
+        # subject_index，不被撕成 "中證a" + "500"
         _, tokens = _preprocess_text("中证a500走势")
         assert [(t.text, t.tag) for t in tokens] == [
             ("中证a500", TAG_SUBJECT_INDEX),
@@ -687,18 +687,18 @@ class TestCaseInsensitiveKeywordClassification:
         assert _split_by_codes("中证a500") == [Token("中证a500")]
 
     def test_uppercase_pool_keyword_original_form_unchanged(self):
-        # 大写存储词的原形匹配不受归一表影响
+        # 大寫存儲詞的原形匹配不受歸一表影響
         assert _preprocess_text("AI赛道")[1][0].tag == TAG_SECTOR_NAME
 
 
 # =========================================================================
-# 字母.交易所后缀代码 — 后缀与主体整体成 span
+# 字母.交易所後綴代碼 — 後綴與主體整體成 span
 # =========================================================================
 
 class TestSuffixedUsTicker:
-    """BRK.B / AAPL.N / TSLA.N 形态（与 extract_stock_codes 的美股正则
-    同构）：后缀与主体必须整体成 span，不得撕成 "BRK" + ".B" 两段——
-    旧正则会把库外代码文本撕残（unknown_us_code 只剩 "BRK"）。"""
+    """BRK.B / AAPL.N / TSLA.N 形態（與 extract_stock_codes 的美股正則
+    同構）：後綴與主體必須整體成 span，不得撕成 "BRK" + ".B" 兩段——
+    舊正則會把庫外代碼文本撕殘（unknown_us_code 只剩 "BRK"）。"""
 
     def test_step3_keeps_suffix_whole(self):
         assert _split_by_codes("BRK.B") == [Token("BRK.B", TAG_UNKNOWN_CODE)]
@@ -709,29 +709,29 @@ class TestSuffixedUsTicker:
         ]
 
     def test_identify_in_db_ticker_with_suffix(self):
-        # 库内 ticker：取主体规范化大写拼写（AAPL.N → AAPL）
+        # 庫內 ticker：取主體規範化大寫拼寫（AAPL.N → AAPL）
         assert _identify_stock_codes([Token("AAPL.N", TAG_UNKNOWN_CODE)]) == [
             Token("AAPL", TAG_STOCK_CODE, stocks=(Stock("AAPL", "苹果", "us"),))
         ]
 
     def test_identify_out_of_db_keeps_text_intact(self):
-        # 库外带后缀代码：文本保持完整交下游确认（不再残缺成 "BRK"+".B"）
+        # 庫外帶後綴代碼：文本保持完整交下游確認（不再殘缺成 "BRK"+".B"）
         assert _identify_stock_codes([Token("BRK.B", TAG_UNKNOWN_CODE)]) == [
             Token("BRK.B", unknown_code_tag("us"))
         ]
 
     def test_us_suffix_pattern_unaffected(self):
-        # .us 后缀（大小写不敏感）行为不变
+        # .us 後綴（大小寫不敏感）行為不變
         assert _split_by_codes("aapl.us") == [Token("aapl.us", TAG_UNKNOWN_CODE)]
         assert _split_by_codes("BABA.US") == [Token("BABA.US", TAG_UNKNOWN_CODE)]
 
 
 # =========================================================================
-# Step 4 — 市场词提取
+# Step 4 — 市場詞提取
 # =========================================================================
 
 class TestMarketTokenSplit:
-    """"股"后接"份"（股票名后缀）时跳过，避免"大港股份"中的"港股"被误提取。"""
+    """"股"後接"份"（股票名後綴）時跳過，避免"大港股份"中的"港股"被誤提取。"""
 
     def test_market_word_tagged(self):
         tokens = _split_market_tokens("港股")
@@ -742,7 +742,7 @@ class TestMarketTokenSplit:
         assert [(t.text, t.tag) for t in tokens] == [("A股", TAG_SUBJECT_MARKET)]
 
     def test_market_suffix_company_name_not_split(self):
-        # "大港股份"中的"港股"子串后接"份"→ 跳过，整段保留
+        # "大港股份"中的"港股"子串後接"份"→ 跳過，整段保留
         assert _split_market_tokens("大港股份") == [Token("大港股份")]
 
     def test_broad_market_keyword(self):
@@ -756,7 +756,7 @@ class TestMarketTokenSplit:
 
 
 # =========================================================================
-# Step 5 — 无歧义关键词
+# Step 5 — 無歧義關鍵詞
 # =========================================================================
 
 class TestCleanKeywordTokenize:
@@ -773,22 +773,22 @@ class TestCleanKeywordTokenize:
         assert tokens == [Token("走势", TAG_SUBJECT_RESEARCH)]
 
     def test_ambiguous_keyword_not_in_clean_pool(self):
-        # "对比"在 extend 池（可能与股票名混淆），clean 分词不提取
+        # "對比"在 extend 池（可能與股票名混淆），clean 分詞不提取
         assert _tokenize_by_clean_keywords("对比") == [Token("对比")]
 
 
 # =========================================================================
-# Step 6 板块词契约 — 板块词不做个股名匹配（Step 6 之前禁止模糊匹配）
+# Step 6 板塊詞契約 — 板塊詞不做個股名匹配（Step 6 之前禁止模糊匹配）
 # =========================================================================
 
 class TestSectorWordNotStockMatched:
-    """sector 系词不做个股名匹配。"XX板块/行业/赛道/概念/题材"无专用正则：
-    Step 6 DFS 把词池内的行业名与泛称切为相邻 [sector_name/sector_n_stock]
-    +[sector] token 对——该相邻组合即高置信度板块信号，由下游消费。
-    Step 1~5 保持纯精确匹配。"""
+    """sector 系詞不做個股名匹配。"XX板塊/行業/賽道/概念/題材"無專用正則：
+    Step 6 DFS 把詞池內的行業名與泛稱切為相鄰 [sector_name/sector_n_stock]
+    +[sector] token 對——該相鄰組合即高置信度板塊信號，由下游消費。
+    Step 1~5 保持純精確匹配。"""
 
     def test_suffix_decomposes_to_adjacent_pair(self):
-        # Step 5 clean 关键词先于 Step 6；"建筑板块"→[sector_name]+[sector] 相邻
+        # Step 5 clean 關鍵詞先於 Step 6；"建築板塊"→[sector_name]+[sector] 相鄰
         _, tokens = _preprocess_text("看看建筑板块")
         assert [(t.text, t.tag) for t in tokens] == [
             ("看看", TAG_REQUEST),
@@ -797,7 +797,7 @@ class TestSectorWordNotStockMatched:
         ]
 
     def test_industry_prefix_never_stock_matched(self):
-        # "建筑"不得经名称库子串解析成"中国建筑"个股
+        # "建築"不得經名稱庫子串解析成"中國建築"個股
         _, tokens = _preprocess_text("看看建筑板块")
         assert all(t.tag != TAG_STOCK_NAME for t in tokens)
 
@@ -808,7 +808,7 @@ class TestSectorWordNotStockMatched:
         ]
 
     def test_adjacent_pair_then_dfs_recursion(self):
-        # 相邻组合命中后，余文在同一递归链内继续匹配
+        # 相鄰組合命中後，余文在同一遞歸鏈內繼續匹配
         tokens = _multi_match("建筑板块怎么样")
         assert [(t.text, t.tag) for t in tokens] == [
             ("建筑", TAG_SECTOR_NAME),
@@ -817,46 +817,46 @@ class TestSectorWordNotStockMatched:
         ]
 
     def test_ascii_industry_word_pair(self):
-        # ASCII 行业名（AI 在 TAG_SECTOR_NAME 池）同样走相邻组合
+        # ASCII 行業名（AI 在 TAG_SECTOR_NAME 池）同樣走相鄰組合
         assert _multi_match("AI赛道") == [
             Token("AI", TAG_SECTOR_NAME),
             Token("赛道", TAG_SECTOR),
         ]
 
     def test_bare_suffix_still_keyword_matched(self):
-        # 无前缀的裸后缀"板块"由 DFS extend 精确关键词命中
+        # 無前綴的裸後綴"板塊"由 DFS extend 精確關鍵詞命中
         assert _multi_match("板块") == [Token("板块", TAG_SECTOR)]
 
     def test_unenumerated_industry_word_left_for_llm(self):
-        # 未枚举行业词（预制菜）不在词池：整段无法全匹配 → 原样空 tag 交 LLM 兜底
+        # 未枚舉行業詞（預製菜）不在詞池：整段無法全匹配 → 原樣空 tag 交 LLM 兜底
         assert _multi_match("预制菜板块") == [Token("预制菜板块")]
 
     def test_enumerated_industry_word_sector_first(self):
-        # "建筑"已枚举进 TAG_SECTOR_NAME 池（全量库实证 ⊂ 中国建筑）：裸词
-        # 行业语义优先，打 sector_name，不解析成"中国建筑"个股
+        # "建築"已枚舉進 TAG_SECTOR_NAME 池（全量庫實證 ⊂ 中國建築）：裸詞
+        # 行業語義優先，打 sector_name，不解析成"中國建築"個股
         assert _multi_match("建筑") == [Token("建筑", TAG_SECTOR_NAME)]
 
     def test_enumerated_word_beats_name_library_substring(self):
-        # 基础库真实碰撞："农业"⊂农业银行、"证券"⊂中信证券——Step 6 关键词
-        # 分类优先于名称库子串命中，裸词打 sector_name
+        # 基礎庫真實碰撞："農業"⊂農業銀行、"證券"⊂中信證券——Step 6 關鍵詞
+        # 分類優先於名稱庫子串命中，裸詞打 sector_name
         assert _multi_match("农业") == [Token("农业", TAG_SECTOR_NAME)]
         assert _multi_match("证券") == [Token("证券", TAG_SECTOR_NAME)]
 
     def test_sector_n_stock_word_ambiguous_tag(self):
-        # 行业名兼股票全名（机器人=300024）：裸用打歧义 tag sector_n_stock，
-        # 既不打 stock_name 也不武断打 sector_name，交下游 LLM/确认消歧
+        # 行業名兼股票全名（機器人=300024）：裸用打歧義 tag sector_n_stock，
+        # 既不打 stock_name 也不武斷打 sector_name，交下游 LLM/確認消歧
         assert _multi_match("机器人") == [Token("机器人", TAG_SECTOR_N_STOCK)]
 
     def test_full_name_scan_releases_enumerated_word(self):
-        # "机器人"在生产全量库是 300024 的全名：注入后 Step 1 必须放行，
-        # 不得在 Step 6 之前打成 stock_name，交 Step 6 关键词打歧义 tag
+        # "機器人"在生產全量庫是 300024 的全名：注入後 Step 1 必須放行，
+        # 不得在 Step 6 之前打成 stock_name，交 Step 6 關鍵詞打歧義 tag
         from src.services import name_to_code_resolver as resolver_mod
 
         resolver_mod.stockDB["300024"] = "机器人"
         assert _split_by_stock_entities("机器人板块") == [Token("机器人板块")]
-        # DFS 回归：4 字窗口"机器人板"会先被 difflib 模糊命中"机器人"
-        # （ratio≈0.86），但余文"块"无法全匹配 → 回溯到 3 字关键词路径，
-        # 产出 [sector_n_stock]+[sector] 高置信度相邻组合
+        # DFS 迴歸：4 字窗口"機器人板"會先被 difflib 模糊命中"機器人"
+        # （ratio≈0.86），但余文"塊"無法全匹配 → 回溯到 3 字關鍵詞路徑，
+        # 產出 [sector_n_stock]+[sector] 高置信度相鄰組合
         _, tokens = _preprocess_text("机器人板块")
         assert [(t.text, t.tag) for t in tokens] == [
             ("机器人", TAG_SECTOR_N_STOCK),
@@ -884,20 +884,20 @@ class TestMultiMatch:
         assert _multi_match(text) == [Token(text)]
 
     def test_length_cap_boundary_50_processed(self):
-        # 恰好 50 字（≤ 上限）仍进 DFS：filler 逐字全覆盖（filler-only
-        # 路径跳过全库扫描，无性能风险）
+        # 恰好 50 字（≤ 上限）仍進 DFS：filler 逐字全覆蓋（filler-only
+        # 路徑跳過全庫掃描，無性能風險）
         tokens = _multi_match("的" * 50)
         assert [t.text for t in tokens] == ["的"] * 50
         assert all(t.tag == TAG_FILLER for t in tokens)
 
     def test_length_cap_boundary_51_abandoned(self):
-        # 51 字（> 上限）：50+ 字连续无标点且不含 Steps 2~5 已提取信号，
-        # 默认非正常对话，整体放弃交下游 LLM
+        # 51 字（> 上限）：50+ 字連續無標點且不含 Steps 2~5 已提取信號，
+        # 默認非正常對話，整體放棄交下游 LLM
         text = "的" * 51
         assert _multi_match(text) == [Token(text)]
 
     def test_length_cap_leaves_earlier_steps_intact(self):
-        # 超限只作用于 Step 6：Steps 2~5 已提取的代码/全名/关键词不受影响
+        # 超限只作用於 Step 6：Steps 2~5 已提取的代碼/全名/關鍵詞不受影響
         _, tokens = _preprocess_text("分析600519.SH，" + "的" * 60)
         pairs = [(t.text, t.tag) for t in tokens]
         assert ("分析", TAG_REQUEST) in pairs
@@ -911,9 +911,9 @@ class TestMultiMatch:
         assert [s.code for s in tokens[0].stocks] == ["600519"]
 
     def test_generic_corp_suffix_not_fabricated(self):
-        # "苹果公司"不得拆成 苹果+公司 双 stock_name："公司"是零区分度通用
-        # 后缀（extend 词池 corp_suffix），子串命中中微公司是噪声非信号——
-        # 苹果精确命中、"公司"打 corp_suffix tag 参与 DFS 全覆盖
+        # "蘋果公司"不得拆成 蘋果+公司 雙 stock_name："公司"是零區分度通用
+        # 後綴（extend 詞池 corp_suffix），子串命中中微公司是噪聲非信號——
+        # 蘋果精確命中、"公司"打 corp_suffix tag 參與 DFS 全覆蓋
         tokens = _multi_match("苹果公司")
         assert [(t.text, t.tag) for t in tokens] == [
             ("苹果", TAG_STOCK_NAME), ("公司", TAG_CORP_SUFFIX)
@@ -921,8 +921,8 @@ class TestMultiMatch:
         assert [s.code for s in tokens[0].stocks] == ["AAPL"]
 
     def test_suffix_tag_enables_full_coverage(self):
-        # 后缀 corp_suffix 使 DFS 全覆盖成立："腾讯公司"→腾讯(腾讯控股)+
-        # 公司(corp_suffix)，不再整段放弃交下游（空 tag 方案下无法覆盖）
+        # 後綴 corp_suffix 使 DFS 全覆蓋成立："騰訊公司"→騰訊(騰訊控股)+
+        # 公司(corp_suffix)，不再整段放棄交下游（空 tag 方案下無法覆蓋）
         tokens = _multi_match("腾讯公司")
         assert [(t.text, t.tag) for t in tokens] == [
             ("腾讯", TAG_STOCK_NAME), ("公司", TAG_CORP_SUFFIX)
@@ -930,12 +930,12 @@ class TestMultiMatch:
         assert [s.code for s in tokens[0].stocks] == ["HK00700"]
 
     def test_bare_generic_suffix_tagged_corp_suffix(self):
-        # 纯通用后缀单独成词：不做全库扫描，打 corp_suffix tag（原实现解析
-        # 成上汽/豪威/小米/京东/百度 5 候选 stock_name）
+        # 純通用後綴單獨成詞：不做全庫掃描，打 corp_suffix tag（原實現解析
+        # 成上汽/豪威/小米/京東/百度 5 候選 stock_name）
         assert _multi_match("集团") == [Token("集团", TAG_CORP_SUFFIX)]
 
     def test_generic_suffix_pipeline_not_injected(self):
-        # 全管道回归：分析 苹果公司 走势 → 只产出苹果(AAPL)，不注入 688012
+        # 全管道迴歸：分析 蘋果公司 走勢 → 只產出蘋果(AAPL)，不注入 688012
         _, tokens = _preprocess_text("分析 苹果公司 走势")
         assert [(t.text, t.tag) for t in tokens] == [
             ("分析", TAG_REQUEST),
@@ -947,16 +947,16 @@ class TestMultiMatch:
                 for s in (t.stocks or ())] == ["AAPL"]
 
     def test_suffix_containing_full_name_still_matched(self):
-        # 防过度拦截：含后缀词头但非纯后缀的全名（中芯国际）照常整名命中，
-        # 跨市场同名双候选各按 canonical 拼写（a=688981、hk=HK00981）
+        # 防過度攔截：含後綴詞頭但非純後綴的全名（中芯國際）照常整名命中，
+        # 跨市場同名雙候選各按 canonical 拼寫（a=688981、hk=HK00981）
         tokens = _multi_match("中芯国际")
         assert [(t.text, t.tag) for t in tokens] == [("中芯国际", TAG_STOCK_NAME)]
         assert {s.code for s in tokens[0].stocks} == {"688981", "HK00981"}
 
     def test_space_separated_ascii_words_resolved(self):
-        # 空白是词界、Step 1 切分——空格分隔的小写多词与逗号分隔同构
-        # （原整段失败交 LLM；≤4 字余词靠"带空格模糊命中"侥幸通过且 token
-        # 文本残留前导空格的偶然边界一并消除）
+        # 空白是詞界、Step 1 切分——空格分隔的小寫多詞與逗號分隔同構
+        # （原整段失敗交 LLM；≤4 字餘詞靠"帶空格模糊命中"僥倖通過且 token
+        # 文本殘留前導空格的偶然邊界一併消除）
         _, tokens = _preprocess_text("tsla aapl")
         assert [(t.text, t.tag) for t in tokens] == [
             ("tsla", TAG_STOCK_NAME), ("aapl", TAG_STOCK_NAME)
@@ -964,29 +964,29 @@ class TestMultiMatch:
         assert [s.code for t in tokens for s in (t.stocks or ())] == ["TSLA", "AAPL"]
 
     def test_space_equivalent_to_comma(self):
-        # 空格与逗号产出同构：独立 token、无前导空格残留
+        # 空格與逗號產出同構：獨立 token、無前導空格殘留
         _, spaced = _preprocess_text("tsla amd")
         _, commaed = _preprocess_text("tsla,amd")
         assert [(t.text, t.tag) for t in spaced] == [(t.text, t.tag) for t in commaed]
 
     def test_space_separated_word_failure_not_contagious(self):
-        # 词间独立：垃圾词空 tag 交 LLM，不连坐拖垮相邻已解析词
+        # 詞間獨立：垃圾詞空 tag 交 LLM，不連坐拖垮相鄰已解析詞
         _, tokens = _preprocess_text("tsla jkl")
         assert [(t.text, t.tag) for t in tokens] == [
             ("tsla", TAG_STOCK_NAME), ("jkl", "")
         ]
 
     def test_cjk_with_spaces_deterministic(self):
-        # CJK 带空格（含全角）：Step 1 词界切分，不再依赖"带空格模糊命中"
+        # CJK 帶空格（含全角）：Step 1 詞界切分，不再依賴"帶空格模糊命中"
         _, tokens = _preprocess_text("茅台　和　五粮液")
         assert [(t.text, t.tag) for t in tokens] == [
             ("茅台", TAG_STOCK_NAME), ("和", TAG_FILLER), ("五粮液", TAG_STOCK_NAME)
         ]
 
     def test_alpha_path_ascii_name_dedup(self):
-        # 名称恰等于 ticker 的 ASCII 名美股（AMD）：resolver 精确名匹配与
-        # US ticker 匹配双源各出一份，拼接须按 (code, market) 去重，
-        # 否则 stocks 重复会被下游误判名称歧义
+        # 名稱恰等於 ticker 的 ASCII 名美股（AMD）：resolver 精確名匹配與
+        # US ticker 匹配雙源各出一份，拼接須按 (code, market) 去重，
+        # 否則 stocks 重複會被下游誤判名稱歧義
         tokens = _multi_match("amd")
         assert len(tokens) == 1
         assert tokens[0].tag == TAG_STOCK_NAME
@@ -1000,7 +1000,7 @@ class TestMultiMatch:
 
     @pytest.mark.parametrize("message", ["O", "K", "hi", "ai", "ma", "no", "you", "long", "open"])
     def test_common_latin_noise_not_stock(self, message):
-        # 过短拼音片段不得命中股票名拼音子串（hi/long/open…）
+        # 過短拼音片段不得命中股票名拼音子串（hi/long/open…）
         tokens = _multi_match(message)
         assert all(t.tag != TAG_STOCK_NAME for t in tokens)
 
@@ -1008,10 +1008,10 @@ class TestMultiMatch:
         assert _multi_match("你好股份") == [Token("你好股份")]
 
     def test_cjk_with_particle_not_pinyin_matched(self):
-        # 回归：扩展库并入中大力德（拼音 zhongdalide）后，"阿里的"（拼音
-        # alide ⊂ zhongdalide）不得经拼音子串层误命中；DFS 最长优先的
-        # 3 字路径落空后必须回退到 2 字"阿里"子串 + "的"filler 的正确组合
-        resolver_name_to_code_list("酒鬼酒")  # CJK 触发 mock AkShare 并入
+        # 迴歸：擴展庫併入中大力德（拼音 zhongdalide）後，"阿里的"（拼音
+        # alide ⊂ zhongdalide）不得經拼音子串層誤命中；DFS 最長優先的
+        # 3 字路徑落空後必須回退到 2 字"阿里"子串 + "的"filler 的正確組合
+        resolver_name_to_code_list("酒鬼酒")  # CJK 觸發 mock AkShare 併入
         tokens = _multi_match("阿里的")
         assert [(t.text, t.tag) for t in tokens] == [
             ("阿里", "stock_name"),
@@ -1021,35 +1021,35 @@ class TestMultiMatch:
 
 
 # =========================================================================
-# Step 6 — 冷启动 DFS 回溯预算哨兵
+# Step 6 — 冷啟動 DFS 回溯預算哨兵
 # =========================================================================
 
-# 触发构造三要素：
-#   1. 4 字库名（长城汽车）：同一对齐位置 len4 精确 / len3 模糊("长城汽"
-#      vs "长城汽车" ratio=0.75 失败、但"长城汽"对截断名可命中)/len2 子串
-#      多分支并存，回溯树分支因子 >1；
-#   2. 不可被模糊吸收的尾字（"咣"："汽车咣" vs "长城汽车" ratio≈0.67
-#      < 0.8）阻断首路径快速成功，迫使全树回溯；
-#   3. 冷启动：该名不在本地库中，Step 1 入口扩展后中途并入——若整名消费
-#      链路退化（扩展点后移/窗口收窄/别名索引移除），该名只能落给 Step 6
-#      DFS 首次 CJK resolver 调用路径，指数回溯面重新暴露。
+# 觸發構造三要素：
+#   1. 4 字庫名（長城汽車）：同一對齊位置 len4 精確 / len3 模糊("長城汽"
+#      vs "長城汽車" ratio=0.75 失敗、但"長城汽"對截斷名可命中)/len2 子串
+#      多分支並存，回溯樹分支因子 >1；
+#   2. 不可被模糊吸收的尾字（"咣"："汽車咣" vs "長城汽車" ratio≈0.67
+#      < 0.8）阻斷首路徑快速成功，迫使全樹回溯；
+#   3. 冷啟動：該名不在本地庫中，Step 1 入口擴展後中途併入——若整名消費
+#      鏈路退化（擴展點後移/窗口收窄/別名索引移除），該名只能落給 Step 6
+#      DFS 首次 CJK resolver 調用路徑，指數回溯面重新暴露。
 _BACKTRACK_NAME = "长城汽车"
 _BACKTRACK_TAIL = "咣"
 
 
 class TestDfsBacktrackingColdStart:
-    """DFS 回溯预算哨兵：Step 6 长度循环多分支并存（len4 精确 / len3
-    模糊 / len2 子串）时，"重复全名 + 不可吸收尾字"构造会指数回溯。
-    精确全名经 Step 1（管道首步入口扩展、8~2 窗口、实体/别名索引）整名
-    消费后，到达 DFS 的只剩无名 gap，调用数为常数级；无精确锚点的低置信
-    路径最坏为线性×全库扫描，由 50 字上限封顶。本预算断言防止整名消费
-    链路任一环节（扩展点前移、窗口宽度、别名索引、精确确认边界）退化后
-    指数回溯回归。"""
+    """DFS 回溯預算哨兵：Step 6 長度循環多分支並存（len4 精確 / len3
+    模糊 / len2 子串）時，"重複全名 + 不可吸收尾字"構造會指數回溯。
+    精確全名經 Step 1（管道首步入口擴展、8~2 窗口、實體/別名索引）整名
+    消費後，到達 DFS 的只剩無名 gap，調用數為常數級；無精確錨點的低置信
+    路徑最壞為線性×全庫掃描，由 50 字上限封頂。本預算斷言防止整名消費
+    鏈路任一環節（擴展點前移、窗口寬度、別名索引、精確確認邊界）退化後
+    指數回溯迴歸。"""
 
     @staticmethod
     def _cold_start_run(text):
-        """mock 扩展仅含触发名：调用前库中无该名（冷启动前提），
-        Step 3 入口扩展后并入。返回 (tokens, resolver 调用数)。"""
+        """mock 擴展僅含觸發名：調用前庫中無該名（冷啟動前提），
+        Step 3 入口擴展後併入。返回 (tokens, resolver 調用數)。"""
         import src.agent.web_intent_tokenizer as tokenizer_mod
 
         calls = {"n": 0}
@@ -1070,10 +1070,10 @@ class TestDfsBacktrackingColdStart:
         return tokens, calls["n"]
 
     def test_cold_start_output_contract(self):
-        # 契约：精确全名命中即实体自证——每个实体确认返回、尾部原样空
-        # tag 交下游 LLM；整段放弃仅适用于非精确命中（缩写/子串/拼音/模糊）。
-        # 小 n 控制用例耗时
-        assert not is_known_stock_name(_BACKTRACK_NAME)  # 冷启动前提
+        # 契約：精確全名命中即實體自證——每個實體確認返回、尾部原樣空
+        # tag 交下游 LLM；整段放棄僅適用於非精確命中（縮寫/子串/拼音/模糊）。
+        # 小 n 控制用例耗時
+        assert not is_known_stock_name(_BACKTRACK_NAME)  # 冷啟動前提
         text = _BACKTRACK_NAME * 4 + _BACKTRACK_TAIL
         tokens, _ = self._cold_start_run(text)
         assert [(t.text, t.tag) for t in tokens] == [
@@ -1082,9 +1082,9 @@ class TestDfsBacktrackingColdStart:
         ] + [(_BACKTRACK_TAIL, "")]
 
     def test_alias_repeat_backtracking_budget(self):
-        # 别名重复预算哨兵：4 字改名旧称重复 + 不可吸收尾字是指数回溯
-        # 构造；别名参与 Step 3 实体索引精确匹配后全名被整名消费，调用
-        # 数应为常数级。超预算即说明别名索引被移除或失效
+        # 別名重複預算哨兵：4 字改名舊稱重複 + 不可吸收尾字是指數回溯
+        # 構造；別名參與 Step 3 實體索引精確匹配後全名被整名消費，調用
+        # 數應為常數級。超預算即說明別名索引被移除或失效
         from src.services import name_to_code_resolver as resolver_mod
         import src.agent.web_intent_tokenizer as tokenizer_mod
 
@@ -1110,7 +1110,7 @@ class TestDfsBacktrackingColdStart:
             pairs = [(t.text, t.tag) for t in tokens]
             assert pairs.count(("中国远洋", TAG_STOCK_NAME)) == 12
             assert pairs[-1] == ("咣", "")
-            # 命中展示当前规范名（与 resolver 别名展示约定一致）
+            # 命中展示當前規範名（與 resolver 別名展示約定一致）
             stock_tokens = [t for t in tokens if t.tag == TAG_STOCK_NAME]
             assert all(s.name == "中远海控" and s.code == "601919"
                        for t in stock_tokens for s in (t.stocks or ()))
@@ -1119,24 +1119,24 @@ class TestDfsBacktrackingColdStart:
             resolver_mod._names_cache[:] = [None, None, None]
 
     def test_cold_start_resolver_call_budget(self):
-        # 预算断言用确定性的 resolver 调用数（避开 wall-clock 抖动）：
-        # n=12、len=49，恰在 _MAX_MULTI_MATCH_TEXT_LEN=50 限内的最坏情形
-        # （>50 的输入已在上限处整体放弃）。整名消费生效时调用数为常数
-        # 级，2000 已留足余量
+        # 預算斷言用確定性的 resolver 調用數（避開 wall-clock 抖動）：
+        # n=12、len=49，恰在 _MAX_MULTI_MATCH_TEXT_LEN=50 限內的最壞情形
+        # （>50 的輸入已在上限處整體放棄）。整名消費生效時調用數為常數
+        # 級，2000 已留足餘量
         _, calls = self._cold_start_run(_BACKTRACK_NAME * 12 + _BACKTRACK_TAIL)
         assert calls <= 2000, (
             f"回溯预算: resolver 调用数 {calls} 超预算 2000（疑似指数回溯回归）"
         )
 
 # =========================================================================
-# DFS 耗时比哨兵 — 防指数回溯回归
+# DFS 耗時比哨兵 — 防指數回溯迴歸
 # =========================================================================
 
 class TestDfsRescanBudgetSentinel:
-    """关键词链消息（无精确锚点）对同长零命中文本的耗时比上限：线性×
-    全库扫描属正常代价；超限疑似指数回溯回归（Step 3 整名消费被破坏时
-    比值爆到千倍级）或线性系数显著劣化（库规模叠加代码退化）。比值与
-    机器速度、库规模双重无关（分子分母同库同机）。"""
+    """關鍵詞鏈消息（無精確錨點）對同長零命中文本的耗時比上限：線性×
+    全庫掃描屬正常代價；超限疑似指數回溯迴歸（Step 3 整名消費被破壞時
+    比值爆到千倍級）或線性係數顯著劣化（庫規模疊加代碼退化）。比值與
+    機器速度、庫規模雙重無關（分子分母同庫同機）。"""
 
     def test_keyword_chain_bounded_time(self):
         import itertools
@@ -1145,8 +1145,8 @@ class TestDfsRescanBudgetSentinel:
 
         db = dict(resolver_mod.stockDB)
         try:
-            # 受控 ~4913 名合成库（≈ AkShare A 股全量规模），字符池与两个
-            # 测量文本零交集，保证"零命中"基线干净
+            # 受控 ~4913 名合成庫（≈ AkShare A 股全量規模），字符池與兩個
+            # 測量文本零交集，保證"零命中"基線乾淨
             pool = "金木水火土天地人和风云雷电山海川湖林石田"
             i = 600000
             for combo in itertools.product(pool[:17], repeat=3):
@@ -1155,7 +1155,7 @@ class TestDfsRescanBudgetSentinel:
             resolver_mod._names_cache[:] = [None, None, None]
 
             chain_text = "白酒板块" * 11 + "好"       # 45 字，<50 上限
-            gib_text = "狐猬獾貂蚨鹉鹦鹋鹌" * 2        # 18 字、零命中、同上限内
+            gib_text = "狐猬獾貂蚨鹉鹦鹋鹌" * 2        # 18 字、零命中、同上限內
 
             t0 = time.perf_counter()
             _multi_match(chain_text)
@@ -1177,17 +1177,17 @@ class TestDfsRescanBudgetSentinel:
 
 
 # =========================================================================
-# Step 3 放行 + Step 1 星号等价精确匹配 + Step 6 禁模糊
+# Step 3 放行 + Step 1 星號等價精確匹配 + Step 6 禁模糊
 # =========================================================================
 
 class TestStPrefixNames:
-    """ST 全名 = 前缀(ST/*ST/ST* 三型互认) + AB 汉字：Step 3 不把 "ST" 当
-    代码候选（三型排布均放行），Step 1 做三型互认的整名精确匹配——容差仅
-    在前缀形式（省略 */星号位置各异），AB 汉字部分必须整体等于库中全名。"""
+    """ST 全名 = 前綴(ST/*ST/ST* 三型互認) + AB 漢字：Step 3 不把 "ST" 當
+    代碼候選（三型排布均放行），Step 1 做三型互認的整名精確匹配——容差僅
+    在前綴形式（省略 */星號位置各異），AB 漢字部分必須整體等於庫中全名。"""
 
     def test_step3_releases_st_prefix(self):
-        # 三型排布的 "ST" 均不作代码候选，整名保留（库外名交 Step 6 兜底，
-        # 库内名已在 Step 1 整名消费）
+        # 三型排布的 "ST" 均不作代碼候選，整名保留（庫外名交 Step 6 兜底，
+        # 庫內名已在 Step 1 整名消費）
         assert _split_by_codes("*ST美丽怎么样") == [Token("*ST美丽怎么样")]
         assert _split_by_codes("ST德豪怎么样") == [Token("ST德豪怎么样")]
         assert _split_by_codes("ST*美丽怎么样") == [Token("ST*美丽怎么样")]
@@ -1206,7 +1206,7 @@ class TestStPrefixNames:
             del resolver_mod.stockDB["000010"]
 
     def test_step1_star_equivalent_omitted_star(self):
-        # 用户省略 *：窗口 "ST美丽" 命中库内 "*ST美丽"，token 保留输入拼写
+        # 用戶省略 *：窗口 "ST美麗" 命中庫內 "*ST美麗"，token 保留輸入拼寫
         from src.services import name_to_code_resolver as resolver_mod
 
         resolver_mod.stockDB["000010"] = "*ST美丽"
@@ -1220,8 +1220,8 @@ class TestStPrefixNames:
             del resolver_mod.stockDB["000010"]
 
     def test_step1_three_prefix_forms_interchangeable(self):
-        # 三型互认：库内 "*ST美丽"，输入 "ST*美丽" 同样整名命中，
-        # token 保留输入拼写、stocks 展示库内规范名
+        # 三型互認：庫內 "*ST美麗"，輸入 "ST*美麗" 同樣整名命中，
+        # token 保留輸入拼寫、stocks 展示庫內規範名
         from src.services import name_to_code_resolver as resolver_mod
 
         resolver_mod.stockDB["000010"] = "*ST美丽"
@@ -1235,7 +1235,7 @@ class TestStPrefixNames:
             del resolver_mod.stockDB["000010"]
 
     def test_step1_star_equivalent_reverse(self):
-        # 库名无星、用户带星：反向等价
+        # 庫名無星、用戶帶星：反向等價
         from src.services import name_to_code_resolver as resolver_mod
 
         resolver_mod.stockDB["002174"] = "ST德豪"
@@ -1249,16 +1249,16 @@ class TestStPrefixNames:
             del resolver_mod.stockDB["002174"]
 
     def test_library_external_st_name_left_for_llm(self):
-        # 库外 ST 名：Step 3 三型互认未命中，本环境 Step 6 全策略亦无
-        # 命中 → 整段空 tag 交 LLM 兜底（Step 6 无 ST 特殊分支）
+        # 庫外 ST 名：Step 3 三型互認未命中，本環境 Step 6 全策略亦無
+        # 命中 → 整段空 tag 交 LLM 兜底（Step 6 無 ST 特殊分支）
         _, tokens = _preprocess_text("ST德豪怎么样")
         assert [(t.text, t.tag) for t in tokens] == [
             ("ST德豪", ""), ("怎么样", TAG_QUESTION)
         ]
 
     def test_cold_start_st_name_matched(self):
-        # Step 3 入口扩展后走同一精确匹配：冷启动首条消息即整名命中
-        # （验证扩展点前移覆盖 ST 形态；Step 6 已无扩展/重扫）
+        # Step 3 入口擴展後走同一精確匹配：冷啟動首條消息即整名命中
+        # （驗證擴展點前移覆蓋 ST 形態；Step 6 已無擴展/重掃）
         from src.services import name_to_code_resolver as resolver_mod
 
         assert "*ST美丽" not in set(resolver_mod.stockDB.values())
@@ -1274,15 +1274,15 @@ class TestStPrefixNames:
 
 
 # =========================================================================
-# Step 6 交叉验证 — 宁可不做，不可做错
+# Step 6 交叉驗證 — 寧可不做，不可做錯
 # =========================================================================
 
 class TestCrossValidation:
-    """Step 6 交叉验证契约：多个低置信度命中组合成整段 TAG 全覆盖才产出，
-    任一片段无 tag 则整体放弃（宁可不做，不可做错）。"""
+    """Step 6 交叉驗證契約：多個低置信度命中組合成整段 TAG 全覆蓋才產出，
+    任一片段無 tag 則整體放棄（寧可不做，不可做錯）。"""
 
     def test_full_coverage_mixed_entities(self):
-        # "茅台和白酒板块"：个股缩写+filler+行业名+泛称交叉验证，TAG 全覆盖
+        # "茅臺和白酒板塊"：個股縮寫+filler+行業名+泛稱交叉驗證，TAG 全覆蓋
         _, tokens = _preprocess_text("茅台和白酒板块")
         assert [(t.text, t.tag) for t in tokens] == [
             ("茅台", TAG_STOCK_NAME),
@@ -1293,21 +1293,21 @@ class TestCrossValidation:
         assert [s.code for s in tokens[0].stocks] == ["600519"]
 
     def test_partial_coverage_abandoned(self):
-        # "茅台你好"："茅台"子串命中属低置信度，余文"你好"无法覆盖 →
-        # 整体放弃，不打任何 tag（宁可不做）
+        # "茅臺你好"："茅臺"子串命中屬低置信度，余文"你好"無法覆蓋 →
+        # 整體放棄，不打任何 tag（寧可不做）
         _, tokens = _preprocess_text("茅台你好")
         assert [(t.text, t.tag) for t in tokens] == [("茅台你好", "")]
 
     def test_step3_releases_ascii_keywords_case_insensitive(self):
-        # 关键词形态的 ASCII 片段不作代码候选（大小写不敏感）——
-        # 大写形态被 ticker 正则抠走会让 keyword 语义丢失、误入美股辨认
+        # 關鍵詞形態的 ASCII 片段不作代碼候選（大小寫不敏感）——
+        # 大寫形態被 ticker 正則摳走會讓 keyword 語義丟失、誤入美股辨認
         assert _split_by_codes("茅台PK五粮液") == [Token("茅台PK五粮液")]
         assert _split_by_codes("BUY") == [Token("BUY")]
-        # 非关键词的大写词仍照常作为代码候选（宽口径不变）
+        # 非關鍵詞的大寫詞仍照常作為代碼候選（寬口徑不變）
         assert _split_by_codes("ROE") == [Token("ROE", TAG_UNKNOWN_CODE)]
 
     def test_uppercase_ascii_keyword_pipeline(self):
-        # 全管道：大写关键词与实体共存，语义与实体两全
+        # 全管道：大寫關鍵詞與實體共存，語義與實體兩全
         _, tokens = _preprocess_text("茅台PK五粮液")
         assert [(t.text, t.tag) for t in tokens] == [
             ("茅台", TAG_STOCK_NAME),
@@ -1320,8 +1320,8 @@ class TestCrossValidation:
         assert ("比亚迪", TAG_STOCK_NAME) in pairs
 
     def test_step3_releases_sector_pool_ascii_word(self):
-        # Step 3 不影响板块实体识别："AI"在板块词池内，不作代码候选拦截，
-        # 管道层即可产出相邻高置信度组合
+        # Step 3 不影響板塊實體識別："AI"在板塊詞池內，不作代碼候選攔截，
+        # 管道層即可產出相鄰高置信度組合
         _, tokens = _preprocess_text("AI赛道")
         assert [(t.text, t.tag) for t in tokens] == [
             ("AI", TAG_SECTOR_NAME),
@@ -1330,7 +1330,7 @@ class TestCrossValidation:
 
 
 # =========================================================================
-# 市场枚举提取 / 已识别判定 / 代码市场推断
+# 市場枚舉提取 / 已識別判定 / 代碼市場推斷
 # =========================================================================
 
 class TestExtractMarketsFromTokens:
@@ -1343,17 +1343,17 @@ class TestExtractMarketsFromTokens:
         ) == [Market.A]
 
     def test_ascii_market_shorthand(self):
-        # "HK" Step 3 会被标成 unknown_code，但文本形态仍是市场提示
+        # "HK" Step 3 會被標成 unknown_code，但文本形態仍是市場提示
         assert _extract_markets_from_tokens([Token("HK", TAG_UNKNOWN_CODE)]) == [Market.HK]
-        # 小写简写需 CJK 语境：中文消息里的独立 "us" 是市场提示
+        # 小寫簡寫需 CJK 語境：中文消息裡的獨立 "us" 是市場提示
         assert _extract_markets_from_tokens([Token("看看"), Token("us")]) == [Market.US]
 
     def test_english_pronoun_us_not_market(self):
-        # 纯英文消息里的小写 "us" 是代词（"tell us about…"），不是市场提示
+        # 純英文消息裡的小寫 "us" 是代詞（"tell us about…"），不是市場提示
         assert _extract_markets_from_tokens([
             Token("tell"), Token("us"), Token("about"),
         ]) == []
-        # 大写简写是刻意形态，不受语境限制
+        # 大寫簡寫是刻意形態，不受語境限制
         assert _extract_markets_from_tokens([Token("US")]) == [Market.US]
 
     def test_dedup(self):
@@ -1372,11 +1372,11 @@ class TestIsIdentifiedToken:
         assert _is_identified_token(Token("贵州茅台")) is True
 
     def test_code_like_text_not_identified_as_name(self):
-        # 代码键不算名称命中：裸数字必须继续进入代码提取步骤
+        # 代碼鍵不算名稱命中：裸數字必須繼續進入代碼提取步驟
         assert _is_identified_token(Token("600519")) is False
 
     def test_abbreviation_not_identified_as_name(self):
-        # "茅台"是缩写不是全名：不在名称表，交 Step 6 多策略匹配
+        # "茅臺"是縮寫不是全名：不在名稱表，交 Step 6 多策略匹配
         assert _is_identified_token(Token("茅台")) is False
 
 
@@ -1387,8 +1387,8 @@ class TestMarketOfCode:
         ("00700", "hk"),
         ("09988", "hk"),
         ("AAPL", "us"),
-        ("AAPL.N", "us"),   # 单字母交易所后缀（NYSE/NASDAQ 简写）
-        ("AAPL.US", ""),    # 双字母后缀不在单字母推断契约内
+        ("AAPL.N", "us"),   # 單字母交易所後綴（NYSE/NASDAQ 簡寫）
+        ("AAPL.US", ""),    # 雙字母后綴不在單字母推斷契約內
         ("77", ""),
         ("", ""),
     ])
@@ -1409,17 +1409,17 @@ class TestPreprocessPipeline:
         assert ("600519", TAG_STOCK_CODE) in pairs
 
     def test_extended_full_name_resolved_by_pipeline(self):
-        # 首次解析中 Step 6 的 CJK 片段解析触发下游扩展（mock 并入 stockDB）：
-        # 库外全名"酒鬼酒"以确定实体标签出现在管道产出里
+        # 首次解析中 Step 6 的 CJK 片段解析觸發下游擴展（mock 併入 stockDB）：
+        # 庫外全名"酒鬼酒"以確定實體標籤出現在管道產出裡
         _, tokens = _preprocess_text("对比茅台和酒鬼酒的基本面")
         name_tokens = [t for t in tokens if t.tag == TAG_STOCK_NAME]
         codes = {s.code for t in name_tokens for s in (t.stocks or ())}
         assert {"600519", "000799"} <= codes
 
     def test_pipeline_deterministic_after_warmup(self):
-        # 预先完成扩展（模拟进程 lifespan warmup）：stockDB 到达扩展终态后
-        # 管道跨调用产出确定一致。未预热的首条 CJK 消息由 Step 6 在扩展库上
-        # 兜底解析，resolve 级结果一致，但 token 边界可能与后续消息不同
+        # 預先完成擴展（模擬進程 lifespan warmup）：stockDB 到達擴展終態後
+        # 管道跨調用產出確定一致。未預熱的首條 CJK 消息由 Step 6 在擴展庫上
+        # 兜底解析，resolve 級結果一致，但 token 邊界可能與後續消息不同
         from src.services import name_to_code_resolver as resolver_mod
 
         resolver_mod.extend_AkShare()
@@ -1430,15 +1430,15 @@ class TestPreprocessPipeline:
         assert ("酒鬼酒", TAG_STOCK_NAME) in pairs
 
     def test_punctuation_tokens_filtered(self):
-        # 纯标点/空白 token 在管道末端被过滤
+        # 純標點/空白 token 在管道末端被過濾
         _, tokens = _preprocess_text("你好，在吗？？")
         assert all(t.text.strip() for t in tokens)
         assert all(t.text not in ("，", "？") for t in tokens)
 
     def test_nfkc_width_normalization(self):
-        # 入口 NFKC 宽度归一（工作副本）：全角数字/字母与半角同形参与全部
-        # 步骤——全角数字曾被末端过滤器静默丢弃、全角 Ａ 错过市场关键词；
-        # 返回的原文本保持用户输入原样
+        # 入口 NFKC 寬度歸一（工作副本）：全角數字/字母與半角同形參與全部
+        # 步驟——全角數字曾被末端過濾器靜默丟棄、全角 Ａ 錯過市場關鍵詞；
+        # 返回的原文本保持用戶輸入原樣
         _, tokens = _preprocess_text("Ａ股分析６００５１９")
         pairs = [(t.text, t.tag) for t in tokens]
         assert ("A股", TAG_SUBJECT_MARKET) in pairs
@@ -1448,7 +1448,7 @@ class TestPreprocessPipeline:
         assert text == "Ａ股分析６００５１９"
 
     def test_nfkc_fullwidth_suffixed_code_resolves(self):
-        # 全角代码 + 交易所后缀：NFKC 归一后走标注判决，命中库即 stock_code
+        # 全角代碼 + 交易所後綴：NFKC 歸一後走標註判決，命中庫即 stock_code
         _, tokens = _preprocess_text("６００５１９.SH")
         tokens = _identify_stock_codes(tokens)
         assert ("600519", TAG_STOCK_CODE) in [(t.text, t.tag) for t in tokens]

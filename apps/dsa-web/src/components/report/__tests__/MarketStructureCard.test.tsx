@@ -54,8 +54,8 @@ const context: MarketStructureContext = {
     stockRole: 'follower',
     themePhase: 'accelerating',
     riskTags: [
-      { code: 'theme_data_partial', message: '题材主线数据不完整' },
-      { code: 'stock_theme_evidence_partial', message: '个股板块未匹配到市场题材榜单，个股位置按降级证据处理' },
+      { code: 'theme_data_partial', message: '題材主線數據不完整' },
+      { code: 'stock_theme_evidence_partial', message: '個股板块未匹配到市場題材榜單，個股位置按降级證據處理' },
     ],
     missingFields: ['hotspot_constituents', 'leader_stocks'],
   },
@@ -65,14 +65,14 @@ describe('MarketStructureCard', () => {
   it('renders market layer and stock layer in Chinese', () => {
     render(<MarketStructureCard context={context} language="zh" />);
 
-    expect(screen.getByRole('region', { name: '题材主线与个股位置' })).toBeInTheDocument();
-    expect(screen.getByText('大盘题材层')).toBeVisible();
-    expect(screen.getByText('个股位置层')).toBeVisible();
+    expect(screen.getByRole('region', { name: '題材主線與個股位置' })).toBeInTheDocument();
+    expect(screen.getByText('大盘題材層')).toBeVisible();
+    expect(screen.getByText('個股位置層')).toBeVisible();
     expect(screen.getAllByText('部分可用')).toHaveLength(3);
     expect(screen.getAllByText(/机器人概念/)).toHaveLength(3);
     expect(screen.getByText('加速')).toBeVisible();
     expect(screen.getByText('跟随')).toBeVisible();
-    expect(screen.getByText('题材主线数据不完整')).toBeVisible();
+    expect(screen.getByText('題材主線數據不完整')).toBeVisible();
     expect(screen.getByText('leader_stocks')).toBeVisible();
   });
 
@@ -87,7 +87,7 @@ describe('MarketStructureCard', () => {
     expect(screen.getByText('Missing Evidence')).toBeVisible();
     expect(screen.getByText('Market theme data is incomplete')).toBeVisible();
     expect(screen.getByText('Stock board did not match theme rankings')).toBeVisible();
-    expect(screen.queryByText('题材主线数据不完整')).not.toBeInTheDocument();
+    expect(screen.queryByText('題材主線數據不完整')).not.toBeInTheDocument();
   });
 
   it('renders Korean labels', () => {

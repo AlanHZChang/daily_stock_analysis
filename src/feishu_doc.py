@@ -20,7 +20,7 @@ class FeishuDocManager:
         self.folder_token = self.config.feishu_folder_token
 
         # 初始化 SDK 客戶端
-        # SDK 會自動處理 tenant_access_token 的獲取和刷新，無需人工干預
+        # SDK 會自動處理 tenant_access_token 的獲取和刷新，無需人工幹預
         if self.is_configured():
             self.client = lark.Client.builder() \
                 .app_id(self.app_id) \

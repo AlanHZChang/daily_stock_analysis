@@ -363,9 +363,9 @@ class PipelineMarketPhaseContextTestCase(unittest.TestCase):
         self.assertEqual(enhanced_context["market_phase_context"], phase_payload)
         analyze_kwargs = pipeline.analyzer.analyze.call_args.kwargs
         self.assertIn("分析上下文包摘要", analyze_kwargs["analysis_context_pack_summary"])
-        self.assertIn("日线: missing", analyze_kwargs["analysis_context_pack_summary"])
-        self.assertIn("盘中判断受", analyze_kwargs["analysis_context_pack_summary"])
-        self.assertIn("数据质量限制", analyze_kwargs["analysis_context_pack_summary"])
+        self.assertIn("日線: missing", analyze_kwargs["analysis_context_pack_summary"])
+        self.assertIn("盤中判斷受", analyze_kwargs["analysis_context_pack_summary"])
+        self.assertIn("數據質量限制", analyze_kwargs["analysis_context_pack_summary"])
 
         save_kwargs = pipeline.db.save_analysis_history.call_args.kwargs
         self.assertTrue(save_kwargs["save_snapshot"])
@@ -480,8 +480,8 @@ class PipelineMarketPhaseContextTestCase(unittest.TestCase):
         self.assertIn("analysis_context_pack_summary", run_context)
         self.assertIn("分析上下文包摘要", run_context["analysis_context_pack_summary"])
         self.assertIn("新闻: missing", run_context["analysis_context_pack_summary"])
-        self.assertIn("盘中判断受", run_context["analysis_context_pack_summary"])
-        self.assertIn("数据质量限制", run_context["analysis_context_pack_summary"])
+        self.assertIn("盤中判斷受", run_context["analysis_context_pack_summary"])
+        self.assertIn("數據質量限制", run_context["analysis_context_pack_summary"])
 
         save_kwargs = pipeline.db.save_analysis_history.call_args.kwargs
         self.assertTrue(save_kwargs["save_snapshot"])
@@ -604,7 +604,7 @@ class PipelineMarketPhaseContextTestCase(unittest.TestCase):
         pipeline.db.get_analysis_context.assert_called_with("600519")
 
         run_context = executor.run.call_args.kwargs["context"]
-        self.assertIn("日线: available", run_context["analysis_context_pack_summary"])
+        self.assertIn("日線: available", run_context["analysis_context_pack_summary"])
         self.assertNotIn("daily_bars_missing", run_context["analysis_context_pack_summary"])
 
         save_kwargs = pipeline.db.save_analysis_history.call_args.kwargs

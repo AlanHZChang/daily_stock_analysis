@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
-"""新闻面为空时必须在报告里如实标注。
+"""新聞面為空時必須在報告裡如實標註。
 
-背景：消息面章节原先是「有内容才渲染」，检索一条没拿到时整段直接消失，
-读报告的人无从判断是确实没新闻，还是检索静默失败了（搜索源限流、
-未配置可用渠道等）。这会把「抓取失败」呈现成「确实没有新闻」，
-比单纯的慢更容易误导结论。
+背景：消息面章節原先是「有內容才渲染」，檢索一條沒拿到時整段直接消失，
+讀報告的人無從判斷是確實沒新聞，還是檢索靜默失敗了（搜索源限流、
+未配置可用渠道等）。這會把「抓取失敗」呈現成「確實沒有新聞」，
+比單純的慢更容易誤導結論。
 
-这些用例锁住三个状态：
-1. 未执行检索（count is None）时，说明未配置渠道且未纳入新闻面证据；
-2. 检索执行了但为空（count == 0）时，保留原有零命中提示；
-3. 正常拿到新闻（count > 0）时，不出现缺失提示。
+這些用例鎖住三個狀態：
+1. 未執行檢索（count is None）時，說明未配置渠道且未納入新聞面證據；
+2. 檢索執行了但為空（count == 0）時，保留原有零命中提示；
+3. 正常拿到新聞（count > 0）時，不出現缺失提示。
 """
 
 import os
@@ -48,9 +48,9 @@ def _make_result(
     report_language="zh",
     news_evidence_present=False,
 ):
-    """构造一个最小可渲染的分析结果。
+    """構造一個最小可渲染的分析結果。
 
-    只填渲染日报必需的字段，避免与被测行为无关的细节耦合。
+    只填渲染日報必需的字段，避免與被測行為無關的細節耦合。
     """
     from src.analyzer import AnalysisResult
 
@@ -70,10 +70,10 @@ def _make_result(
 
 
 def _make_service():
-    """造一个用于渲染的 NotificationService。
+    """造一個用於渲染的 NotificationService。
 
-    走真实 __init__ 以拿到全部渲染所需属性；本测试只读取返回的报告文本，
-    不调用任何推送方法，因此不会向外发送。
+    走真實 __init__ 以拿到全部渲染所需屬性；本測試只讀取返回的報告文本，
+    不調用任何推送方法，因此不會向外發送。
     """
     return NotificationService()
 
@@ -88,7 +88,7 @@ class EmptyNewsDisclosureTestCase(unittest.TestCase):
         )
 
     def test_discloses_when_search_ran_but_returned_nothing(self):
-        """检索执行了但零命中：报告必须说出来。"""
+        """檢索執行了但零命中：報告必須說出來。"""
         report = self._render(_make_result(news_result_count=0))
 
         self.assertIn(ZERO_HIT_DISCLOSURE, report)
@@ -96,42 +96,42 @@ class EmptyNewsDisclosureTestCase(unittest.TestCase):
         self.assertIn("消息面", report)
 
     def test_discloses_when_search_was_not_performed(self):
-        """未配置搜索渠道时，报告必须说明新闻面证据没有纳入。"""
+        """未配置搜索渠道時，報告必須說明新聞面證據沒有納入。"""
         report = self._render(_make_result(news_result_count=None))
 
         self.assertIn(NO_CHANNEL_DISCLOSURE, report)
         self.assertNotIn(ZERO_HIT_DISCLOSURE, report)
 
     def test_unchanged_when_news_is_available(self):
-        """拿到新闻时行为与改动前一致：渲染正文，不出现提示。"""
+        """拿到新聞時行為與改動前一致：渲染正文，不出現提示。"""
         report = self._render(
             _make_result(news_summary="公司发布季度财报，营收同比增长。", news_result_count=3)
         )
 
-        self.assertIn("公司发布季度财报", report)
+        self.assertIn("公司發佈季度財報", report)
         self.assertNotIn(ZERO_HIT_DISCLOSURE, report)
         self.assertNotIn(NO_CHANNEL_DISCLOSURE, report)
 
     def test_disclosure_states_the_consequence_not_just_the_absence(self):
-        """提示要说清后果，让读者知道结论该打几折，而不只是「没数据」。"""
+        """提示要說清後果，讓讀者知道結論該打幾折，而不只是「沒數據」。"""
         report = self._render(_make_result(news_result_count=0))
 
-        self.assertIn("未纳入新闻维度证据", report)
+        self.assertIn("未納入新闻維度證據", report)
 
 
 class ResultFieldContractTestCase(unittest.TestCase):
     def test_result_defaults_to_none_not_zero(self):
-        """默认必须是 None，才能与执行后零命中使用不同披露文案。"""
+        """默認必須是 None，才能與執行後零命中使用不同披露文案。"""
         result = _make_result()
 
         self.assertIsNone(result.news_result_count)
 
 
 class ActiveRenderersDiscloseTestCase(unittest.TestCase):
-    """真实流程走的是 dashboard / brief / single_stock，不是 generate_daily_report。
+    """真實流程走的是 dashboard / brief / single_stock，不是 generate_daily_report。
 
-    只在 generate_daily_report 里加提示等于没加——标准 REPORT_TYPE 一个都覆盖不到。
-    这些用例锁住四个渲染器全部接入同一个共享判定。
+    只在 generate_daily_report 里加提示等於沒加——標準 REPORT_TYPE 一個都覆蓋不到。
+    這些用例鎖住四個渲染器全部接入同一個共享判定。
     """
 
     def setUp(self):
@@ -174,10 +174,10 @@ class ActiveRenderersDiscloseTestCase(unittest.TestCase):
 
 
 class DisclosureIndependentOfModelTextTestCase(unittest.TestCase):
-    """最糟的组合：检索零命中，但模型仍按 schema 写出了情绪判断。
+    """最糟的組合：檢索零命中，但模型仍按 schema 寫出了情緒判斷。
 
-    此时若以「消息面文字是否为空」决定是否提示，报告会展示模型生成的情绪，
-    同时隐瞒没有新闻证据这一事实。判定必须独立于模型输出。
+    此時若以「消息面文字是否為空」決定是否提示，報告會展示模型生成的情緒，
+    同時隱瞞沒有新聞證據這一事實。判定必須獨立於模型輸出。
     """
 
     def setUp(self):
@@ -193,14 +193,14 @@ class DisclosureIndependentOfModelTextTestCase(unittest.TestCase):
         )
 
         self.assertIn(ZERO_HIT_DISCLOSURE, report)
-        self.assertIn("市场情绪偏中性", report)
+        self.assertIn("市場情绪偏中性", report)
 
 
 class TemplateRendererDiscloseTestCase(unittest.TestCase):
-    """REPORT_RENDERER_ENABLED=true 时走模板链路，会在 render() 处提前返回。
+    """REPORT_RENDERER_ENABLED=true 時走模板鏈路，會在 render() 處提前返回。
 
-    此前只修了字符串拼接分支，模板链路一路沉默——同一份分析结果在部分渠道
-    披露、在另一些渠道不披露，跨渠道事实呈现不一致。
+    此前只修了字符串拼接分支，模板鏈路一路沉默——同一份分析結果在部分渠道
+    披露、在另一些渠道不披露，跨渠道事實呈現不一致。
     """
 
     def setUp(self):
@@ -270,8 +270,8 @@ class TemplateRendererDiscloseTestCase(unittest.TestCase):
 
 
 class WechatDashboardDiscloseTestCase(unittest.TestCase):
-    """generate_wechat_dashboard 是企业微信非 brief 场景的真实入口，
-    pipeline 会直接调用它，此前完全没有接入披露。"""
+    """generate_wechat_dashboard 是企業微信非 brief 場景的真實入口，
+    pipeline 會直接調用它，此前完全沒有接入披露。"""
 
     def setUp(self):
         self.service = _make_service()
@@ -291,7 +291,7 @@ class WechatDashboardDiscloseTestCase(unittest.TestCase):
 
 
 class NoSearchProviderDisclosureTestCase(unittest.TestCase):
-    """锁住 #2225 的 fresh-clone 场景：没有 key，公共实例默认关闭。"""
+    """鎖住 #2225 的 fresh-clone 場景：沒有 key，公共實例默認關閉。"""
 
     def test_no_registered_providers_discloses_missing_news_evidence(self):
         from src.search_service import SearchService
@@ -308,7 +308,7 @@ class NoSearchProviderDisclosureTestCase(unittest.TestCase):
 
 
 class SupportedLanguageDisclosureTestCase(unittest.TestCase):
-    """每种受支持报告语言都必须显式映射，不能把未知语言默认为中文。"""
+    """每種受支持報告語言都必須顯式映射，不能把未知語言默認為中文。"""
 
     EXPECTED = {
         "zh": (NO_CHANNEL_DISCLOSURE, ZERO_HIT_DISCLOSURE),
@@ -420,13 +420,13 @@ class SupportedLanguageDisclosureTestCase(unittest.TestCase):
 
 
 class PipelineCountSemanticsTestCase(unittest.TestCase):
-    """计数的三态语义必须在 pipeline 侧就正确产生，否则展示层再周全也无用。
+    """計數的三態語義必須在 pipeline 側就正確產生，否則展示層再周全也無用。
 
-    两个曾经的缺口：
-    1. 搜索服务整体失败（intel_results 为空）时计数停留在 None，
-       于是「所有搜索源全线失败」这一最该提示的场景反而不提示；
-    2. Agent 模式（_analyze_with_agent）自行检索却从不记录计数，
-       该路径下零命中永远静默。
+    兩個曾經的缺口：
+    1. 搜索服務整體失敗（intel_results 為空）時計數停留在 None，
+       於是「所有搜索源全線失敗」這一最該提示的場景反而不提示；
+    2. Agent 模式（_analyze_with_agent）自行檢索卻從不記錄計數，
+       該路徑下零命中永遠靜默。
     """
 
     def _read_pipeline_source(self):
@@ -437,7 +437,7 @@ class PipelineCountSemanticsTestCase(unittest.TestCase):
         )
 
     def test_count_set_to_zero_once_search_is_attempted(self):
-        """检索一旦发起就置 0，不能等到拿到结果对象才赋值。"""
+        """檢索一旦發起就置 0，不能等到拿到結果對象才賦值。"""
         src = self._read_pipeline_source()
         idx = src.index("开始多维度情报搜索")
         window = src[idx : idx + 600]
@@ -450,16 +450,16 @@ class PipelineCountSemanticsTestCase(unittest.TestCase):
         )
 
     def test_post_hoc_persistence_query_does_not_write_the_count(self):
-        """分析结束后的补查只为持久化情报，绝不能回写计数。
+        """分析結束後的補查只為持久化情報，絕不能回寫計數。
 
-        它发生在 executor.run() 之后，与 Agent 实际消费的证据无关；用它做披露
-        判定会两个方向都失真（review OR-COR-5f5d7a2e）。真正的计数由
-        src/agent/news_evidence.py 的证据作用域收集。
+        它發生在 executor.run() 之後，與 Agent 實際消費的證據無關；用它做披露
+        判定會兩個方向都失真（review OR-COR-5f5d7a2e）。真正的計數由
+        src/agent/news_evidence.py 的證據作用域收集。
         """
         src = self._read_pipeline_source()
         idx = src.index("Agent 模式: 新闻情报已保存")
         window = src[max(0, idx - 1200) : idx]
-        # 只看代码：解释这条约束的注释本身就含有该标识符。
+        # 只看代碼：解釋這條約束的註釋本身就含有該標識符。
         code_only = "\n".join(
             line for line in window.splitlines() if not line.strip().startswith("#")
         )
@@ -486,11 +486,11 @@ class _StubSearchResponse:
 
 
 class _StubSearchService:
-    """只实现搜索工具真正会用到的接口。
+    """只實現搜索工具真正會用到的接口。
 
-    intel_counts 是 Agent 通过 search_comprehensive_intel 实际拿到的证据，
-    news_count 是 pipeline 事后为持久化而补打的 search_stock_news 的结果 ——
-    两者刻意不同，用来证明披露跟随的是前者。
+    intel_counts 是 Agent 通過 search_comprehensive_intel 實際拿到的證據，
+    news_count 是 pipeline 事後為持久化而補打的 search_stock_news 的結果 ——
+    兩者刻意不同，用來證明披露跟隨的是前者。
     """
 
     def __init__(self, *, intel_counts=None, news_count=0, news_success=True, available=True):
@@ -517,12 +517,12 @@ class _StubSearchService:
 
 
 class AgentNewsEvidenceTestCase(unittest.TestCase):
-    """Agent 模式的披露必须跟随 Agent 真正消费的新闻证据。
+    """Agent 模式的披露必須跟隨 Agent 真正消費的新聞證據。
 
-    曾经的缺口（review OR-COR-5f5d7a2e）：计数取自分析结束后补打的一次
-    search_stock_news()。Agent 明明通过 search_comprehensive_intel 用了新闻，
-    却可能因补查失败被标成「未纳入新闻面证据」；反过来 Agent 什么都没拿到，
-    也可能因补查有结果而错误地不提示。
+    曾經的缺口（review OR-COR-5f5d7a2e）：計數取自分析結束後補打的一次
+    search_stock_news()。Agent 明明通過 search_comprehensive_intel 用了新聞，
+    卻可能因補查失敗被標成「未納入新聞面證據」；反過來 Agent 什麼都沒拿到，
+    也可能因補查有結果而錯誤地不提示。
     """
 
     def setUp(self):
@@ -547,7 +547,7 @@ class AgentNewsEvidenceTestCase(unittest.TestCase):
         self.addCleanup(db_patcher.stop)
 
     def test_agent_evidence_survives_a_failing_post_hoc_query(self):
-        """Agent 用了 6 条新闻，事后补查零命中 —— 不得谎称未纳入新闻证据。"""
+        """Agent 用了 6 條新聞，事後補查零命中 —— 不得謊稱未納入新聞證據。"""
         from src.agent.tools.search_tools import _handle_search_comprehensive_intel
 
         service = _StubSearchService(
@@ -557,14 +557,14 @@ class AgentNewsEvidenceTestCase(unittest.TestCase):
 
         _handle_search_comprehensive_intel("600519", "测试标的")
 
-        # pipeline 事后的持久化补查返回完全不同的结果，且不经过证据作用域
+        # pipeline 事後的持久化補查返回完全不同的結果，且不經過證據作用域
         post_hoc = service.search_stock_news("600519", "测试标的", max_results=5)
         self.assertEqual(0, len(post_hoc.results))
 
         self.assertEqual(6, self.accumulator.resolve(search_available=True))
 
     def test_agent_zero_hit_is_not_masked_by_a_successful_post_hoc_query(self):
-        """反方向：Agent 一条没拿到，事后补查有结果 —— 提示不得被抑制。"""
+        """反方向：Agent 一條沒拿到，事後補查有結果 —— 提示不得被抑制。"""
         from src.agent.tools.search_tools import _handle_search_comprehensive_intel
 
         service = _StubSearchService(
@@ -580,7 +580,7 @@ class AgentNewsEvidenceTestCase(unittest.TestCase):
         self.assertEqual(0, self.accumulator.resolve(search_available=True))
 
     def test_failed_agent_search_records_zero_rather_than_nothing(self):
-        """检索发起但失败，是「搜过但没拿到」，不是「未配置渠道」。"""
+        """檢索發起但失敗，是「搜過但沒拿到」，不是「未配置渠道」。"""
         from src.agent.tools.search_tools import _handle_search_stock_news
 
         service = _StubSearchService(news_count=0, news_success=False)
@@ -591,7 +591,7 @@ class AgentNewsEvidenceTestCase(unittest.TestCase):
         self.assertEqual(0, self.accumulator.resolve(search_available=True))
 
     def test_unavailable_channel_resolves_to_not_configured(self):
-        """渠道不可用时工具直接返回错误、不记录，计数必须是 None。"""
+        """渠道不可用時工具直接返回錯誤、不記錄，計數必須是 None。"""
         from src.agent.tools.search_tools import _handle_search_stock_news
 
         service = _StubSearchService(available=False)
@@ -602,14 +602,14 @@ class AgentNewsEvidenceTestCase(unittest.TestCase):
         self.assertIsNone(self.accumulator.resolve(search_available=False))
 
     def test_available_channel_never_searched_reports_zero_hit_not_missing_channel(self):
-        """渠道可用但 Agent 一次都没搜：仍是「没拿到新闻」，不能谎称未配置渠道。"""
+        """渠道可用但 Agent 一次都沒搜：仍是「沒拿到新聞」，不能謊稱未配置渠道。"""
         self.assertEqual(0, self.accumulator.resolve(search_available=True))
 
     def test_tool_threads_accumulate_into_the_parent_scope(self):
-        """工具在线程池中执行，累加必须对 pipeline 可见。
+        """工具在線程池中執行，累加必須對 pipeline 可見。
 
         src/agent/runner.py 用 contextvars.copy_context() + pool.submit(ctx.run, ...)
-        提交工具调用。ContextVar 里必须是可变累加器对象，换成不可变值父线程就读不到。
+        提交工具調用。ContextVar 裡必須是可變累加器對象，換成不可變值父線程就讀不到。
         """
         import contextvars
         from concurrent.futures import ThreadPoolExecutor
@@ -626,7 +626,7 @@ class AgentNewsEvidenceTestCase(unittest.TestCase):
         self.assertEqual(7, self.accumulator.resolve(search_available=True))
 
     def test_recording_outside_a_scope_is_ignored(self):
-        """报告页的后续资讯检索等场景不得影响本次分析的披露判定。"""
+        """報告頁的後續資訊檢索等場景不得影響本次分析的披露判定。"""
         token = self.news_evidence.activate_news_evidence_scope()
         outer = self.news_evidence.get_current_news_evidence()
         self.news_evidence.reset_news_evidence_scope(token)
@@ -637,23 +637,23 @@ class AgentNewsEvidenceTestCase(unittest.TestCase):
 
 
 class NewsEvidenceSourcesTestCase(unittest.TestCase):
-    """披露断言的是「结论有没有用到新闻面证据」，不是「搜索命中了几条」。
+    """披露斷言的是「結論有沒有用到新聞面證據」，不是「搜索命中了幾條」。
 
-    `news_context` 由三路来源拼成，只有实时检索会产生计数：
+    `news_context` 由三路來源拼成，只有實時檢索會產生計數：
 
-    1. 实时多维检索 —— 更新 news_result_count
-    2. 社交情绪（美股）—— 不更新计数
-    3. 本地已落库的资讯池 —— 不更新计数
+    1. 實時多維檢索 —— 更新 news_result_count
+    2. 社交情緒（美股）—— 不更新計數
+    3. 本地已落庫的資訊池 —— 不更新計數
 
-    只看计数就会把后两路参与的分析误报成「未纳入新闻面证据」
-    （review OR-COR-2e4b9d61 点名了第 3 路；第 2 路是同一缺陷类，一并锁住）。
+    只看計數就會把後兩路參與的分析誤報成「未納入新聞面證據」
+    （review OR-COR-2e4b9d61 點名了第 3 路；第 2 路是同一缺陷類，一併鎖住）。
     """
 
     def _result(self, *, count, evidence):
         return _make_result(news_result_count=count, news_evidence_present=evidence)
 
     def test_local_intel_without_search_channel_is_not_reported_as_missing(self):
-        """本地资讯池已进入分析输入，即使没配搜索渠道也不能说未纳入新闻证据。"""
+        """本地資訊池已進入分析輸入，即使沒配搜索渠道也不能說未納入新聞證據。"""
         report = NotificationService.generate_daily_report(
             _make_service(),
             [self._result(count=None, evidence=True)],
@@ -663,7 +663,7 @@ class NewsEvidenceSourcesTestCase(unittest.TestCase):
         self.assertNotIn(ZERO_HIT_DISCLOSURE, report)
 
     def test_social_sentiment_without_search_hits_is_not_reported_as_missing(self):
-        """社交情绪同样进入 news_context，零命中也不能否认已用证据。"""
+        """社交情緒同樣進入 news_context，零命中也不能否認已用證據。"""
         report = NotificationService.generate_daily_report(
             _make_service(),
             [self._result(count=0, evidence=True)],
@@ -673,7 +673,7 @@ class NewsEvidenceSourcesTestCase(unittest.TestCase):
         self.assertNotIn(NO_CHANNEL_DISCLOSURE, report)
 
     def test_no_evidence_at_all_still_discloses_with_the_right_reason(self):
-        """真的没有任何证据时，原有两种原因文案必须照旧。"""
+        """真的沒有任何證據時，原有兩種原因文案必須照舊。"""
         no_channel = NotificationService.generate_daily_report(
             _make_service(),
             [self._result(count=None, evidence=False)],
@@ -690,7 +690,7 @@ class NewsEvidenceSourcesTestCase(unittest.TestCase):
     def test_evidence_helper_registers_sources_one_by_one(self):
         from src.services.empty_news import news_evidence_present
 
-        # 真实命中数 / 社交情绪 / 本地资讯池，任一为真即算有证据
+        # 真實命中數 / 社交情緒 / 本地資訊池，任一為真即算有證據
         self.assertTrue(news_evidence_present(4, None, None))
         self.assertTrue(news_evidence_present(0, "reddit 讨论……", None))
         self.assertTrue(news_evidence_present(0, None, "## 本地资讯证据池"))
@@ -699,13 +699,13 @@ class NewsEvidenceSourcesTestCase(unittest.TestCase):
         self.assertFalse(news_evidence_present(None, None, None))
 
     def test_zero_hit_placeholder_report_is_not_mistaken_for_evidence(self):
-        """零命中时 format_intel_report 仍吐占位文本，绝不能被当成证据。
+        """零命中時 format_intel_report 仍吐佔位文本，絕不能被當成證據。
 
-        这是真实反例（review OR-COR-8f4c2d1b）：`format_intel_report()` 即使所有
-        维度都失败，也会输出「【XX 情报搜索结果】」标题和每个维度的「未找到相关
-        信息」，整段永远非空。曾经的实现把整段 news_context 传进判定函数，于是
-        「搜了但一条没拿到」被翻成「有证据」，恰好吞掉本 PR 要补的那条披露。
-        这里用真实函数产出反例，不用 mock。
+        這是真實反例（review OR-COR-8f4c2d1b）：`format_intel_report()` 即使所有
+        維度都失敗，也會輸出「【XX 情報搜索結果】」標題和每個維度的「未找到相關
+        信息」，整段永遠非空。曾經的實現把整段 news_context 傳進判定函數，於是
+        「搜了但一條沒拿到」被翻成「有證據」，恰好吞掉本 PR 要補的那條披露。
+        這裡用真實函數產出反例，不用 mock。
         """
         from src.search_service import SearchService
         from src.services.empty_news import news_evidence_present
@@ -722,14 +722,14 @@ class NewsEvidenceSourcesTestCase(unittest.TestCase):
             "测试标的",
         )
 
-        # 前提：这段占位文本确实非空，否则这条反例就失去意义
+        # 前提：這段佔位文本確實非空，否則這條反例就失去意義
         self.assertTrue(placeholder.strip())
-        self.assertIn("未找到相关信息", placeholder)
+        self.assertIn("未找到相關信息", placeholder)
 
-        # 按来源登记：实时 0 条、无社交、无本地资讯池 —— 必须判定为没有证据
+        # 按來源登記：實時 0 條、無社交、無本地資訊池 —— 必須判定為沒有證據
         self.assertFalse(news_evidence_present(0, None, None))
 
-        # 端到端：这种情况报告必须出现零命中披露
+        # 端到端：這種情況報告必須出現零命中披露
         report = NotificationService.generate_daily_report(
             _make_service(),
             [_make_result(news_result_count=0, news_evidence_present=False)],
@@ -749,17 +749,17 @@ class NewsEvidenceSourcesTestCase(unittest.TestCase):
         self.assertIsNone(empty_news_disclosure_from_stored(stored, None, "zh"))
 
     def test_legacy_record_without_the_flag_keeps_its_original_behaviour(self):
-        """旧记录没有该字段时按计数推断，不追溯改变当时的报告表现。"""
+        """舊記錄沒有該字段時按計數推斷，不追溯改變當時的報告表現。"""
         from src.services.empty_news import persisted_news_evidence_present
 
         self.assertTrue(persisted_news_evidence_present({"news_result_count": 4}, 4))
         self.assertFalse(persisted_news_evidence_present({"news_result_count": 0}, 0))
 
     def test_pipeline_registers_sources_and_never_passes_the_whole_context(self):
-        """两条 pipeline 路径都必须按来源登记，且都不许传拼好的整段 news_context。
+        """兩條 pipeline 路徑都必須按來源登記，且都不許傳拼好的整段 news_context。
 
-        源码断言：谁把整段 news_context 交回判定函数，本用例就会失败——那正是
-        零命中占位文本冒充证据的入口。
+        源碼斷言：誰把整段 news_context 交回判定函數，本用例就會失敗——那正是
+        零命中佔位文本冒充證據的入口。
         """
         from pathlib import Path
 
@@ -771,13 +771,13 @@ class NewsEvidenceSourcesTestCase(unittest.TestCase):
         )
 
         calls = code_only.count("result.news_evidence_present = news_evidence_present(")
-        self.assertEqual(2, calls, "普通路径与 Agent 路径各要有一次登记")
+        self.assertEqual(2, calls, "普通路徑與 Agent 路徑各要有一次登記")
 
-        # 三路来源都要出现在登记参数里
+        # 三路來源都要出現在登記參數裡
         self.assertIn("social_evidence_context", code_only)
         self.assertIn("persisted_intelligence_context", code_only)
 
-        # 整段 news_context 不许再被交给判定函数
+        # 整段 news_context 不許再被交給判定函數
         self.assertNotIn("news_evidence_present(\n                        news_context", code_only)
         self.assertNotIn("news_evidence_present(news_context", code_only)
         self.assertNotIn('news_evidence_present(\n                    initial_context.get("news_context")', code_only)

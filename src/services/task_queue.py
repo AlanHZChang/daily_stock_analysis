@@ -414,7 +414,7 @@ class AnalysisTaskQueue:
         """
         stock_code = resolve_index_stock_code_for_analysis(stock_code)
         if not stock_code:
-            raise ValueError("股票代码不能为空或仅包含空白字符")
+            raise ValueError("股票代碼不能為空或僅包含空白字符")
 
         accepted, duplicates = self.submit_tasks_batch(
             [stock_code],

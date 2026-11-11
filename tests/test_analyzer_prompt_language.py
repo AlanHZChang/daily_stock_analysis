@@ -198,10 +198,10 @@ class EnglishStockPromptTemplateTestCase(unittest.TestCase):
             prompt = analyzer._format_prompt(_rich_context(), "Apple", news_context="n", report_language="zh")
         system_prompt = analyzer._get_analysis_system_prompt("zh", stock_code="600519")
 
-        self.assertIn("# 决策仪表盘分析请求", prompt)
-        self.assertIn("## 📈 技术面数据", prompt)
-        self.assertIn("1.23 亿股", prompt)
-        self.assertIn("专注于趋势交易", system_prompt)
+        self.assertIn("# 决策仪表盘分析請求", prompt)
+        self.assertIn("## 📈 技术面數據", prompt)
+        self.assertIn("1.23 億股", prompt)
+        self.assertIn("專注於趋势交易", system_prompt)
         self.assertNotIn("Decision Dashboard", system_prompt)
 
     def test_english_audit_markers_match_english_prompt_headers(self) -> None:

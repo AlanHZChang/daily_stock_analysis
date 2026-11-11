@@ -33,14 +33,14 @@ describe('StockBarItemComponent', () => {
     const meta = screen.getByTestId('history-card-meta');
 
     expect(within(actions).getByText('观望 62')).toBeInTheDocument();
-    expect(within(actions).getByRole('button', { name: /删除 贵州茅台股票股份有限公司 历史记录/ })).toBeInTheDocument();
+    expect(within(actions).getByRole('button', { name: /刪除 贵州茅台股票股份有限公司 歷史記錄/ })).toBeInTheDocument();
     expect(within(actions).queryByText('CN · 非交易日')).not.toBeInTheDocument();
     expect(within(meta).getByText('CN · 非交易日')).toBeVisible();
 
     expect(screen.getByText('贵州茅台股票股份.')).toBeVisible();
     expect(
       screen.getByRole('button', {
-        name: /^贵州茅台股票股份有限公司 600519 历史记录$/,
+        name: /^贵州茅台股票股份有限公司 600519 歷史記錄$/,
       }),
     ).toBeInTheDocument();
   });

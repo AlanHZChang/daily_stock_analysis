@@ -6,10 +6,10 @@ import { formatDateTime } from '../../utils/format';
 import { getMarketPhaseSummaryLabel } from '../../utils/marketPhase';
 
 const statusLabel: Record<string, string> = {
-  triggered: '已触发',
-  skipped: '已跳过',
+  triggered: '已觸發',
+  skipped: '已跳過',
   degraded: '降级',
-  failed: '失败',
+  failed: '失敗',
 };
 
 function statusVariant(status: string): 'success' | 'warning' | 'danger' | 'default' {
@@ -34,7 +34,7 @@ function renderPhaseQuality(trigger: AlertTriggerItem): React.ReactNode {
   return (
     <div className="space-y-1">
       {phase ? <Badge variant="default">{phase.replace('市场阶段: ', '').replace('市场阶段：', '')}</Badge> : null}
-      {quality ? <div className="text-xs text-secondary-text">质量：{quality}</div> : null}
+      {quality ? <div className="text-xs text-secondary-text">質量：{quality}</div> : null}
       {limitations.length ? (
         <div className="max-w-[180px] text-xs text-muted-text">{limitations.join('；')}</div>
       ) : null}
@@ -49,13 +49,13 @@ interface AlertTriggerHistoryProps {
 
 export const AlertTriggerHistory: React.FC<AlertTriggerHistoryProps> = ({ triggers, isLoading = false }) => {
   return (
-    <Card title="触发历史" subtitle="评估记录" variant="bordered" padding="md">
-      {isLoading ? <Loading label="正在加载触发历史" /> : null}
+    <Card title="觸發歷史" subtitle="評估記錄" variant="bordered" padding="md">
+      {isLoading ? <Loading label="正在加載觸發歷史" /> : null}
       {!isLoading && triggers.length === 0 ? (
         <EmptyState
           icon={<Activity className="h-6 w-6" />}
-          title="暂无触发历史"
-          description="后台评估会记录 triggered、skipped、degraded 和 failed 状态；正常未触发不会写入历史。"
+          title="暫無觸發歷史"
+          description="後臺評估會記錄 triggered、skipped、degraded 和 failed 状态；正常未觸發不會寫入歷史。"
         />
       ) : null}
       {!isLoading && triggers.length > 0 ? (
@@ -64,12 +64,12 @@ export const AlertTriggerHistory: React.FC<AlertTriggerHistoryProps> = ({ trigge
             <thead className="border-b border-border/60 text-xs uppercase text-muted-text">
               <tr>
                 <th className="px-3 py-2 font-medium">状态</th>
-                <th className="px-3 py-2 font-medium">阶段 / 质量</th>
-                <th className="px-3 py-2 font-medium">目标</th>
+                <th className="px-3 py-2 font-medium">階段 / 質量</th>
+                <th className="px-3 py-2 font-medium">目標</th>
                 <th className="px-3 py-2 font-medium">观察值</th>
-                <th className="px-3 py-2 font-medium">阈值</th>
-                <th className="px-3 py-2 font-medium">数据源</th>
-                <th className="px-3 py-2 font-medium">数据时间</th>
+                <th className="px-3 py-2 font-medium">閾值</th>
+                <th className="px-3 py-2 font-medium">數據源</th>
+                <th className="px-3 py-2 font-medium">數據時間</th>
                 <th className="px-3 py-2 font-medium">原因</th>
               </tr>
             </thead>

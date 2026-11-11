@@ -58,11 +58,11 @@ Unknown event types should be ignored or displayed with a generic fallback.
 
 Chat target preparation treats a validated full name from the stock catalogue
 as one lexical object. A shorter alias or ticker-like fragment wholly inside
-that name does not introduce another target: `长电科技(600584.SH)` selects
-`600584`, while standalone `长电` still selects `600900` (长江电力).
+that name does not introduce another target: `長電科技(600584.SH)` selects
+`600584`, while standalone `长电` still selects `600900` (長江電力).
 This applies to both streaming and non-streaming chat through their shared
 object-decision code. Separate mentions and codes outside the name retain their
-normal checks: `长电科技(600900.SH)` still requires clarification, and a shared
+normal checks: `長電科技(600900.SH)` still requires clarification, and a shared
 name such as `中芯国际` still needs an unambiguous code.
 The change does not add response fields, SSE event types or report formatting.
 

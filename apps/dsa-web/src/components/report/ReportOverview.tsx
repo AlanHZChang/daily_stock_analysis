@@ -53,7 +53,7 @@ const normalizeBoardType = (value?: string): 'sector' | 'concept' | null => {
   if (['行业', '行业板块', 'industry', 'sector'].includes(normalized)) {
     return 'sector';
   }
-  if (['概念', '概念板块', '题材', 'concept', 'theme'].includes(normalized)) {
+  if (['概念', '概念板块', '題材', 'concept', 'theme'].includes(normalized)) {
     return 'concept';
   }
   return null;
@@ -160,7 +160,7 @@ const buildPreparedRelatedBoards = (
 };
 
 /**
- * 报告概览区组件 - 终端风格
+ * 報告概覽區組件 - 終端風格
  */
 export const ReportOverview: React.FC<ReportOverviewProps> = ({
   meta,

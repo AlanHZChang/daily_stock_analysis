@@ -1,9 +1,9 @@
 # syntax=docker/dockerfile:1.7
 
 # ===================================
-# A股自选股智能分析系统 - Docker 镜像
+# A股自選股智能分析系統 - Docker 鏡像
 # ===================================
-# 多阶段构建：前端打包 + 后端运行
+# 多階段構建：前端打包 + 後端運行
 
 FROM node:20-slim AS web-builder
 
@@ -20,14 +20,14 @@ RUN DSA_WEB_VERSION="${DSA_WEB_VERSION}" DSA_WEB_REVISION="${DSA_WEB_REVISION}" 
 # Pin to bookworm: wkhtmltopdf was removed from Debian testing (2025)
 FROM python:3.11-slim-bookworm
 
-# 设置工作目录
+# 設置工作目錄
 WORKDIR /app
 
-# 设置时区为上海
+# 設置時區為上海
 ENV TZ=Asia/Shanghai
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-# 安装系统依赖（wkhtmltopdf 含 wkhtmltoimage，用于 Markdown 转图片 Issue #289）
+# 安裝系統依賴（wkhtmltopdf 含 wkhtmltoimage，用於 Markdown 轉圖片 Issue #289）
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     curl \
@@ -40,17 +40,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libxext6 \
     && rm -rf /var/lib/apt/lists/*
 
-# 创建非 root 用户 (UID 1000)
+# 創建非 root 用戶 (UID 1000)
 RUN groupadd -g 1000 dsa && \
     useradd -u 1000 -g dsa -m dsa
 
-# 复制依赖文件
+# 複製依賴文件
 COPY requirements.txt .
 
-# 安装 Python 依赖
+# 安裝 Python 依賴
 RUN --mount=type=cache,target=/root/.cache/pip pip install -r requirements.txt
 
-# 复制应用代码
+# 複製應用代碼
 COPY *.py ./
 COPY api/ ./api/
 COPY data_provider/ ./data_provider/
@@ -65,20 +65,20 @@ RUN mkdir -p /tmp/futu-sdk-smoke-home && \
     HOME=/tmp/futu-sdk-smoke-home python -c "import src.services.screening.pipeline; import futu" && \
     rm -rf /tmp/futu-sdk-smoke-home
 
-# 确保数据目录存在并授权给 non-root 用户
+# 確保數據目錄存在並授權給 non-root 用戶
 RUN mkdir -p /app/data /app/logs /app/reports && \
     chown -R dsa:dsa /app && \
     chmod +x /usr/local/bin/docker-entrypoint.sh
 
-# efinance 将搜索缓存（search-cache.json）写入自身安装包内的 data 目录，
-# 该目录默认归 root 所有；容器以非 root 用户 dsa 运行时写入会 PermissionError，
-# 导致 efinance 数据源每次抓取 A 股数据都失败并降级。预置目录属主给 dsa 修复此问题。
-# 动态解析路径，避免写死 Python 版本目录。
+# efinance 將搜索緩存（search-cache.json）寫入自身安裝包內的 data 目錄，
+# 該目錄默認歸 root 所有；容器以非 root 用戶 dsa 運行時寫入會 PermissionError，
+# 導致 efinance 數據源每次抓取 A 股數據都失敗並降級。預置目錄屬主給 dsa 修復此問題。
+# 動態解析路徑，避免寫死 Python 版本目錄。
 RUN EF_DATA_DIR="$(python -c 'import efinance, pathlib; print(pathlib.Path(efinance.__file__).parent / "data")')" && \
     mkdir -p "$EF_DATA_DIR" && \
     chown -R dsa:dsa "$EF_DATA_DIR"
 
-# 设置环境变量默认值
+# 設置環境變量默認值
 ENV PYTHONUNBUFFERED=1
 ENV LOG_DIR=/app/logs
 ENV DATABASE_PATH=/app/data/stock_analysis.db
@@ -89,17 +89,17 @@ ENV API_PORT=8000
 # 暴露 API 端口
 EXPOSE 8000
 
-# 数据卷（持久化数据）
+# 數據卷（持久化數據）
 VOLUME ["/app/data", "/app/logs", "/app/reports"]
 
-# 健康检查（FastAPI 模式）
+# 健康檢查（FastAPI 模式）
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
     CMD curl -f http://localhost:8000/api/health || curl -f http://localhost:8000/health \
     || python -c "import sys; sys.exit(0)"
 
-# 启动入口先修复 bind mount 目录权限，再降权为 dsa 执行应用；
-# 文档化 docker-compose exec 命令需显式使用 -u dsa，避免手动进程写入 root-owned 文件。
+# 啟動入口先修復 bind mount 目錄權限，再降權為 dsa 執行應用；
+# 文檔化 docker-compose exec 命令需顯式使用 -u dsa，避免手動進程寫入 root-owned 文件。
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 
-# 默认命令（可被覆盖）
+# 默認命令（可被覆蓋）
 CMD ["python", "main.py", "--schedule"]

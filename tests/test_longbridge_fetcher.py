@@ -56,11 +56,11 @@ class TestSymbolConversion(unittest.TestCase):
         self.assertEqual(_to_longbridge_symbol("09988"), "9988.HK")
 
     def test_hk_stock_4digit_bare_code_issue_2091(self):
-        """4 位裸港股码 (0001 长和 / 0941 中国移动) 必须路由到 .HK 后缀。
+        """4 位裸港股碼 (0001 長和 / 0941 中國移動) 必須路由到 .HK 後綴。
 
-        与 ``data_provider.base._is_hk_market`` 的 4-5 位裸港股契约一致,
-        Longbridge 作为 HK-capable provider 也必须接受同一输入,避免
-        上游路由判 HK、下游 provider 静默跳过的部分调用链失败。
+        與 ``data_provider.base._is_hk_market`` 的 4-5 位裸港股契約一致,
+        Longbridge 作為 HK-capable provider 也必須接受同一輸入,避免
+        上游路由判 HK、下游 provider 靜默跳過的部分調用鏈失敗。
         """
         self.assertTrue(_is_hk_code("0001"))
         self.assertTrue(_is_hk_code("0941"))
@@ -627,10 +627,10 @@ class TestLongbridgeFetcherMocked(unittest.TestCase):
 
             ctx.history_candlesticks_by_offset.assert_called_once()
             call_kwargs = ctx.history_candlesticks_by_offset.call_args.kwargs
-            # keyword args 跨 SDK 版本契约兼容：
+            # keyword args 跨 SDK 版本契約兼容：
             # 0.2.74 positional signature: (symbol, period, adjust_type, forward, time, count)
             # 4.x positional signature: (symbol, period, adjust_type, forward, count, time)
-            # keyword args 不受位置变化影响
+            # keyword args 不受位置變化影響
             self.assertIn("time", call_kwargs, "keyword arg 'time' must be present")
             self.assertIn("count", call_kwargs, "keyword arg 'count' must be present")
             self.assertIn("symbol", call_kwargs, "keyword arg 'symbol' must be present")

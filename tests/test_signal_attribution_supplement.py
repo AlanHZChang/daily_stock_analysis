@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """
-Signal Attribution 补充测试
+Signal Attribution 補充測試
 
-覆盖：
+覆蓋：
 1. generate_single_stock_report() 渲染
-2. _parse_response() 真实调用
-3. parse_dashboard_json() 真实调用
-4. 归一化边界场景（all-zero, >100, partial invalid）
+2. _parse_response() 真實調用
+3. parse_dashboard_json() 真實調用
+4. 歸一化邊界場景（all-zero, >100, partial invalid）
 """
 import os
 import sys
@@ -14,7 +14,7 @@ import json
 import logging
 from typing import Dict, Any, Optional
 
-# 添加项目路径
+# 添加項目路徑
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -24,10 +24,10 @@ logger = logging.getLogger(__name__)
 
 
 class TestGenerateSingleStockReport:
-    """测试 generate_single_stock_report() 渲染 signal_attribution"""
+    """測試 generate_single_stock_report() 渲染 signal_attribution"""
 
     def test_single_stock_report_renders_signal_attribution(self):
-        """测试 generate_single_stock_report() 正确渲染 signal_attribution"""
+        """測試 generate_single_stock_report() 正確渲染 signal_attribution"""
         from src.analyzer import AnalysisResult
         from src.notification import NotificationService
 
@@ -45,14 +45,14 @@ class TestGenerateSingleStockReport:
         notification = NotificationService()
         report = notification.generate_single_stock_report(result)
 
-        # 验证包含信号归因段落
+        # 驗證包含信號歸因段落
         assert "信号归因" in report or "Signal Attribution" in report, "单股报告应包含信号归因段落"
         assert "35%" in report, "单股报告应显示 technical_indicators=35%"
         assert "MACD金叉" in report, "单股报告应显示 strongest_bullish_signal"
         print("  ✅ generate_single_stock_report() 正确渲染 signal_attribution")
 
     def test_single_stock_report_without_signal_attribution(self):
-        """测试没有 signal_attribution 时不会崩溃"""
+        """測試沒有 signal_attribution 時不會崩潰"""
         from src.analyzer import AnalysisResult
         from src.notification import NotificationService
 
@@ -61,7 +61,7 @@ class TestGenerateSingleStockReport:
         notification = NotificationService()
         report = notification.generate_single_stock_report(result)
 
-        # 验证报告生成成功（可能不包含信号归因段落）
+        # 驗證報告生成成功（可能不包含信號歸因段落）
         assert len(report) > 0, "没有 signal_attribution 时也应生成报告"
         print("  ✅ 没有 signal_attribution 时不会崩溃")
 
@@ -80,10 +80,10 @@ class TestGenerateSingleStockReport:
 
 
 class TestNormalizationEdgeCases:
-    """测试归一化边界场景"""
+    """測試歸一化邊界場景"""
 
     def test_all_zero_contributions(self):
-        """测试所有贡献度都是 0 时，保留 0 而不是改成 25"""
+        """測試所有貢獻度都是 0 時，保留 0 而不是改成 25"""
         from src.utils.data_processing import normalize_dashboard_signal_attribution
 
         dashboard = {
@@ -97,7 +97,7 @@ class TestNormalizationEdgeCases:
         normalize_dashboard_signal_attribution(dashboard)
         attr = dashboard["signal_attribution"]
 
-        # 应该保留 0，而不是改成 25
+        # 應該保留 0，而不是改成 25
         assert attr["technical_indicators"] == 0, f"应为 0，实际为 {attr['technical_indicators']}"
         assert attr["news_sentiment"] == 0, f"应为 0，实际为 {attr['news_sentiment']}"
         assert attr["fundamentals"] == 0, f"应为 0，实际为 {attr['fundamentals']}"
@@ -105,7 +105,7 @@ class TestNormalizationEdgeCases:
         print("  ✅ 所有贡献度都是 0 时，保留 0")
 
     def test_all_none_contributions(self):
-        """测试所有贡献度都是 None 时，保留 None"""
+        """測試所有貢獻度都是 None 時，保留 None"""
         from src.utils.data_processing import normalize_dashboard_signal_attribution
 
         dashboard = {
@@ -119,13 +119,13 @@ class TestNormalizationEdgeCases:
         normalize_dashboard_signal_attribution(dashboard)
         attr = dashboard["signal_attribution"]
 
-        # 应该保留 None
+        # 應該保留 None
         assert attr["technical_indicators"] is None, "应为 None"
         assert attr["news_sentiment"] is None, "应为 None"
         print("  ✅ 所有贡献度都是 None 时，保留 None")
 
     def test_values_greater_than_100(self):
-        """测试贡献度 >100 时，上限裁剪到 100"""
+        """測試貢獻度 >100 時，上限裁剪到 100"""
         from src.utils.data_processing import normalize_dashboard_signal_attribution
 
         dashboard = {
@@ -139,20 +139,20 @@ class TestNormalizationEdgeCases:
         normalize_dashboard_signal_attribution(dashboard)
         attr = dashboard["signal_attribution"]
 
-        # 应该裁剪到 100
+        # 應該裁剪到 100
         assert attr["technical_indicators"] <= 100, f"应 ≤100，实际为 {attr['technical_indicators']}"
         print(f"  ✅ 贡献度 >100 时，裁剪到 100 (实际: {attr['technical_indicators']})")
 
     def test_partial_invalid_values(self):
-        """测试部分有效、部分无效的输入"""
+        """測試部分有效、部分無效的輸入"""
         from src.utils.data_processing import normalize_dashboard_signal_attribution
 
         dashboard = {
             "signal_attribution": {
                 "technical_indicators": 35,
                 "news_sentiment": "25%",  # 字符串百分比
-                "fundamentals": None,  # 无效
-                "market_conditions": -10,  # 负数，应转为 0
+                "fundamentals": None,  # 無效
+                "market_conditions": -10,  # 負數，應轉為 0
             }
         }
         normalize_dashboard_signal_attribution(dashboard)
@@ -163,7 +163,7 @@ class TestNormalizationEdgeCases:
         assert attr["fundamentals"] is None, f"应为 None，实际为 {attr['fundamentals']}"
         assert attr["market_conditions"] == 0, f"应为 0，实际为 {attr['market_conditions']}"
 
-        # 验证总和 = 100
+        # 驗證總和 = 100
         valid_values = [v for v in attr.values() if isinstance(v, int) and v is not None]
         if len(valid_values) > 0:
             total = sum(valid_values)
@@ -173,14 +173,14 @@ class TestNormalizationEdgeCases:
 
 
 class TestParseResponseIntegration:
-    """测试 _parse_response() 真实调用"""
+    """測試 _parse_response() 真實調用"""
 
     def test_parse_response_calls_normalization(self):
-        """测试 _parse_response() 正确调用归一化函数"""
+        """測試 _parse_response() 正確調用歸一化函數"""
         from src.analyzer import GeminiAnalyzer
         from unittest.mock import MagicMock
 
-        # 构造模拟的 LLM 返回（JSON 字符串，包含 signal_attribution）
+        # 構造模擬的 LLM 返回（JSON 字符串，包含 signal_attribution）
         llm_response_text = json.dumps({
             "dashboard": {
                 "signal_attribution": {
@@ -196,7 +196,7 @@ class TestParseResponseIntegration:
             }
         })
 
-        # 创建 analyzer 实例（mock necessary attributes）
+        # 創建 analyzer 實例（mock necessary attributes）
         config = MagicMock()
         config.llm_provider = "deepseek"
         config.llm_model = "deepseek-chat"
@@ -221,16 +221,16 @@ class TestParseResponseIntegration:
         analyzer.phase_classifier = None
         analyzer.pre_judge = None
 
-        # 调用 _parse_response()
+        # 調用 _parse_response()
         result = analyzer._parse_response(llm_response_text, "600519", "贵州茅台")
 
-        # 验证 result.dashboard 中的 signal_attribution 已归一化
+        # 驗證 result.dashboard 中的 signal_attribution 已歸一化
         dashboard = result.dashboard
         assert dashboard is not None, "dashboard 不应为 None"
         signal_attr = dashboard.get("signal_attribution")
         assert signal_attr is not None, "signal_attribution 不应为 None"
 
-        # 验证字符串百分比已转为 int
+        # 驗證字符串百分比已轉為 int
         assert isinstance(signal_attr.get("technical_indicators"), int), "字符串百分比应转为 int"
         assert signal_attr.get("technical_indicators") == 35, f"应为 35，实际为 {signal_attr.get('technical_indicators')}"
 
@@ -238,12 +238,12 @@ class TestParseResponseIntegration:
 
 
 def run_tests():
-    """运行所有测试"""
+    """運行所有測試"""
     print("\n" + "="*80)
     print("Signal Attribution 补充测试")
     print("="*80 + "\n")
 
-    # 测试 1: generate_single_stock_report() 渲染
+    # 測試 1: generate_single_stock_report() 渲染
     print("=" * 80)
     print("测试 1: generate_single_stock_report() 渲染")
     print("=" * 80 + "\n")
@@ -251,7 +251,7 @@ def run_tests():
     test1.test_single_stock_report_renders_signal_attribution()
     test1.test_single_stock_report_without_signal_attribution()
 
-    # 测试 2: 归一化边界场景
+    # 測試 2: 歸一化邊界場景
     print("\n" + "="*80)
     print("测试 2: 归一化边界场景")
     print("="*80 + "\n")
@@ -261,7 +261,7 @@ def run_tests():
     test2.test_values_greater_than_100()
     test2.test_partial_invalid_values()
 
-    # 测试 3: _parse_response() 真实调用
+    # 測試 3: _parse_response() 真實調用
     print("\n" + "="*80)
     print("测试 3: _parse_response() 真实调用")
     print("="*80 + "\n")

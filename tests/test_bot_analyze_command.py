@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Tests for the shared ``/analyze`` command (Bot 指数入口, PR2).
+"""Tests for the shared ``/analyze`` command (Bot 指數入口, PR2).
 
 Covers the real ``CommandDispatcher`` gate (``validate_args`` before
 ``execute``) with a stubbed ``TaskService`` so the tests assert the
@@ -78,7 +78,7 @@ class TestAnalyzeCommandDispatcherGate(unittest.TestCase):
     def test_registered_code_submits_index_target(self):
         response, stub = self._dispatch("/analyze sh000016")
         self.assertIsInstance(response, BotResponse)
-        self.assertIn("分析任务已提交", response.text)
+        self.assertIn("分析任務已提交", response.text)
         self.assertEqual(len(stub.calls), 1)
         call = stub.calls[0]
         self.assertEqual(call["code"], "sh000016")
@@ -89,7 +89,7 @@ class TestAnalyzeCommandDispatcherGate(unittest.TestCase):
 
     def test_csi_alias_converges_to_canonical_index_target(self):
         response, stub = self._dispatch("/analyze 930955.CSI")
-        self.assertIn("分析任务已提交", response.text)
+        self.assertIn("分析任務已提交", response.text)
         call = stub.calls[0]
         self.assertEqual(call["code"], "csi930955")
         target = call["analysis_target"]
@@ -100,7 +100,7 @@ class TestAnalyzeCommandDispatcherGate(unittest.TestCase):
         """``csi930955`` is the registered canonical CSI prefix form; it must
         submit with a matching INDEX target."""
         response, stub = self._dispatch("/analyze csi930955")
-        self.assertIn("分析任务已提交", response.text)
+        self.assertIn("分析任務已提交", response.text)
         call = stub.calls[0]
         self.assertEqual(call["code"], "csi930955")
         target = call["analysis_target"]
@@ -112,7 +112,7 @@ class TestAnalyzeCommandDispatcherGate(unittest.TestCase):
         """``000016.SH`` is the registered suffix alias of sh000016; it must
         submit the registry canonical with a matching INDEX target."""
         response, stub = self._dispatch("/analyze 000016.SH")
-        self.assertIn("分析任务已提交", response.text)
+        self.assertIn("分析任務已提交", response.text)
         call = stub.calls[0]
         self.assertEqual(call["code"], "sh000016")
         target = call["analysis_target"]
@@ -124,7 +124,7 @@ class TestAnalyzeCommandDispatcherGate(unittest.TestCase):
         """``BRK.B`` is a dotted US ticker the legacy gate accepts; it must
         resolve to ``BRK.B`` with no structured target."""
         response, stub = self._dispatch("/analyze BRK.B")
-        self.assertIn("分析任务已提交", response.text)
+        self.assertIn("分析任務已提交", response.text)
         call = stub.calls[0]
         self.assertEqual(call["code"], "BRK.B")
         self.assertIsNone(call["analysis_target"])
@@ -134,7 +134,7 @@ class TestAnalyzeCommandDispatcherGate(unittest.TestCase):
         registered sh000300 index (SS = Shanghai alias); the Bot must submit
         the registry canonical with a matching INDEX target."""
         response, stub = self._dispatch("/analyze SS.000300")
-        self.assertIn("分析任务已提交", response.text)
+        self.assertIn("分析任務已提交", response.text)
         call = stub.calls[0]
         self.assertEqual(call["code"], "sh000300")
         target = call["analysis_target"]
@@ -147,7 +147,7 @@ class TestAnalyzeCommandDispatcherGate(unittest.TestCase):
         registered sh000016 index; the Bot must submit the registry canonical
         with a matching INDEX target."""
         response, stub = self._dispatch("/analyze SH.000016")
-        self.assertIn("分析任务已提交", response.text)
+        self.assertIn("分析任務已提交", response.text)
         call = stub.calls[0]
         self.assertEqual(call["code"], "sh000016")
         target = call["analysis_target"]
@@ -160,7 +160,7 @@ class TestAnalyzeCommandDispatcherGate(unittest.TestCase):
         registered sz399001 index; the Bot must submit the registry canonical
         with a matching INDEX target."""
         response, stub = self._dispatch("/analyze SZ.399001")
-        self.assertIn("分析任务已提交", response.text)
+        self.assertIn("分析任務已提交", response.text)
         call = stub.calls[0]
         self.assertEqual(call["code"], "sz399001")
         target = call["analysis_target"]
@@ -173,7 +173,7 @@ class TestAnalyzeCommandDispatcherGate(unittest.TestCase):
             "src.services.name_to_code_resolver.resolve_name_to_code"
         ) as mock_resolve:
             response, stub = self._dispatch("/analyze 上证50")
-        self.assertIn("分析任务已提交", response.text)
+        self.assertIn("分析任務已提交", response.text)
         call = stub.calls[0]
         self.assertEqual(call["code"], "sh000016")
         target = call["analysis_target"]
@@ -184,7 +184,7 @@ class TestAnalyzeCommandDispatcherGate(unittest.TestCase):
 
     def test_stock_code_keeps_legacy_code_and_no_target(self):
         response, stub = self._dispatch("/analyze 600519")
-        self.assertIn("分析任务已提交", response.text)
+        self.assertIn("分析任務已提交", response.text)
         call = stub.calls[0]
         self.assertEqual(call["code"], "600519")
         self.assertIsNone(call["analysis_target"])
@@ -192,14 +192,14 @@ class TestAnalyzeCommandDispatcherGate(unittest.TestCase):
     def test_stock_name_fallback_keeps_legacy_code(self):
         """Deterministic: the AkShare/network online map is stubbed empty so
         the real top-level ``resolve_name_to_code`` runs its local tables
-        only and still resolves 贵州茅台 to its legacy code."""
+        only and still resolves 貴州茅臺 to its legacy code."""
         response, stub = None, None
         with patch(
             "src.services.name_to_code_resolver._get_akshare_name_to_code",
             return_value={},
         ):
             response, stub = self._dispatch("/analyze 贵州茅台")
-        self.assertIn("分析任务已提交", response.text)
+        self.assertIn("分析任務已提交", response.text)
         call = stub.calls[0]
         self.assertEqual(call["code"], "600519")
         self.assertIsNone(call["analysis_target"])
@@ -209,7 +209,7 @@ class TestAnalyzeCommandDispatcherGate(unittest.TestCase):
         # the same behavior the pre-PR command already had.
         for content, expected in (("/analyze hk00700", "HK00700"), ("/analyze AAPL", "AAPL")):
             response, stub = self._dispatch(content)
-            self.assertIn("分析任务已提交", response.text)
+            self.assertIn("分析任務已提交", response.text)
             call = stub.calls[0]
             self.assertEqual(call["code"], expected)
             self.assertIsNone(call["analysis_target"])
@@ -219,7 +219,7 @@ class TestAnalyzeCommandDispatcherGate(unittest.TestCase):
         1-5 letters); it must resolve to ``USFD`` with no target, exactly as
         before this change."""
         response, stub = self._dispatch("/analyze usfd")
-        self.assertIn("分析任务已提交", response.text)
+        self.assertIn("分析任務已提交", response.text)
         call = stub.calls[0]
         self.assertEqual(call["code"], "USFD")
         self.assertIsNone(call["analysis_target"])
@@ -230,12 +230,12 @@ class TestAnalyzeCommandDispatcherGate(unittest.TestCase):
         for code in ("12345", "00700", "600519.SH", "sh999999"):
             with self.subTest(code=code):
                 response, stub = self._dispatch(f"/analyze {code}")
-                self.assertIn("无效的标的代码", response.text)
+                self.assertIn("無效的标的代碼", response.text)
                 self.assertEqual(len(stub.calls), 0)
 
     def test_unregistered_csi_returns_error_and_does_not_submit(self):
         response, stub = self._dispatch("/analyze 930956.CSI")
-        self.assertIn("无法分析", response.text)
+        self.assertIn("無法分析", response.text)
         self.assertIn("CSI", response.text)
         self.assertEqual(len(stub.calls), 0)
 
@@ -248,7 +248,7 @@ class TestAnalyzeCommandDispatcherGate(unittest.TestCase):
         for code in ("csi930956", "csi123", "12345.csi"):
             with self.subTest(code=code):
                 response, stub = self._dispatch(f"/analyze {code}")
-                self.assertIn("无法分析", response.text)
+                self.assertIn("無法分析", response.text)
                 self.assertIn("CSI", response.text)
                 self.assertEqual(len(stub.calls), 0)
 
@@ -258,7 +258,7 @@ class TestAnalyzeCommandDispatcherGate(unittest.TestCase):
         """A non-CSI parser-UNSUPPORTED malformed code shape (``us1``) must
         return an explicit error and never submit a task."""
         response, stub = self._dispatch("/analyze us1")
-        self.assertIn("无法分析", response.text)
+        self.assertIn("無法分析", response.text)
         self.assertEqual(len(stub.calls), 0)
 
     def test_unknown_name_returns_error_and_does_not_submit(self):
@@ -270,17 +270,17 @@ class TestAnalyzeCommandDispatcherGate(unittest.TestCase):
             return_value={},
         ):
             response, stub = self._dispatch("/analyze 不存在标的")
-        self.assertIn("无法识别标的", response.text)
+        self.assertIn("無法識別标的", response.text)
         self.assertEqual(len(stub.calls), 0)
 
     def test_empty_args_rejected_by_validate_args_gate(self):
         response, stub = self._dispatch("/analyze")
-        self.assertIn("请输入", response.text)
+        self.assertIn("請輸入", response.text)
         self.assertEqual(len(stub.calls), 0)
 
     def test_full_report_flag_still_works(self):
         response, stub = self._dispatch("/analyze sh000016 full")
-        self.assertIn("分析任务已提交", response.text)
+        self.assertIn("分析任務已提交", response.text)
         call = stub.calls[0]
         self.assertEqual(call["code"], "sh000016")
         self.assertEqual(call["report_type"].value, "full")
@@ -307,7 +307,7 @@ class TestAnalyzeCommandDispatcherGate(unittest.TestCase):
         """``extra.stock_code`` carries the normalized code the task was
         submitted under (the registry canonical for an index alias)."""
         response, stub = self._dispatch("/analyze 930955.CSI")
-        self.assertIn("分析任务已提交", response.text)
+        self.assertIn("分析任務已提交", response.text)
         self.assertEqual(response.extra["task_id"], "task-1234567890abcdef")
         self.assertEqual(response.extra["stock_code"], "csi930955")
 
@@ -319,7 +319,7 @@ class TestAnalyzeCommandDispatcherGate(unittest.TestCase):
         stub = _StubTaskService(fail=True)
         with patch("src.services.task_service.get_task_service", return_value=stub):
             response = dispatcher.dispatch(_make_message("/analyze sh000016"))
-        self.assertIn("提交分析任务失败", response.text)
+        self.assertIn("提交分析任務失敗", response.text)
         self.assertEqual(response.extra, {})
 
 
@@ -355,7 +355,7 @@ class TestAnalyzeCommandAmbiguousName(unittest.TestCase):
             "src.services.task_service.get_task_service", return_value=stub
         ):
             response = dispatcher.dispatch(_make_message("/analyze 沪深300"))
-        self.assertIn("歧义", response.text)
+        self.assertIn("歧義", response.text)
         self.assertEqual(stub.calls, [])
         mock_resolve.assert_not_called()
 

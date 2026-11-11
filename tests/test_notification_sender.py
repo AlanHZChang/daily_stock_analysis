@@ -379,7 +379,7 @@ class TestFeishuSender(unittest.TestCase):
         self.assertEqual(payload["sign"], expected_sign)
         self.assertEqual(
             payload["card"]["elements"][0]["text"]["content"],
-            "股票日报\nhello",
+            "股票日報\nhello",
         )
 
     @mock.patch("src.notification_sender.feishu_sender.requests.post")
@@ -401,9 +401,9 @@ class TestFeishuSender(unittest.TestCase):
         self.assertTrue(result)
         payload = mock_post.call_args.kwargs["json"]
         rendered = payload["card"]["elements"][0]["text"]["content"]
-        self.assertIn("**日报**", rendered)
-        self.assertIn("**📊 分析结果摘要**", rendered)
-        self.assertIn("• 股票：600519 | 信号：强势", rendered)
+        self.assertIn("**日報**", rendered)
+        self.assertIn("**📊 分析結果摘要**", rendered)
+        self.assertIn("• 股票：600519 | 信號：強勢", rendered)
         self.assertIn("[详情](https://example.com/report)", rendered)
         self.assertNotIn("| --- |", rendered)
 
@@ -776,7 +776,7 @@ class TestFeishuSender(unittest.TestCase):
         mock_post.assert_called_once()
         payload = mock_post.call_args.kwargs["json"]
         rendered = payload["card"]["elements"][0]["text"]["content"]
-        self.assertIn("📄 Markdown 文件内容: report_20260705.md", rendered)
+        self.assertIn("📄 Markdown 文件內容: report_20260705.md", rendered)
         self.assertIn("**Test Report**", rendered)
 
     @mock.patch("src.notification_sender.feishu_sender.Path")
@@ -1766,7 +1766,7 @@ class TestSlackSender(unittest.TestCase):
 
         self.assertTrue(result)
         payload = json.loads(mock_post.call_args.kwargs["data"].decode("utf-8"))
-        self.assertIn("## 日报", payload["text"])
+        self.assertIn("## 日報", payload["text"])
         self.assertIn("[详情](https://example.com/report)", payload["text"])
 
     @mock.patch("src.notification_sender.slack_sender.requests.post")
@@ -1887,7 +1887,7 @@ class TestTelegramSender(unittest.TestCase):
         second_payload = mock_post.call_args_list[1][1]["json"]
         self.assertEqual(first_payload["parse_mode"], "Markdown")
         self.assertNotIn("parse_mode", second_payload)
-        self.assertEqual(second_payload["text"], "*ST宝实")
+        self.assertEqual(second_payload["text"], "*ST寶實")
 
     @mock.patch("src.notification_sender.telegram_sender.requests.post")
     def test_send_plain_text_fallback_keeps_original_text_after_legacy_markdown_error(self, mock_post):
@@ -1906,7 +1906,7 @@ class TestTelegramSender(unittest.TestCase):
         self.assertTrue(result)
         first_payload = mock_post.call_args_list[0][1]["json"]
         second_payload = mock_post.call_args_list[1][1]["json"]
-        self.assertEqual(first_payload["text"], "关注 *AAPL* \\(未闭合\\)")
+        self.assertEqual(first_payload["text"], "關注 *AAPL* \\(未閉合\\)")
         self.assertEqual(second_payload["text"], content)
 
     @mock.patch("src.notification_sender.telegram_sender.requests.post")
@@ -1928,11 +1928,11 @@ class TestTelegramSender(unittest.TestCase):
         self.assertTrue(result)
         payload = mock_post.call_args.kwargs["json"]
         rendered = payload["text"]
-        self.assertIn("日报", rendered)
-        self.assertIn("📊 分析结果摘要", rendered)
-        self.assertIn("| 股票 | 信号 |", rendered)
+        self.assertIn("日報", rendered)
+        self.assertIn("📊 分析結果摘要", rendered)
+        self.assertIn("| 股票 | 信號 |", rendered)
         self.assertIn("[详情](https://example.com/report)", rendered)
-        self.assertNotIn("# 日报", rendered)
+        self.assertNotIn("# 日報", rendered)
 
     @mock.patch("src.notification_sender.telegram_sender.requests.post")
     def test_send_strips_hidden_market_region_metadata_from_text_payload(self, mock_post):

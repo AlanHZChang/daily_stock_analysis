@@ -44,7 +44,7 @@ describe('agentApi', () => {
 
   it('preserves the retirement code from the real HTTP 400 stream response', async () => {
     const fetch = vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(new Response(JSON.stringify({
-      error: 'backend_removed', message: 'Codex App Server 已移除，请修正 Agent 设置',
+      error: 'backend_removed', message: 'Codex App Server 已移除，請修正 Agent 設置',
     }), { status: 400, headers: { 'Content-Type': 'application/json' } }));
     try {
       await expect(agentApi.chatStream({message:'分析 AAPL'})).rejects.toMatchObject({
@@ -80,7 +80,7 @@ describe('agentApi', () => {
       data: {
         session_id: 'legacy-session',
         messages: [
-          { id: '1', role: 'user', content: '继续分析', created_at: null },
+          { id: '1', role: 'user', content: '繼續分析', created_at: null },
         ],
         session_state: {
           selected_skill_ids: null,

@@ -50,14 +50,14 @@ class TestFutuFundamentalAdapter(unittest.TestCase):
         self.assertEqual(bundle["growth"]["revenue_yoy"], 10.0)
         self.assertEqual(bundle["growth"]["gross_margin"], 40.0)
         self.assertEqual(bundle["earnings"]["financial_report"]["net_profit_parent"], 200.0)
-        self.assertEqual(bundle["institution"]["company_profile"]["公司名称"], "测试公司")
+        self.assertEqual(bundle["institution"]["company_profile"]["公司名称"], "測試公司")
         self.assertEqual(bundle["capital_flow"]["latest"]["main_in_flow"], 10.0)
-        self.assertEqual(bundle["belong_boards"][0]["name"], "测试行业")
+        self.assertEqual(bundle["belong_boards"][0]["name"], "測試行业")
         self.assertEqual(bundle["belong_boards"][0]["code"], "HK.TEST")
         self.assertEqual(bundle["belong_boards"][0]["type"], "INDUSTRY")
         self.assertEqual(bundle["institution"]["static_info"]["lot_size"], 200)
         self.assertFalse(bundle["institution"]["static_info"]["suspension"])
-        self.assertEqual(bundle["institution"]["company_profile"]["公司名称"], "测试公司")
+        self.assertEqual(bundle["institution"]["company_profile"]["公司名称"], "測試公司")
         self.assertEqual(fetcher.get_financials_statements.call_count, 4)
         called_types = {
             call.kwargs["statement_type"]
@@ -98,7 +98,7 @@ class TestFutuFundamentalAdapter(unittest.TestCase):
         fetcher.get_financials_statements.return_value = None
         bundle = FutuFundamentalAdapter(fetcher).get_fundamental_bundle("HK01810")
 
-        self.assertEqual(bundle["institution"]["company_profile"]["公司名称"], "测试公司")
+        self.assertEqual(bundle["institution"]["company_profile"]["公司名称"], "測試公司")
         self.assertTrue(any(error.startswith("financials_") for error in bundle["errors"]))
         self.assertEqual(bundle["status"], "partial")
 
@@ -233,7 +233,7 @@ class TestFutuFundamentalIntegration(unittest.TestCase):
 
         boards = bundle["belong_boards"]
         self.assertEqual(len(boards), 1)
-        self.assertEqual(boards[0]["name"], "测试行业")
+        self.assertEqual(boards[0]["name"], "測試行业")
         self.assertEqual(boards[0]["code"], "HK.TEST")
         self.assertEqual(boards[0]["type"], "INDUSTRY")
         self.assertNotIn("plate_name", boards[0])
@@ -251,7 +251,7 @@ class TestFutuFundamentalIntegration(unittest.TestCase):
             },
         }
         extracted = extract_board_detail_fields(snapshot)
-        self.assertEqual(extracted["belong_boards"][0]["name"], "测试行业")
+        self.assertEqual(extracted["belong_boards"][0]["name"], "測試行业")
         self.assertEqual(extracted["belong_boards"][0]["code"], "HK.TEST")
         self.assertEqual(extracted["belong_boards"][0]["type"], "INDUSTRY")
 
@@ -293,8 +293,8 @@ class TestFutuFundamentalIntegration(unittest.TestCase):
         self.assertEqual(payload["growth"]["revenue_yoy"], 16.5)
         self.assertEqual(payload["growth"]["net_profit_yoy"], 19.3)
         self.assertEqual(payload["earnings"]["financial_report"]["net_profit_parent"], 2.95e10)
-        self.assertEqual(payload["institution"]["company_profile"]["公司名称"], "测试公司")
-        self.assertEqual(payload["belong_boards"][0]["name"], "测试行业")
+        self.assertEqual(payload["institution"]["company_profile"]["公司名称"], "測試公司")
+        self.assertEqual(payload["belong_boards"][0]["name"], "測試行业")
         self.assertEqual(payload["status"], "partial")
         providers = [s.get("provider") for s in payload["source_chain"]]
         self.assertIn("futu.financials", providers)
@@ -342,7 +342,7 @@ class TestFutuFundamentalIntegration(unittest.TestCase):
         self.assertEqual(payload["growth"]["revenue_yoy"], 16.5)
         self.assertEqual(payload["growth"]["net_profit_yoy"], 19.3)
         self.assertEqual(payload["earnings"]["financial_report"]["net_profit_parent"], 2.95e10)
-        self.assertEqual(payload["institution"]["company_profile"]["公司名称"], "测试公司")
+        self.assertEqual(payload["institution"]["company_profile"]["公司名称"], "測試公司")
         providers = [s.get("provider") for s in payload["source_chain"]]
         self.assertIn("yfinance.info", providers)
 

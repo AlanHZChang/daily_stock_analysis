@@ -56,7 +56,7 @@ function record(value: unknown): value is Record<string, unknown> {
 
 export function decodeChatState(payload: unknown, source: 'detail' | 'accepted' | 'response'): DecodedChatState {
   const invalid = () => createParsedApiError({
-    title: '会话状态响应不完整', message: '请刷新会话后重试；本次响应不能确认讨论对象。',
+    title: '會話状态響應不完整', message: '請刷新會話後重试；本次響應不能確認討論對象。',
     code: 'chat_state_protocol_error', category: 'http_error',
   });
   if (!record(payload)) throw invalid();
@@ -176,7 +176,7 @@ export const agentApi = {
     }>('/api/v1/agent/chat/send', { content });
     const data = response.data;
     if (data.success === false) {
-      throw new Error(data.message || '发送失败');
+      throw new Error(data.message || '發送失敗');
     }
     return { success: true };
   },

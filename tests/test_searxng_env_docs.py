@@ -18,8 +18,8 @@ def test_env_example_documents_searxng_actions_variable_mapping() -> None:
 
 
 def test_env_example_defaults_public_searxng_instances_off() -> None:
-    """公共实例发现默认关闭：公共实例普遍限流或不返回 JSON，
-    默认开启会让未配置搜索 key 的用户每次分析白等 30~60 秒且拿到空新闻面。"""
+    """公共實例發現默認關閉：公共實例普遍限流或不返回 JSON，
+    默認開啟會讓未配置搜索 key 的用戶每次分析白等 30~60 秒且拿到空新聞面。"""
     env_example = (ROOT_DIR / ".env.example").read_text(encoding="utf-8")
 
     assert "SEARXNG_PUBLIC_INSTANCES_ENABLED=false" in env_example
@@ -58,11 +58,11 @@ def test_changelog_mentions_searxng_actions_variable_mapping() -> None:
 
 
 def test_runtime_default_disables_public_searxng_instances(monkeypatch) -> None:
-    """未设置环境变量时，运行时必须解析为关闭。
+    """未設置環境變量時，運行時必須解析為關閉。
 
-    这是本项改动真正生效的地方：只改 .env.example 只影响复制了新模板的用户，
-    已有安装和 GitHub Actions（未配置 Variable/Secret 时变量为空）仍会
-    走公共实例发现，继续承受 30~60 秒的失败重试。
+    這是本項改動真正生效的地方：只改 .env.example 隻影響複製了新模板的用戶，
+    已有安裝和 GitHub Actions（未配置 Variable/Secret 時變量為空）仍會
+    走公共實例發現，繼續承受 30~60 秒的失敗重試。
     """
     from src.config import parse_env_bool
 
@@ -76,14 +76,14 @@ def test_runtime_default_disables_public_searxng_instances(monkeypatch) -> None:
 
 
 def test_config_constructor_defaults_public_searxng_instances_off() -> None:
-    """直接构造 Config 时也必须遵循公共实例发现默认关闭的契约。"""
+    """直接構造 Config 時也必須遵循公共實例發現默認關閉的契約。"""
     from src.config import Config
 
     assert Config().searxng_public_instances_enabled is False
 
 
 def test_config_module_uses_false_as_runtime_default() -> None:
-    """锁住 config.py 里的默认值，防止后续改动悄悄回退。"""
+    """鎖住 config.py 裡的默認值，防止後續改動悄悄回退。"""
     src = (ROOT_DIR / "src" / "config.py").read_text(encoding="utf-8")
     idx = src.index("SEARXNG_PUBLIC_INSTANCES_ENABLED")
     window = src[idx : idx + 200]
@@ -93,7 +93,7 @@ def test_config_module_uses_false_as_runtime_default() -> None:
 
 
 def test_workflow_reports_disabled_when_variable_unset() -> None:
-    """工作流诊断不得把「未设置」显示成已开启，否则与运行时行为不一致。"""
+    """工作流診斷不得把「未設置」顯示成已開啟，否則與運行時行為不一致。"""
     workflow = (
         ROOT_DIR / ".github" / "workflows" / "00-daily-analysis.yml"
     ).read_text(encoding="utf-8")
@@ -144,7 +144,7 @@ def test_docs_describe_public_searxng_discovery_as_opt_in() -> None:
 
 
 def test_constructor_kwargs_carry_searxng_timeout_for_subprocess_rebuild() -> None:
-    """bounded 题材搜索在子进程中重建 SearchService 时必须带上超时配置（PR #2249 blocker）。"""
+    """bounded 題材搜索在子進程中重建 SearchService 時必須帶上超時配置（PR #2249 blocker）。"""
     from src.search_service import SearchService
 
     service = SearchService(
@@ -155,7 +155,7 @@ def test_constructor_kwargs_carry_searxng_timeout_for_subprocess_rebuild() -> No
     assert kwargs["searxng_timeout_seconds"] == 25
     assert kwargs["searxng_base_urls"] == ["http://searxng.local:8080"]
 
-    # 子进程按同一 kwargs 重建后,provider 应拿到相同超时
+    # 子進程按同一 kwargs 重建後,provider 應拿到相同超時
     rebuilt = SearchService(**kwargs)
     searxng = next(p for p in rebuilt._providers if p.name == "SearXNG")
     assert searxng._self_hosted_timeout_seconds == 25

@@ -39,7 +39,7 @@ def clean_db(request):
     fake_map = getattr(request, "param", None)
     with patch.object(ntc, "_get_akshare_name_to_code", return_value=fake_map):
         yield
-    # 恢复用归一后的本地映射（与模块初值同构，见 _normalize_stock_name）
+    # 恢復用歸一後的本地映射（與模塊初值同構，見 _normalize_stock_name）
     ntc.stockDB.clear()
     ntc.stockDB.update(
         {c: ntc._normalize_stock_name(n) for c, n in STOCK_NAME_MAP.items()}
@@ -156,17 +156,17 @@ class TestResolveNameToCode:
 
     @patch("src.services.name_to_code_resolver._get_akshare_name_to_code")
     def test_local_hit_does_not_trigger_akshare(self, mock_akshare):
-        # 本地表精确命中必须零网络：既有调用方（API/Bot/导入）保持
-        # 离线低延迟契约，不被 AkShare 冷启动等待拖住。
+        # 本地表精確命中必須零網絡：既有調用方（API/Bot/導入）保持
+        # 離線低延遲契約，不被 AkShare 冷啟動等待拖住。
         assert resolve_name_to_code("贵州茅台") == "600519"
         assert resolve_name_to_code("腾讯控股") == "00700"
         mock_akshare.assert_not_called()
 
     @patch("src.services.name_to_code_resolver._get_akshare_name_to_code")
     def test_local_hit_wins_over_akshare_same_name(self, mock_akshare):
-        # 兼容性契约：本地表唯一命中的名字直接返回本地代码，不做跨市场
-        # 合并判定（中国移动：本地仅港股 00941，AkShare 有同名 A 股 600941）。
-        # 完整跨市场候选由 resolver_name_to_code_list 提供。
+        # 兼容性契約：本地表唯一命中的名字直接返回本地代碼，不做跨市場
+        # 合併判定（中國移動：本地僅港股 00941，AkShare 有同名 A 股 600941）。
+        # 完整跨市場候選由 resolver_name_to_code_list 提供。
         mock_akshare.return_value = {"中国移动": "600941"}
         assert resolve_name_to_code("中国移动") == "00941"
         mock_akshare.assert_not_called()
@@ -183,8 +183,8 @@ class TestResolveNameToCode:
     @patch("src.services.name_to_code_resolver._get_akshare_name_to_code")
     def test_akshare_fallback_when_not_in_local(self, mock_akshare):
         mock_akshare.return_value = {"平安银行": "000001"}
-        # 000001 is in local map as 平安银行, so we use a name that's only in akshare
-        # Actually local has 000001 -> 平安银行. So "平安银行" would hit local first.
+        # 000001 is in local map as 平安銀行, so we use a name that's only in akshare
+        # Actually local has 000001 -> 平安銀行. So "平安銀行" would hit local first.
         # Use a name not in STOCK_NAME_MAP - e.g. some A-share only in AkShare
         mock_akshare.return_value = {"浦发银行": "600000"}
         result = resolve_name_to_code("浦发银行")
@@ -194,7 +194,7 @@ class TestResolveNameToCode:
     @patch("src.services.name_to_code_resolver._get_akshare_name_to_code")
     def test_fuzzy_match_fallback(self, mock_akshare):
         mock_akshare.return_value = {"贵州茅台": "600519"}
-        # Typo: 贵州茅苔 -> should fuzzy match 贵州茅台
+        # Typo: 貴州茅苔 -> should fuzzy match 貴州茅臺
         result = resolve_name_to_code("贵州茅苔")
         assert result == "600519"
 
@@ -212,8 +212,8 @@ class TestResolveNameToCode:
 
     @pytest.mark.parametrize("clean_db", [{"三一重能": "688349"}], indirect=True)
     def test_akshare_exact_fallback_beats_fuzzy_for_non_local_name(self, clean_db):
-        # 本地未收录的 CJK 名称：AkShare 精确命中（第 4 步）优先于模糊
-        # 匹配（第 5 步），"三一重能" 不会被误配到相近的 三一重工。
+        # 本地未收錄的 CJK 名稱：AkShare 精確命中（第 4 步）優先於模糊
+        # 匹配（第 5 步），"三一重能" 不會被誤配到相近的 三一重工。
         assert resolve_name_to_code("三一重能") == "688349"
 
 
@@ -259,10 +259,10 @@ class TestResolverNameToCodeList:
 
     @pytest.mark.usefixtures("clean_db")
     def test_cjk_fragment_skips_pinyin_layer(self):
-        # 回归：CJK 片段不得走拼音子串层。"平果"拼音 pingguo 与苹果全名
-        # 拼音完全相撞，预修复会经策略 3 误命中苹果；CJK 片段的拼音粒度
-        # 失控（实义字+助词转拼音后可与不相干全名碰撞，如"阿里的"→
-        # "alide" ⊂ "zhongdalide" 中大力德），仅 ASCII 拼音输入走该层。
+        # 迴歸：CJK 片段不得走拼音子串層。"平果"拼音 pingguo 與蘋果全名
+        # 拼音完全相撞，預修復會經策略 3 誤命中蘋果；CJK 片段的拼音粒度
+        # 失控（實義字+助詞轉拼音後可與不相干全名碰撞，如"阿里的"→
+        # "alide" ⊂ "zhongdalide" 中大力德），僅 ASCII 拼音輸入走該層。
         assert resolver_name_to_code_list("平果") == []
 
     @pytest.mark.usefixtures("clean_db")
@@ -287,7 +287,7 @@ class TestResolverNameToCodeList:
 
     @pytest.mark.parametrize("clean_db", [{"阿里巴巴": "600000"}], indirect=True)
     def test_local_exact_hit_still_merges_akshare_same_name_a_share(self, clean_db):
-        # 本地已有同名港股/美股时，AkShare 中的同名 A 股也必须被并入。
+        # 本地已有同名港股/美股時，AkShare 中的同名 A 股也必須被併入。
         ntc.stockDB.clear()
         ntc.stockDB.update({"09988": "阿里巴巴", "BABA": "阿里巴巴"})
         ntc._names_cache[:] = [None, None, None]
@@ -302,7 +302,7 @@ class TestResolverNameToCodeList:
 
     @pytest.mark.parametrize("clean_db", [{"阿里巴巴": "600000"}], indirect=True)
     def test_local_single_candidate_gets_a_share_candidate_after_akshare_merge(self, clean_db):
-        # 本地只有单一市场记录时，AkShare 补齐同名 A 股后候选变完整。
+        # 本地只有單一市場記錄時，AkShare 補齊同名 A 股後候選變完整。
         ntc.stockDB.clear()
         ntc.stockDB.update({"09988": "阿里巴巴"})
         ntc._names_cache[:] = [None, None, None]
@@ -315,9 +315,9 @@ class TestResolverNameToCodeList:
         ]
 
 class TestCompactLookupInputs:
-    """查询侧同源压平：带内嵌空格的"源形态"输入（如自 AkShare 数据复制的
-    "五 粮 液"）与常规无空格拼写同样可解析——入库压平后查询入口若只做
-    首尾 strip，源形态输入会在精确/子串/模糊全部层级落空。"""
+    """查詢側同源壓平：帶內嵌空格的"源形態"輸入（如自 AkShare 數據複製的
+    "五 糧 液"）與常規無空格拼寫同樣可解析——入庫壓平後查詢入口若只做
+    首尾 strip，源形態輸入會在精確/子串/模糊全部層級落空。"""
 
     @pytest.mark.parametrize("clean_db", [{"五 粮 液": "000858"}], indirect=True)
     def test_spaced_input_resolves_via_list(self, clean_db):
@@ -332,7 +332,7 @@ class TestCompactLookupInputs:
         assert ntc.is_known_stock_name("五 粮 液") is True
 
     def test_spaced_input_resolves_legacy(self):
-        # 本地映射已有无空格拼写：legacy 入口对带空格输入同样命中
+        # 本地映射已有無空格拼寫：legacy 入口對帶空格輸入同樣命中
         assert resolve_name_to_code("五 粮 液") == "000858"
 
 
@@ -384,29 +384,29 @@ class TestExtendAkShare:
         assert ntc.extend_AkShare() is True
         assert ntc.stockDB["600000"] == "新名称"
         assert ntc.stockAliases["600000"] == {"旧名称"}
-        # 新名称作为当前官方名称可解析
+        # 新名稱作為當前官方名稱可解析
         assert resolver_name_to_code_list("新名称") == [Stock("600000", "新名称", "a")]
-        # 旧名称作为别名仍然可解析，且展示当前官方名称
+        # 舊名稱作為別名仍然可解析，且展示當前官方名稱
         assert resolver_name_to_code_list("旧名称") == [Stock("600000", "新名称", "a")]
 
 
 class TestCompactStockNameMerge:
-    """AkShare 名称内嵌空白压平：stockDB 只存无空格拼写。
+    """AkShare 名稱內嵌空白壓平：stockDB 只存無空格拼寫。
 
-    带空格名称（"五 粮 液"）与本地无空格拼写（"五粮液"）语义相同：
-    压平后比较相等 → 不触发假性改名/别名；全名精确匹配对常规输入可见。
+    帶空格名稱（"五 糧 液"）與本地無空格拼寫（"五粮液"）語義相同：
+    壓平後比較相等 → 不觸發假性改名/別名；全名精確匹配對常規輸入可見。
     """
 
     @pytest.mark.parametrize("clean_db", [{"五 粮 液": "600000"}], indirect=True)
     def test_spaced_akshare_name_compacted(self, clean_db):
-        # 600000 不在本地映射：新条目以压平拼写写入（000858 本地已有、
-        # 压平后相等属"无变更"路径，见下一条用例）
+        # 600000 不在本地映射：新條目以壓平拼寫寫入（000858 本地已有、
+        # 壓平後相等屬"無變更"路徑，見下一條用例）
         assert ntc.extend_AkShare() is True
         assert ntc.stockDB["600000"] == "五粮液"
 
     @pytest.mark.parametrize("clean_db", [{"五 粮 液": "000858"}], indirect=True)
     def test_spaced_name_vs_local_no_spurious_alias(self, clean_db):
-        # 本地已有无空格拼写：压平后相等，不得制造假性别名/假性改名
+        # 本地已有無空格拼寫：壓平後相等，不得製造假性別名/假性改名
         ntc.stockDB.clear()
         ntc.stockDB.update({"000858": "五粮液"})
         ntc._names_cache[:] = [None, None, None]
@@ -418,7 +418,7 @@ class TestCompactStockNameMerge:
 
     @pytest.mark.parametrize("clean_db", [{"五 粮 液": "000858"}], indirect=True)
     def test_spaced_name_exact_match_after_merge(self, clean_db):
-        # 压平后的规范名对常规无空格输入整名可见（含 Step 3 精确匹配口径）
+        # 壓平後的規範名對常規無空格輸入整名可見（含 Step 3 精確匹配口徑）
         ntc.extend_AkShare()
         assert ntc.is_known_stock_name("五粮液") is True
         assert resolver_name_to_code_list("五粮液") == [Stock("000858", "五粮液", "a")]
@@ -427,29 +427,29 @@ class TestCompactStockNameMerge:
         "clean_db", [{"   ": "600000", "万  科Ａ": "000002"}], indirect=True
     )
     def test_whitespace_only_name_skipped(self, clean_db):
-        # 压平后为空的名称条目跳过，不写入空串；"万  科Ａ" 归一后为
-        # "万科A"（NFKC 宽度归一 + 去空白）
+        # 壓平後為空的名稱條目跳過，不寫入空串；"萬  科Ａ" 歸一後為
+        # "萬科A"（NFKC 寬度歸一 + 去空白）
         assert ntc.extend_AkShare() is True
         assert ntc.stockDB["000002"] == "万科A"
         assert "600000" not in ntc.stockDB or ntc.stockDB["600000"] != ""
 
 
 class TestStockNameWidthNormalization:
-    """库名宽度归一（_normalize_stock_name = NFKC + 去空白）：源数据的
-    全角拼写（AkShare "京东方Ａ"、磁盘缓存历史数据）与 NFKC 归一后的
-    用户输入（"京东方A"）必须同源同变换——否则全名精确匹配落空，且会被
-    更短的库内名误切（"京东"）。"""
+    """庫名寬度歸一（_normalize_stock_name = NFKC + 去空白）：源數據的
+    全角拼寫（AkShare "京東方Ａ"、磁盤緩存歷史數據）與 NFKC 歸一後的
+    用戶輸入（"京東方A"）必須同源同變換——否則全名精確匹配落空，且會被
+    更短的庫內名誤切（"京东"）。"""
 
     @pytest.mark.parametrize("clean_db", [{"京东方Ａ": "000725"}], indirect=True)
     def test_akshare_fullwidth_name_normalized_on_merge(self, clean_db):
-        # 合并入口归一：全角Ａ名称以半角拼写写入 stockDB
+        # 合併入口歸一：全角Ａ名稱以半角拼寫寫入 stockDB
         assert ntc.extend_AkShare() is True
         assert ntc.stockDB["000725"] == "京东方A"
 
     @pytest.mark.parametrize("clean_db", [{"京东方Ａ": "000725"}], indirect=True)
     def test_fullwidth_and_halfwidth_queries_both_resolve(self, clean_db):
         ntc.extend_AkShare()
-        # 查询入口同源归一：全角/半角输入皆可解析，展示名统一为归一拼写
+        # 查詢入口同源歸一：全角/半角輸入皆可解析，展示名統一為歸一拼寫
         assert ntc.resolver_name_to_code_list("京东方A") == [
             Stock("000725", "京东方A", "a")
         ]
@@ -460,19 +460,19 @@ class TestStockNameWidthNormalization:
 
     @pytest.mark.parametrize("clean_db", [{"京东方A": "000725"}], indirect=True)
     def test_legacy_fullwidth_input_resolves(self, clean_db):
-        # legacy 入口查询归一（生产缓存侧名称经 _build_name_map_from_df
-        # 已归一，mock 按生产形态给出半角键）
+        # legacy 入口查詢歸一（生產緩存側名稱經 _build_name_map_from_df
+        # 已歸一，mock 按生產形態給出半角鍵）
         assert ntc.resolve_name_to_code("京东方Ａ") == "000725"
 
     def test_local_name_indexes_normalized(self):
-        # 构建器内部归一：全角拼写输入的索引键为半角
+        # 構建器內部歸一：全角拼寫輸入的索引鍵為半角
         unique, ambiguous = ntc._build_local_name_indexes({"000725": "京东方Ａ"})
         assert unique == {"京东方A": "000725"}
         assert ambiguous == set()
 
     @pytest.mark.usefixtures("real_akshare_path")
     def test_disk_cache_names_normalized_on_load(self):
-        # 磁盘缓存里的历史未归一名称：加载即归一（零网络，落盘时间戳新鲜）
+        # 磁盤緩存裡的歷史未歸一名稱：加載即歸一（零網絡，落盤時間戳新鮮）
         import json
         import time as time_mod
 
@@ -488,15 +488,15 @@ class TestStockNameWidthNormalization:
         assert ntc._get_akshare_name_to_code() == {"京东方A": "000725"}
 
 # ---------------------------------------------------------------------------
-# AkShare 单飞并发：真实 _get_akshare_name_to_code + _fetch_akshare_df 假拉取
+# AkShare 單飛併發：真實 _get_akshare_name_to_code + _fetch_akshare_df 假拉取
 # ---------------------------------------------------------------------------
 
 
 class _FakeAkShareFetch:
-    """确定性的 _fetch_akshare_df 替身。
+    """確定性的 _fetch_akshare_df 替身。
 
-    每次调用先置位 fetch_started（证明拉取已在后台线程开始），再阻塞在
-    release_fetch 上——测试据此精确控制拉取窗口，不依赖 sleep 计时。
+    每次調用先置位 fetch_started（證明拉取已在後臺線程開始），再阻塞在
+    release_fetch 上——測試據此精確控制拉取窗口，不依賴 sleep 計時。
     """
 
     def __init__(self, fail: bool = False, rows: Optional[dict] = None):
@@ -509,7 +509,7 @@ class _FakeAkShareFetch:
     def fetch(self):
         self.calls += 1
         self.fetch_started.set()
-        # 30s 兜底：用例逻辑正确时总会在收尾前 set，防自身缺陷挂死线程
+        # 30s 兜底：用例邏輯正確時總會在收尾前 set，防自身缺陷掛死線程
         self.release_fetch.wait(timeout=30)
         if self.fail:
             raise RuntimeError("simulated akshare failure")
@@ -518,10 +518,10 @@ class _FakeAkShareFetch:
 
 @pytest.fixture()
 def real_akshare_path(monkeypatch, tmp_path):
-    """复位 AkShare 拉取相关全局态，走真实 _get_akshare_name_to_code 路径。
+    """復位 AkShare 拉取相關全局態，走真實 _get_akshare_name_to_code 路徑。
 
-    磁盘缓存指向临时路径：既隔离仓库 data/cache 下的真实文件，也让
-    落盘/懒加载用例可以安全读写。
+    磁盤緩存指向臨時路徑：既隔離倉庫 data/cache 下的真實文件，也讓
+    落盤/懶加載用例可以安全讀寫。
     """
     saved = (
         ntc._akshare_cache,
@@ -537,8 +537,8 @@ def real_akshare_path(monkeypatch, tmp_path):
     ntc._akshare_disk_checked = False
     monkeypatch.setattr(ntc, "_AKSHARE_DISK_CACHE_PATH", tmp_path / "akshare_name_map.json")
     yield monkeypatch
-    # 等待在途刷新收尾（正常用例在 finally 里已 release，这里毫秒级通过），
-    # 避免迟到的 worker 把缓存写进下一个用例
+    # 等待在途刷新收尾（正常用例在 finally 裡已 release，這裡毫秒級通過），
+    # 避免遲到的 worker 把緩存寫進下一個用例
     deadline = time.time() + 5
     while ntc._akshare_inflight is not None and time.time() < deadline:
         time.sleep(0.05)
@@ -554,13 +554,13 @@ def real_akshare_path(monkeypatch, tmp_path):
 
 
 def _run_resolver_in_thread(query: str):
-    """在 daemon 线程里执行解析，捕获返回值/异常。"""
+    """在 daemon 線程裡執行解析，捕獲返回值/異常。"""
     outcome = {}
 
     def _worker():
         try:
             outcome["value"] = ntc.resolver_name_to_code_list(query)
-        except BaseException as exc:  # noqa: BLE001 - 线程异常兜底
+        except BaseException as exc:  # noqa: BLE001 - 線程異常兜底
             outcome["error"] = exc
 
     t = threading.Thread(target=_worker, daemon=True)
@@ -569,7 +569,7 @@ def _run_resolver_in_thread(query: str):
 
 
 def _wait_until(condition, timeout: float = 5.0) -> bool:
-    """有界轮询等待条件成立（后台刷新收尾是确定性事件，仅耗时不定）。"""
+    """有界輪詢等待條件成立（後臺刷新收尾是確定性事件，僅耗時不定）。"""
     deadline = time.time() + timeout
     while time.time() < deadline:
         if condition():
@@ -589,9 +589,9 @@ class TestAkShareSingleFlightConcurrency:
         try:
             assert fake.fetch_started.wait(timeout=5)
             t2, r2 = _run_resolver_in_thread("浦发银行")
-            # 旧实现（非阻塞放弃）在此窗口内立即返回空结果；新实现持续等待
+            # 舊實現（非阻塞放棄）在此窗口內立即返回空結果；新實現持續等待
             t2.join(timeout=2)
-            # 释放前两个线程必须仍在等待（而非已带空结果返回）——漏解 bug 的核心
+            # 釋放前兩個線程必須仍在等待（而非已帶空結果返回）——漏解 bug 的核心
             assert t1.is_alive() and t2.is_alive()
         finally:
             fake.release_fetch.set()
@@ -599,7 +599,7 @@ class TestAkShareSingleFlightConcurrency:
             if t2 is not None:
                 t2.join(timeout=10)
         assert not t1.is_alive() and not t2.is_alive()
-        # 等待者命中在途拉取的结果（本 bug 的核心断言），且全进程只拉取一次
+        # 等待者命中在途拉取的結果（本 bug 的核心斷言），且全進程只拉取一次
         assert r1.get("value") == [Stock("600000", "浦发银行", "a")]
         assert r2.get("value") == [Stock("600000", "浦发银行", "a")]
         assert fake.calls == 1
@@ -621,7 +621,7 @@ class TestAkShareSingleFlightConcurrency:
             if t2 is not None:
                 t2.join(timeout=10)
         assert not t1.is_alive() and not t2.is_alive()
-        # 在途拉取失败：等待者醒来命中失败退避（而非重试风暴），本地空库返回 []
+        # 在途拉取失敗：等待者醒來命中失敗退避（而非重試風暴），本地空庫返回 []
         assert r1.get("value") == []
         assert r2.get("value") == []
         assert fake.calls == 1
@@ -629,8 +629,8 @@ class TestAkShareSingleFlightConcurrency:
 
     @pytest.mark.usefixtures("real_akshare_path")
     def test_cold_waiters_degrade_after_timeout_but_fetch_lands(self, monkeypatch):
-        # worker 违约（超清账余量仍未 resolve）时的兜底路径：等待者按死线
-        # 自行降级，后台拉取不受影响仍单次完成落地
+        # worker 違約（超清賬餘量仍未 resolve）時的兜底路徑：等待者按死線
+        # 自行降級，後臺拉取不受影響仍單次完成落地
         monkeypatch.setattr(ntc, "_AKSHARE_WAIT_COLD_START", 0.2)
         fake = _FakeAkShareFetch()
         monkeypatch.setattr(ntc, "_fetch_akshare_df", fake.fetch)
@@ -640,12 +640,12 @@ class TestAkShareSingleFlightConcurrency:
         try:
             assert fake.fetch_started.wait(timeout=5)
             t2, r2 = _run_resolver_in_thread("浦发银行")
-            # 拉取持续挂起时，所有冷启动等待者（含触发拉取的那一个）都必须
-            # 在超时上界内自行返回，而非无限等待
+            # 拉取持續掛起時，所有冷啟動等待者（含觸發拉取的那一個）都必須
+            # 在超時上界內自行返回，而非無限等待
             t1.join(timeout=10)
             t2.join(timeout=10)
-            # 必须在放行抓取前确认两个等待者均已降级；仅等待 t2 不能
-            # 保证 t1 已返回，否则 finally 放行后 t1 可能拿到成功结果。
+            # 必須在放行抓取前確認兩個等待者均已降級；僅等待 t2 不能
+            # 保證 t1 已返回，否則 finally 放行後 t1 可能拿到成功結果。
             assert not t1.is_alive() and not t2.is_alive()
             assert r1.get("value") == []
             assert r2.get("value") == []
@@ -655,19 +655,19 @@ class TestAkShareSingleFlightConcurrency:
             if t2 is not None:
                 t2.join(timeout=10)
         assert not t1.is_alive() and not t2.is_alive()
-        # 后台拉取不受等待者超时影响，仍单次完成
+        # 後臺拉取不受等待者超時影響，仍單次完成
         assert fake.calls == 1
         assert _wait_until(
             lambda: ntc._akshare_cache is not None
             and ntc._akshare_cache[1] == {"浦发银行": "600000"}
         )
-        # 拉取落地后，后续请求立即命中新缓存
+        # 拉取落地後，後續請求立即命中新緩存
         assert ntc.resolver_name_to_code_list("浦发银行") == [Stock("600000", "浦发银行", "a")]
 
     @pytest.mark.usefixtures("real_akshare_path")
     def test_slow_persist_does_not_delay_waiter_wakeup(self, monkeypatch):
-        # 唤醒在落盘之前：慢磁盘不得拖住等待者拿结果（缓存已就绪、
-        # 等待者却超时漏解曾是真实回归）
+        # 喚醒在落盤之前：慢磁盤不得拖住等待者拿結果（緩存已就緒、
+        # 等待者卻超時漏解曾是真實迴歸）
         fake = _FakeAkShareFetch()
         monkeypatch.setattr(ntc, "_fetch_akshare_df", fake.fetch)
         release_persist = threading.Event()
@@ -679,11 +679,11 @@ class TestAkShareSingleFlightConcurrency:
         try:
             assert fake.fetch_started.wait(timeout=5)
             fake.release_fetch.set()
-            # 拉取完成即唤醒并返回，不等落盘
+            # 拉取完成即喚醒並返回，不等落盤
             t1.join(timeout=5)
             assert not t1.is_alive()
             assert r1.get("value") == [Stock("600000", "浦发银行", "a")]
-            assert not release_persist.is_set()  # 落盘仍挂着，等待者已返回
+            assert not release_persist.is_set()  # 落盤仍掛著，等待者已返回
         finally:
             release_persist.set()
             t1.join(timeout=10)
@@ -691,39 +691,39 @@ class TestAkShareSingleFlightConcurrency:
     @pytest.mark.usefixtures("real_akshare_path")
     def test_base_exception_still_clears_inflight_and_arms_backoff(self, monkeypatch):
         # finally 兜底：BaseException（如 KeyboardInterrupt/SystemExit）逃逸
-        # 时也必须清在途句柄、武装退避并唤醒等待者，不留死句柄
+        # 時也必須清在途句柄、武裝退避並喚醒等待者，不留死句柄
         class _Bomb(BaseException):
             pass
 
         def bomb():
             raise _Bomb
 
-        # 接管 excepthook：既静音 worker 死亡时的未处理异常输出，又给出
-        # "worker 已带着 _Bomb 死亡"的确定性信号（不依赖全局线程状态，
-        # 避免被其他用例泄漏的后台刷新线程干扰）
+        # 接管 excepthook：既靜音 worker 死亡時的未處理異常輸出，又給出
+        # "worker 已帶著 _Bomb 死亡"的確定性信號（不依賴全局線程狀態，
+        # 避免被其他用例洩漏的後臺刷新線程干擾）
         hook_calls: list = []
         monkeypatch.setattr(threading, "excepthook", lambda args: hook_calls.append(args))
         monkeypatch.setattr(ntc, "_fetch_akshare_df", bomb)
         t1, r1 = _run_resolver_in_thread("浦发银行")
         t1.join(timeout=10)
         assert not t1.is_alive()
-        assert _wait_until(lambda: hook_calls)  # worker 已触发 excepthook
-        assert r1.get("value") == []  # 等待者被 finally 唤醒后拿到 None
-        assert ntc._akshare_inflight is None  # 无死句柄
-        assert ntc._akshare_failure_cache is not None  # 退避已武装
-        assert ntc._get_akshare_name_to_code() is None  # 退避窗口内不再触网
+        assert _wait_until(lambda: hook_calls)  # worker 已觸發 excepthook
+        assert r1.get("value") == []  # 等待者被 finally 喚醒後拿到 None
+        assert ntc._akshare_inflight is None  # 無死句柄
+        assert ntc._akshare_failure_cache is not None  # 退避已武裝
+        assert ntc._get_akshare_name_to_code() is None  # 退避窗口內不再觸網
 
 
 # ---------------------------------------------------------------------------
-# Stale-while-revalidate：TTL 过期必须立即返回旧值（零等待），刷新在后台
-# 完成；网络故障的退避窗口内旧值继续服务（可用性），仅冷启动才退化。
+# Stale-while-revalidate：TTL 過期必須立即返回舊值（零等待），刷新在後臺
+# 完成；網絡故障的退避窗口內舊值繼續服務（可用性），僅冷啟動才退化。
 # ---------------------------------------------------------------------------
 
 
 class TestAkShareStaleWhileRevalidate:
     @pytest.mark.usefixtures("real_akshare_path")
     def test_stale_served_immediately_while_refresh_inflight(self, monkeypatch):
-        # 先用立即返回的假拉取把缓存填充为 v1
+        # 先用立即返回的假拉取把緩存填充為 v1
         primed = {"浦发银行": "600000"}
 
         def fetch_v1():
@@ -731,10 +731,10 @@ class TestAkShareStaleWhileRevalidate:
 
         monkeypatch.setattr(ntc, "_fetch_akshare_df", fetch_v1)
         assert ntc._get_akshare_name_to_code() == primed
-        # 强制过期：时间戳拨回 TTL 之前
+        # 強制過期：時間戳撥回 TTL 之前
         ntc._akshare_cache = (time.time() - ntc._AKSHARE_CACHE_TTL - 10, primed)
 
-        # 换成阻塞版拉取（v2：600000 改名为 新名称银行）
+        # 換成阻塞版拉取（v2：600000 改名為 新名稱銀行）
         fake = _FakeAkShareFetch(rows={"code": ["600000"], "name": ["新名称银行"]})
         monkeypatch.setattr(ntc, "_fetch_akshare_df", fake.fetch)
 
@@ -742,15 +742,15 @@ class TestAkShareStaleWhileRevalidate:
         result = ntc._get_akshare_name_to_code()
         elapsed = time.monotonic() - started
         try:
-            # 核心断言：stale 值立即返回，没有等待在途拉取
+            # 核心斷言：stale 值立即返回，沒有等待在途拉取
             assert result == primed
             assert elapsed < 2
-            # 后台刷新确实已发起且尚未完成（fake 仍被挂起）
+            # 後臺刷新確實已發起且尚未完成（fake 仍被掛起）
             assert fake.fetch_started.wait(timeout=5)
             assert not fake.release_fetch.is_set()
         finally:
             fake.release_fetch.set()
-        # 刷新收尾后新缓存可见，且全进程只拉取一次
+        # 刷新收尾後新緩存可見，且全進程只拉取一次
         v2 = {"新名称银行": "600000"}
         assert _wait_until(lambda: ntc._akshare_cache is not None and ntc._akshare_cache[1] == v2)
         assert fake.calls == 1
@@ -758,7 +758,7 @@ class TestAkShareStaleWhileRevalidate:
 
     @pytest.mark.usefixtures("real_akshare_path")
     def test_backoff_window_serves_stale_during_outage(self, monkeypatch):
-        # 预热缓存 v1 并强制过期
+        # 預熱緩存 v1 並強制過期
         primed = {"浦发银行": "600000"}
 
         def fetch_ok():
@@ -768,7 +768,7 @@ class TestAkShareStaleWhileRevalidate:
         assert ntc._get_akshare_name_to_code() == primed
         ntc._akshare_cache = (time.time() - ntc._AKSHARE_CACHE_TTL - 10, primed)
 
-        # 换成立即失败的拉取：第一次 stale 调用会发起后台刷新并失败
+        # 換成立即失敗的拉取：第一次 stale 調用會發起後臺刷新並失敗
         calls = {"n": 0}
 
         def fetch_fail():
@@ -776,15 +776,15 @@ class TestAkShareStaleWhileRevalidate:
             raise RuntimeError("simulated outage")
 
         monkeypatch.setattr(ntc, "_fetch_akshare_df", fetch_fail)
-        assert ntc._get_akshare_name_to_code() == primed  # 故障期间旧值仍可用
+        assert ntc._get_akshare_name_to_code() == primed  # 故障期間舊值仍可用
         assert _wait_until(lambda: ntc._akshare_failure_cache is not None)
-        # 退避窗口内再次调用：继续服务 stale，且不再发起新的拉取
+        # 退避窗口內再次調用：繼續服務 stale，且不再發起新的拉取
         assert ntc._get_akshare_name_to_code() == primed
         assert calls["n"] == 1
 
 
 # ---------------------------------------------------------------------------
-# 磁盘缓存：成功拉取后原子落盘；重启（全局态复位）后懒加载，零网络。
+# 磁盤緩存：成功拉取後原子落盤；重啟（全局態復位）後懶加載，零網絡。
 # ---------------------------------------------------------------------------
 
 
@@ -798,14 +798,14 @@ class TestAkShareDiskCache:
         assert ntc._get_akshare_name_to_code() == {"浦发银行": "600000"}
         assert _wait_until(lambda: ntc._AKSHARE_DISK_CACHE_PATH.is_file())
 
-        # 模拟重启：内存态全部复位，磁盘保留
+        # 模擬重啟：內存態全部復位，磁盤保留
         ntc._akshare_cache = None
         ntc._akshare_failure_cache = None
         ntc._akshare_disk_checked = False
 
         never = _FakeAkShareFetch()
         monkeypatch.setattr(ntc, "_fetch_akshare_df", never.fetch)
-        # 懒加载直接命中（落盘时间戳新鲜），全程零网络
+        # 懶加載直接命中（落盤時間戳新鮮），全程零網絡
         assert ntc._get_akshare_name_to_code() == {"浦发银行": "600000"}
         assert never.calls == 0
 
@@ -821,13 +821,13 @@ class TestAkShareDiskCache:
             return pd.DataFrame({"code": ["600000"], "name": ["浦发银行"]})
 
         monkeypatch.setattr(ntc, "_fetch_akshare_df", fetch_ok)
-        # 损坏的磁盘缓存被忽略，正常走冷启动拉取
+        # 損壞的磁盤緩存被忽略，正常走冷啟動拉取
         assert ntc._get_akshare_name_to_code() == {"浦发银行": "600000"}
         assert calls["n"] == 1
 
 
 # ---------------------------------------------------------------------------
-# 预热：幂等——并发/重复调用共享同一在途句柄，只触发一次网络拉取。
+# 預熱：冪等——併發/重複調用共享同一在途句柄，只觸發一次網絡拉取。
 # ---------------------------------------------------------------------------
 
 
@@ -838,7 +838,7 @@ class TestWarmupIdempotent:
         monkeypatch.setattr(ntc, "_fetch_akshare_df", fake.fetch)
 
         ntc.warmup_akshare_cache()
-        assert fake.fetch_started.wait(timeout=5)  # 在途句柄已登记
+        assert fake.fetch_started.wait(timeout=5)  # 在途句柄已登記
         ntc.warmup_akshare_cache()  # 第二次：共享 Future，不再拉取
         fake.release_fetch.set()
 
@@ -850,8 +850,8 @@ class TestWarmupIdempotent:
 
 
 # ---------------------------------------------------------------------------
-# 挂起（非失败）场景：子进程超时包装以 TimeoutError 抛出后，必须走
-# 常规失败路径武装退避，而非无限持有单飞锁。
+# 掛起（非失敗）場景：子進程超時包裝以 TimeoutError 拋出後，必須走
+# 常規失敗路徑武裝退避，而非無限持有單飛鎖。
 # ---------------------------------------------------------------------------
 
 
@@ -862,19 +862,19 @@ class TestAkShareHangBackoff:
 
         def hang():
             calls.append(1)
-            # 与 _akshare_call_with_timeout 超时抛出的异常同型
+            # 與 _akshare_call_with_timeout 超時拋出的異常同型
             raise TimeoutError("stock_info_a_code_name 调用超过 25s，已放弃等待")
 
         monkeypatch.setattr(ntc, "_fetch_akshare_df", hang)
         assert ntc._get_akshare_name_to_code() is None
-        assert ntc._akshare_failure_cache is not None  # 退避已武装
-        # 退避窗口内再次解析：命中失败缓存快路径，不再触网
+        assert ntc._akshare_failure_cache is not None  # 退避已武裝
+        # 退避窗口內再次解析：命中失敗緩存快路徑，不再觸網
         assert ntc._get_akshare_name_to_code() is None
         assert len(calls) == 1
 
 
 # ---------------------------------------------------------------------------
-# _fetch_akshare_df 接线：必须经子进程超时包装调用 worker（挂起封顶）。
+# _fetch_akshare_df 接線：必須經子進程超時包裝調用 worker（掛起封頂）。
 # ---------------------------------------------------------------------------
 
 

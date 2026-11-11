@@ -61,7 +61,7 @@ const historyReport = {
     createdAt: '2026-03-18T08:00:00Z',
   },
   summary: {
-    analysisSummary: '趋势维持强势',
+    analysisSummary: '趋势維持強勢',
     operationAdvice: '继续观察买点',
     trendPrediction: '短线震荡偏强',
     sentimentScore: 78,
@@ -1239,7 +1239,7 @@ describe('stockPoolStore', () => {
 
   it('upserts pending and processing tasks from the backend snapshot', async () => {
     const existingTask = createTask({ taskId: 'task-existing', progress: 30 });
-    const updatedTask = createTask({ taskId: 'task-existing', progress: 80, message: 'LLM 正在生成分析结果' });
+    const updatedTask = createTask({ taskId: 'task-existing', progress: 80, message: 'LLM 正在生成分析結果' });
     const newTask = createTask({
       taskId: 'task-new',
       stockCode: '000001',
@@ -1310,7 +1310,7 @@ describe('stockPoolStore', () => {
       taskId: 'task-cancel-requested',
       status: 'cancel_requested',
       progress: 60,
-      message: '正在取消任务',
+      message: '正在取消任務',
     });
     useStockPoolStore.getState().syncTaskCreated(staleTask);
     vi.mocked(analysisApi.getTasks).mockResolvedValue(

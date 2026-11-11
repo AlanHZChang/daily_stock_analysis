@@ -159,7 +159,7 @@ class StockDaily(Base):
         return f"<StockDaily(code={self.code}, date={self.date}, close={self.close})>"
     
     def to_dict(self) -> Dict[str, Any]:
-        """转换为字典"""
+        """轉換為字典"""
         return {
             'code': self.code,
             'date': self.date,
@@ -379,7 +379,7 @@ class AnalysisHistory(Base):
     )
 
     def to_dict(self) -> Dict[str, Any]:
-        """转换为字典"""
+        """轉換為字典"""
         return {
             'id': self.id,
             'query_id': self.query_id,
@@ -2658,7 +2658,7 @@ class DatabaseManager(metaclass=_DatabaseManagerMeta):
                 f"save_news_intel[{code}]",
                 _write,
             )
-            logger.info(f"保存新聞情報成功: {code}, 新增 {saved_count} 条")
+            logger.info(f"保存新聞情報成功: {code}, 新增 {saved_count} 條")
         except Exception as e:
             logger.error(f"保存新聞情報失敗: {e}")
             raise
@@ -3645,7 +3645,7 @@ class DatabaseManager(metaclass=_DatabaseManagerMeta):
                 f"save_daily_data[{code}]",
                 _write,
             )
-            logger.info(f"保存 {code} 數據成功，新增 {saved_count} 条")
+            logger.info(f"保存 {code} 數據成功，新增 {saved_count} 條")
             return saved_count
         except Exception as e:
             logger.error(f"保存 {code} 數據失敗: {e}")
@@ -3679,7 +3679,7 @@ class DatabaseManager(metaclass=_DatabaseManagerMeta):
         recent_data = self.get_latest_data(code, days=2)
         
         if not recent_data:
-            logger.warning(f"未找到 {code} 的数据")
+            logger.warning(f"未找到 {code} 的數據")
             return None
         
         today_data = recent_data[0]
@@ -4824,7 +4824,7 @@ if __name__ == "__main__":
     })
     
     saved = db.save_daily_data(test_df, '600519', 'TestSource')
-    print(f"保存測試數據: {saved} 条")
+    print(f"保存測試數據: {saved} 條")
     
     # 測試獲取上下文
     context = db.get_analysis_context('600519')

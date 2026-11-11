@@ -34,12 +34,12 @@ describe('screeningApi', () => {
 
   it.each(['screen', 'task', 'history'])('preserves item provenance through the %s response mapping', async (entry) => {
     const items = [
-      { code: 'llm_thesis', text: '模型论点', source: 'llm', quality: 'inferred' },
+      { code: 'llm_thesis', text: '模型論點', source: 'llm', quality: 'inferred' },
       { code: 'post_analysis_summary', text: '同文案', source: 'post_analyzer:scorecard', quality: 'observed' },
       { code: 'post_analysis_summary', text: '同文案', source: 'post_analyzer:external_http', quality: 'inferred' },
     ];
     const result = { enabled: true, candidates: [{ rank: 1, code: '600519', name: '测试', reason: '', raw: {},
-      why_selected: items, why_now: [{ code: 'quote_change_pct', text: '涨跌幅：+0.00%', source: 'realtime_quote', quality: 'observed', value: 0 }],
+      why_selected: items, why_now: [{ code: 'quote_change_pct', text: '漲跌幅：+0.00%', source: 'realtime_quote', quality: 'observed', value: 0 }],
       explanation_quality: { why_selected: 'partial', why_now: 'ok' },
     }], candidate_count: 1 };
     post.mockResolvedValueOnce({ data: result });
@@ -106,7 +106,7 @@ describe('screeningApi', () => {
       },
     });
 
-    await expect(screeningApi.enable()).rejects.toThrow('选股功能不可用');
+    await expect(screeningApi.enable()).rejects.toThrow('選股功能不可用');
 
     expect(updateConfig).toHaveBeenNthCalledWith(1, {
       configVersion: 'v1',
@@ -169,8 +169,8 @@ describe('screeningApi', () => {
           AI绠楀姏: {
             enabled: true,
             provider: 'akshare',
-            topic: 'AI绠楀姏',
-            route: [{ title: '盘中发酵', description: '事件摘要' }],
+            topic: 'AI綆楀姏',
+            route: [{ title: '盤中發酵', description: '事件摘要' }],
             stocks: [],
             stock_count: 0,
           },
@@ -231,8 +231,8 @@ describe('screeningApi', () => {
         enabled: true,
         provider: 'akshare',
         topic: '玻璃基板',
-        summary: '玻璃基板盘中发酵',
-        route: [{ title: '盘中发酵', description: '出现大笔买入' }],
+        summary: '玻璃基板盤中發酵',
+        route: [{ title: '盤中發酵', description: '出現大筆买入' }],
         stocks: [{ code: '920438', name: '戈碧迦', role: '异动核心' }],
         leader_stocks: [{ code: '920438', name: '戈碧迦', role: '异动核心' }],
         stock_count: 1,
@@ -300,7 +300,7 @@ describe('screeningApi', () => {
         task_id: 'screen-task-1',
         trace_id: 'screen-task-1',
         status: 'pending',
-        message: 'Screening 选股任务已提交',
+        message: 'Screening 選股任務已提交',
         strategy: 'dual_low',
         market: 'cn',
         max_results: 3,
@@ -347,7 +347,7 @@ describe('screeningApi', () => {
           task_id: 'screen-task-storage-disabled',
           trace_id: 'screen-task-storage-disabled',
           status: 'pending',
-          message: '选股任务已提交',
+          message: '選股任務已提交',
           strategy: 'dual_low',
           market: 'cn',
           max_results: 3,
@@ -378,7 +378,7 @@ describe('screeningApi', () => {
         trace_id: 'screen-task-1',
         status: 'completed',
         progress: 100,
-        message: '任务执行完成',
+        message: '任務執行完成',
         result: {
           enabled: true,
           candidates: [],

@@ -22,16 +22,16 @@ for (const state of ['disabled', 'error', 'unavailable'] as const) {
     });
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('/data');
-    const nav = page.getByRole('complementary', { name: '桌面侧边导航' });
-    await nav.getByRole('link', { name: '选股', exact: true }).click();
+    const nav = page.getByRole('complementary', { name: '桌面側邊導航' });
+    await nav.getByRole('link', { name: '選股', exact: true }).click();
     await expect(page).toHaveURL(/\/screening$/);
-    await expect(page.getByRole('button', { name: /运行选股/ })).toBeDisabled();
+    await expect(page.getByRole('button', { name: /運行選股/ })).toBeDisabled();
     if (state === 'disabled') {
-      await expect(page.getByRole('button', { name: '开启选股', exact: true })).toBeVisible();
+      await expect(page.getByRole('button', { name: '開啟選股', exact: true })).toBeVisible();
     } else {
-      await expect(page.getByRole('button', { name: '开启选股', exact: true })).toHaveCount(0);
-      await expect(page.getByText(state === 'error' ? '选股状态加载失败' : '选股功能不可用', { exact: true }).first()).toBeVisible();
-      await expect(page.getByText('选股未开启', { exact: true })).toHaveCount(0);
+      await expect(page.getByRole('button', { name: '開啟選股', exact: true })).toHaveCount(0);
+      await expect(page.getByText(state === 'error' ? '選股状态加載失敗' : '選股功能不可用', { exact: true }).first()).toBeVisible();
+      await expect(page.getByText('選股未開啟', { exact: true })).toHaveCount(0);
     }
     for (const [name, width, height] of [['desktop', 1440, 900], ['mobile', 390, 844]] as const) {
       await page.setViewportSize({ width, height });
@@ -42,8 +42,8 @@ for (const state of ['disabled', 'error', 'unavailable'] as const) {
     if (state === 'error') {
       failed = false;
       await page.getByRole('button', { name: '重试', exact: true }).click();
-      await expect(page.getByRole('button', { name: '开启选股', exact: true })).toBeVisible();
-      await expect(page.getByText('选股状态加载失败', { exact: true })).toHaveCount(0);
+      await expect(page.getByRole('button', { name: '開啟選股', exact: true })).toBeVisible();
+      await expect(page.getByText('選股状态加載失敗', { exact: true })).toHaveCount(0);
     }
     expect(writes).toEqual([]);
   });
@@ -61,7 +61,7 @@ for (const language of ['zh', 'en'] as const) {
       if (pathname === '/api/v1/system/config') {
         return route.fulfill({ json: { configVersion: 'fixture', maskToken: '******', items: [{
           key: 'SCREENING_ENABLED', value: 'false', rawValueExists: true, isMasked: false,
-          schema: { key: 'SCREENING_ENABLED', title: '选股', category: 'base', dataType: 'boolean',
+          schema: { key: 'SCREENING_ENABLED', title: '選股', category: 'base', dataType: 'boolean',
             uiControl: 'switch', isSensitive: false, isRequired: false, isEditable: true,
             options: [], validation: {}, displayOrder: 1 },
         }] } });
@@ -72,7 +72,7 @@ for (const language of ['zh', 'en'] as const) {
     await page.setViewportSize({ width: 1440, height: 1000 });
     await page.goto('/settings');
     const summary = page.getByText(language === 'zh'
-      ? '开启后可运行选股策略，候选可继续进入单股分析；关闭时仍可从导航进入并查看开启提示。'
+      ? '開啟後可運行選股策略，候選可繼續進入單股分析；關閉時仍可從導航進入並查看開啟提示。'
       : 'Enable screening strategies and continue to single-stock analysis from candidates. When disabled, the navigation entry still opens the setup prompt.', { exact: true });
     await expect(summary).toBeVisible();
     await summary.scrollIntoViewIfNeeded();

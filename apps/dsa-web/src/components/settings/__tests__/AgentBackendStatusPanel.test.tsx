@@ -76,7 +76,7 @@ describe('AgentBackendStatusPanel', () => {
 
     expect(await screen.findByText(language === 'en'
       ? 'Default-model ask-stock is unavailable. Open Agent settings and review the model configuration.'
-      : '默认模型问股当前不可用，请前往 Agent 设置检查模型配置。')).toBeInTheDocument();
+      : '默認模型問股當前不可用，請前往 Agent 設置檢查模型配置。')).toBeInTheDocument();
     expect(screen.queryByText('no_agent_primary')).not.toBeInTheDocument();
     expect(screen.getByText(/capability_unsupported/)).toBeInTheDocument();
   });
@@ -97,10 +97,10 @@ describe('AgentBackendStatusPanel', () => {
 
     await waitFor(() => expect(getStatus).toHaveBeenCalledTimes(1));
     expect(previewStatus).not.toHaveBeenCalled();
-    expect(await screen.findByText('默认模型')).toBeInTheDocument();
-    expect(screen.getByText('可以尝试')).toBeInTheDocument();
-    expect(screen.getByText(/不会登录、调用模型、启动外部命令或读取股票数据/)).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /真实测试/ })).not.toBeInTheDocument();
+    expect(await screen.findByText('默認模型')).toBeInTheDocument();
+    expect(screen.getByText('可以嘗試')).toBeInTheDocument();
+    expect(screen.getByText(/不會登錄、调用模型、啟動外部命令或讀取股票數據/)).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /真實测试/ })).not.toBeInTheDocument();
   });
 
   it('previews unsaved Agent settings through the same compatibility contract', async () => {
@@ -115,8 +115,8 @@ describe('AgentBackendStatusPanel', () => {
     }));
     expect(getStatus).not.toHaveBeenCalled();
     expect(await screen.findAllByText('Codex App Server（已移除）')).not.toHaveLength(0);
-    expect(screen.queryByText('实验功能')).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /真实测试/ })).not.toBeInTheDocument();
+    expect(screen.queryByText('實驗功能')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /真實测试/ })).not.toBeInTheDocument();
   });
 
   it('ignores a stale draft preview response', async () => {
@@ -141,7 +141,7 @@ describe('AgentBackendStatusPanel', () => {
       second.resolve(litellmStatus);
       await second.promise;
     });
-    expect(await screen.findByText('默认模型')).toBeInTheDocument();
+    expect(await screen.findByText('默認模型')).toBeInTheDocument();
 
     await act(async () => {
       first.resolve(codexStatus);
@@ -160,10 +160,10 @@ describe('AgentBackendStatusPanel', () => {
     });
     renderPanel({ onEnableAgentMode });
 
-    expect(await screen.findByText('需要启用 Agent 模式')).toBeInTheDocument();
-    expect(screen.getAllByText(/保存设置后再使用问股/)).not.toHaveLength(0);
+    expect(await screen.findByText('需要啟用 Agent 模式')).toBeInTheDocument();
+    expect(screen.getAllByText(/保存設置後再使用問股/)).not.toHaveLength(0);
     expect(screen.queryByText('internal message must not be shown')).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: '启用 Agent 模式' }));
+    fireEvent.click(screen.getByRole('button', { name: '啟用 Agent 模式' }));
     expect(onEnableAgentMode).toHaveBeenCalledTimes(1);
   });
 
@@ -173,7 +173,7 @@ describe('AgentBackendStatusPanel', () => {
 
     expect(await screen.findByText('temporary read failed')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: '刷新状态' }));
-    expect(await screen.findByText('默认模型')).toBeInTheDocument();
+    expect(await screen.findByText('默認模型')).toBeInTheDocument();
     expect(getStatus).toHaveBeenCalledTimes(2);
   });
 });

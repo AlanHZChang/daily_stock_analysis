@@ -249,8 +249,8 @@ class ScreeningOpportunitiesApiTestCase(unittest.TestCase):
         self.assertEqual(payload["enabled"], True)
         self.assertEqual(payload["strategy_count"], 2)
         self.assertEqual(payload["strategies"][0]["id"], "dual_low")
-        self.assertEqual(payload["strategies"][0]["name"], "双低选股")
-        self.assertEqual(payload["strategies"][1]["name"], "趋势质量")
+        self.assertEqual(payload["strategies"][0]["name"], "雙低選股")
+        self.assertEqual(payload["strategies"][1]["name"], "趋势質量")
 
     def test_hotspots_returns_screening_hotspot_summaries(self) -> None:
         config = self._config(enabled=True)
@@ -387,7 +387,7 @@ class ScreeningOpportunitiesApiTestCase(unittest.TestCase):
                 payload = self._hotspots(config=config, provider="akshare", top=1, refresh=True)
 
         hotspot = payload["hotspots"][0]
-        self.assertEqual(hotspot["name"], "工业金属 · 铜")
+        self.assertEqual(hotspot["name"], "工业金屬 · 銅")
         self.assertEqual(hotspot["trend_score"], 99.0)
         self.assertEqual(hotspot["persistence_score"], 64.3)
         self.assertEqual(hotspot["sample_stock_count"], 11)
@@ -610,7 +610,7 @@ class ScreeningOpportunitiesApiTestCase(unittest.TestCase):
         self.assertEqual(payload["hotspots"], [])
         self.assertEqual(payload["hotspot_count"], 0)
         self.assertEqual(payload["source_errors"], ["eastmoney_hotspot_unavailable"])
-        self.assertEqual(payload["message"], "热点源连接中断，暂无可用缓存。")
+        self.assertEqual(payload["message"], "熱點源連接中斷，暫無可用緩存。")
         self.assertNotIn("RemoteDisconnected", payload["message"])
         discover.assert_called_once()
 
@@ -648,7 +648,7 @@ class ScreeningOpportunitiesApiTestCase(unittest.TestCase):
         self.assertEqual(payload["hotspots"], [])
         self.assertEqual(payload["hotspot_count"], 0)
         self.assertEqual(payload["source_errors"], ["eastmoney_hotspot_unavailable"])
-        self.assertEqual(payload["message"], "热点源连接中断，暂无可用缓存。")
+        self.assertEqual(payload["message"], "熱點源連接中斷，暫無可用緩存。")
         self.assertNotIn("RemoteDisconnected", payload["message"])
         discover.assert_called_once()
 
@@ -1078,7 +1078,7 @@ class ScreeningOpportunitiesApiTestCase(unittest.TestCase):
 
         summary = screening_service._summarize_hotspot_news_event_locally(topic="钼", text=text)
 
-        self.assertIn("以钼代钨", summary)
+        self.assertIn("以鉬代鎢", summary)
         self.assertIn("小金属", summary)
         self.assertNotIn("截至", summary)
         self.assertNotIn("后续建议", summary)
@@ -1175,8 +1175,8 @@ class ScreeningOpportunitiesApiTestCase(unittest.TestCase):
         ):
             payload = self._hotspot_detail(config=config, provider="akshare", topic="AI算力")
 
-        self.assertEqual(payload["stocks"][0]["name"], "算力龙头")
-        self.assertEqual(payload["leader_stocks"][0]["name"], "算力龙头")
+        self.assertEqual(payload["stocks"][0]["name"], "算力龍頭")
+        self.assertEqual(payload["leader_stocks"][0]["name"], "算力龍頭")
         self.assertEqual(payload["stock_count"], 1)
         provider.hotspot_detail.assert_not_called()
 
@@ -1191,8 +1191,8 @@ class ScreeningOpportunitiesApiTestCase(unittest.TestCase):
             },
         })
 
-        self.assertEqual(payload["stocks"][0]["name"], "缓存龙头")
-        self.assertEqual(payload["leader_stocks"][0]["name"], "缓存龙头")
+        self.assertEqual(payload["stocks"][0]["name"], "緩存龍頭")
+        self.assertEqual(payload["leader_stocks"][0]["name"], "緩存龍頭")
         self.assertEqual(payload["stock_count"], 1)
 
     def test_hotspot_detail_backfills_stocks_from_summary_leader_stocks(self) -> None:
@@ -1225,8 +1225,8 @@ class ScreeningOpportunitiesApiTestCase(unittest.TestCase):
         ):
             payload = self._hotspot_detail(config=config, provider="akshare", topic="AI算力")
 
-        self.assertEqual(payload["stocks"][0]["name"], "嵌套龙头")
-        self.assertEqual(payload["leader_stocks"][0]["name"], "嵌套龙头")
+        self.assertEqual(payload["stocks"][0]["name"], "嵌套龍頭")
+        self.assertEqual(payload["leader_stocks"][0]["name"], "嵌套龍頭")
         self.assertEqual(payload["stock_count"], 1)
         provider.hotspot_detail.assert_not_called()
 
@@ -1256,8 +1256,8 @@ class ScreeningOpportunitiesApiTestCase(unittest.TestCase):
         provider.hotspot_detail.assert_called_once_with("钼")
         self.assertFalse(first.get("cache_used", False))
         self.assertTrue(second["cache_used"])
-        self.assertEqual(second["stocks"][0]["name"], "盛龙股份")
-        self.assertEqual(second["leader_stocks"][0]["name"], "盛龙股份")
+        self.assertEqual(second["stocks"][0]["name"], "盛龍股份")
+        self.assertEqual(second["leader_stocks"][0]["name"], "盛龍股份")
 
     def test_hotspot_detail_refresh_bypasses_dsa_detail_cache(self) -> None:
         config = self._config(enabled=True)
@@ -1293,10 +1293,10 @@ class ScreeningOpportunitiesApiTestCase(unittest.TestCase):
                 refreshed = self._hotspot_detail(config=config, provider="akshare", topic="钼", refresh=True)
 
         self.assertEqual(provider.hotspot_detail.call_count, 2)
-        self.assertEqual(first["stocks"][0]["name"], "旧龙头")
-        self.assertEqual(cached["stocks"][0]["name"], "旧龙头")
+        self.assertEqual(first["stocks"][0]["name"], "舊龍頭")
+        self.assertEqual(cached["stocks"][0]["name"], "舊龍頭")
         self.assertTrue(cached["cache_used"])
-        self.assertEqual(refreshed["stocks"][0]["name"], "新龙头")
+        self.assertEqual(refreshed["stocks"][0]["name"], "新龍頭")
         self.assertFalse(refreshed.get("cache_used", False))
 
     def test_hotspot_detail_adds_real_search_event_when_configured(self) -> None:
@@ -1346,15 +1346,15 @@ class ScreeningOpportunitiesApiTestCase(unittest.TestCase):
                 )
 
         self.assertEqual(payload["route"][0]["source"], "ExampleNews")
-        self.assertEqual(payload["route"][0]["title"], "以钼代钨带动小金属行情")
+        self.assertEqual(payload["route"][0]["title"], "以鉬代鎢帶動小金屬行情")
         self.assertEqual(payload["route"][0]["date"], "2026-06-12")
         self.assertEqual(payload["route"][0]["url"], "https://example.com/news")
         self.assertEqual(payload["timeline"][0]["source"], "ExampleNews")
         self.assertEqual(payload["timeline"][1]["source"], "raw_timeline")
-        self.assertEqual(payload["timeline"][1]["title"], "原始时间线")
+        self.assertEqual(payload["timeline"][1]["title"], "原始時間線")
         self.assertEqual(payload["news_search_status"], "available")
         self.assertLessEqual(len(payload["route"][0]["description"]), 93)
-        self.assertNotIn("完整产业链背景", payload["route"][0]["description"])
+        self.assertNotIn("完整產業鏈背景", payload["route"][0]["description"])
         search_service.search_topic_news_bounded.assert_called_once_with(
             "钼",
             max_results=3,
@@ -1649,7 +1649,7 @@ class ScreeningOpportunitiesApiTestCase(unittest.TestCase):
         ):
             payload = self._hotspot_detail(config=config, provider="akshare", topic="机器人执行器")
 
-        self.assertEqual(payload["route"][0]["title"], "盘中发酵")
+        self.assertEqual(payload["route"][0]["title"], "盤中發酵")
         self.assertEqual(payload["route"][0]["source"], "eastmoney_board_change")
         provider.hotspot_detail.assert_called_once_with("机器人执行器")
         self.assertEqual(
@@ -1699,9 +1699,9 @@ class ScreeningOpportunitiesApiTestCase(unittest.TestCase):
         ):
             payload = self._hotspot_detail(config=config, provider="akshare", topic="机器人执行器")
 
-        self.assertEqual(payload["route"][0]["title"], "盘中发酵")
+        self.assertEqual(payload["route"][0]["title"], "盤中發酵")
         self.assertEqual(payload["route"][0]["source"], "eastmoney_board_change")
-        self.assertEqual(payload["stocks"][0]["name"], "合约路径个股")
+        self.assertEqual(payload["stocks"][0]["name"], "合約路徑个股")
         provider.hotspot_detail.assert_called_once_with("机器人执行器")
 
     def test_hotspot_detail_returns_route_and_concept_stocks(self) -> None:
@@ -1727,7 +1727,7 @@ class ScreeningOpportunitiesApiTestCase(unittest.TestCase):
         self.assertEqual(payload["enabled"], True)
         self.assertEqual(payload["provider"], "akshare")
         self.assertEqual(payload["topic"], "玻璃基板")
-        self.assertEqual(payload["route"][0]["title"], "盘中发酵")
+        self.assertEqual(payload["route"][0]["title"], "盤中發酵")
         self.assertEqual(payload["stocks"][0]["name"], "戈碧迦")
         self.assertEqual(payload["leader_stocks"][0]["name"], "戈碧迦")
 
@@ -1849,7 +1849,7 @@ class ScreeningOpportunitiesApiTestCase(unittest.TestCase):
         frame = FakeProvider().stock_board_concept_cons_em("金融")
 
         self.assertEqual(list(frame["code"]), ["000001", "000002"])
-        self.assertEqual(frame.iloc[0]["name"], "东财名称")
+        self.assertEqual(frame.iloc[0]["name"], "東財名稱")
 
     def test_hotspot_provider_joins_all_constituent_workers_before_returning(self) -> None:
         import pandas as pd
@@ -2108,7 +2108,7 @@ class ScreeningOpportunitiesApiTestCase(unittest.TestCase):
             frame = provider._related_hotspot_constituents("钼")
 
         self.assertEqual(list(frame["code"]), ["001257", "300618"])
-        self.assertEqual(frame.iloc[0]["role"], "小金属活跃股")
+        self.assertEqual(frame.iloc[0]["role"], "小金屬活躍股")
 
     def test_hotspot_route_is_grouped_by_daily_markers(self) -> None:
         provider = screening_service.DsaEastMoneyHotspotProvider()
@@ -2126,7 +2126,7 @@ class ScreeningOpportunitiesApiTestCase(unittest.TestCase):
         self.assertLessEqual(len(route), 2)
         self.assertEqual(route[0]["date"], datetime.now().date().isoformat())
         self.assertEqual(route[0]["published_at"], route[0]["date"])
-        self.assertIn("当日结构", route[0]["description"])
+        self.assertIn("當日結構", route[0]["description"])
         self.assertEqual(route[1]["date"], "2026-06-12")
 
     def test_hotspot_route_does_not_invent_metal_catalyst_hint(self) -> None:
@@ -2136,7 +2136,7 @@ class ScreeningOpportunitiesApiTestCase(unittest.TestCase):
         route = provider._build_hotspot_route("钼", {})
 
         self.assertEqual(route[0]["source"], "fallback")
-        self.assertNotIn("以钼代钨", route[0]["description"])
+        self.assertNotIn("以鉬代鎢", route[0]["description"])
 
     def test_hotspot_detail_uses_constituent_fallback_when_board_change_summary_fails(self) -> None:
         import pandas as pd
@@ -2171,9 +2171,9 @@ class ScreeningOpportunitiesApiTestCase(unittest.TestCase):
 
         self.assertEqual(payload["enabled"], True)
         self.assertEqual(payload["topic"], "MLCC")
-        self.assertEqual(payload["summary"], "MLCC 当前暂无可用的板块异动摘要。")
+        self.assertEqual(payload["summary"], "MLCC 当前暫無可用的板块異動摘要。")
         self.assertEqual(payload["route"][0]["source"], "ths_summary")
-        self.assertEqual(payload["stocks"][0]["name"], "顺络电子")
+        self.assertEqual(payload["stocks"][0]["name"], "順絡電子")
 
     def test_hotspot_detail_uses_industry_constituents_for_industry_hotspots(self) -> None:
         import pandas as pd
@@ -2250,7 +2250,7 @@ class ScreeningOpportunitiesApiTestCase(unittest.TestCase):
         ):
             concept = provider.stock_board_concept_name_em()
 
-        self.assertEqual(concept.iloc[0]["name"], "减速器")
+        self.assertEqual(concept.iloc[0]["name"], "減速器")
         fetch_rankings.assert_called_once_with("concept")
 
     def test_hotspot_provider_derives_trend_metrics_from_board_changes(self) -> None:
@@ -2272,7 +2272,7 @@ class ScreeningOpportunitiesApiTestCase(unittest.TestCase):
 
         self.assertGreaterEqual(fetch_raw.call_count, 1)
         self.assertEqual(frame.iloc[0]["name"], "AI算力")
-        self.assertEqual(frame.iloc[0]["stage"], "加速发酵")
+        self.assertEqual(frame.iloc[0]["stage"], "加速發酵")
         self.assertGreater(frame.iloc[0]["trend_score"], 0)
         self.assertGreater(frame.iloc[0]["persistence_score"], 0)
         self.assertEqual(frame.iloc[0]["sample_stock_count"], 1)
@@ -2343,7 +2343,7 @@ class ScreeningOpportunitiesApiTestCase(unittest.TestCase):
         self.assertEqual(caught.exception.status_code, 424)
         self.assertEqual(caught.exception.detail["error"], "screening_unavailable")
         self.assertEqual(caught.exception.detail.get("diagnostics", {}).get("reason"), "unexpected_exception")
-        self.assertIn("选股功能初始化失败", caught.exception.detail["message"])
+        self.assertIn("選股功能初始化失敗", caught.exception.detail["message"])
 
     def test_start_screen_task_submits_background_work(self) -> None:
         config = self._config(enabled=True)
@@ -2657,8 +2657,8 @@ class ScreeningOpportunitiesApiTestCase(unittest.TestCase):
         self.assertEqual(candidate["name"], "贵州茅台")
         self.assertEqual(candidate["price"], 1688.0)
         self.assertTrue(candidate["dsa_context"]["enriched"])
-        self.assertEqual(candidate["dsa_news"][0]["title"], "贵州茅台最新公告")
-        self.assertEqual(candidate["dsa_events"][0]["title"], "贵州茅台年度报告")
+        self.assertEqual(candidate["dsa_news"][0]["title"], "貴州茅臺最新公告")
+        self.assertEqual(candidate["dsa_events"][0]["title"], "貴州茅臺年度報告")
         self.assertIn("DSA行情", candidate["dsa_analysis_summary"])
         self.assertEqual(payload["dsa_enrichment"]["enriched_count"], 1)
 
@@ -2703,8 +2703,8 @@ class ScreeningOpportunitiesApiTestCase(unittest.TestCase):
 
         candidate = payload["candidates"][0]
         self.assertTrue(candidate["dsa_context"]["enriched"])
-        self.assertEqual(candidate["dsa_news"][0]["title"], "贵州茅台最新公告")
-        self.assertEqual(candidate["dsa_analysis_summary"], "DSA新闻: 贵州茅台最新公告")
+        self.assertEqual(candidate["dsa_news"][0]["title"], "貴州茅臺最新公告")
+        self.assertEqual(candidate["dsa_analysis_summary"], "DSA新闻: 貴州茅臺最新公告")
         self.assertEqual(payload["dsa_enrichment"]["enriched_count"], 1)
         self.assertEqual(payload["dsa_enrichment"]["warnings"], ["from_screening_provider"])
         quote_mock.assert_not_called()
@@ -2756,8 +2756,8 @@ class ScreeningOpportunitiesApiTestCase(unittest.TestCase):
             )
 
         candidate = payload["candidates"][0]
-        self.assertEqual(candidate["dsa_news"][0]["title"], "贵州茅台最新公告")
-        self.assertEqual(candidate["dsa_analysis_summary"], "DSA新闻：贵州茅台最新公告")
+        self.assertEqual(candidate["dsa_news"][0]["title"], "貴州茅臺最新公告")
+        self.assertEqual(candidate["dsa_analysis_summary"], "DSA新闻：貴州茅臺最新公告")
         self.assertEqual(payload["dsa_enrichment"]["enriched_count"], 1)
         self.assertEqual(payload["dsa_enrichment"]["warnings"], ["from_screening_provider"])
         quote_mock.assert_not_called()
@@ -2828,7 +2828,7 @@ class ScreeningOpportunitiesApiTestCase(unittest.TestCase):
         self.assertTrue(candidate["dsa_context"]["news_included"])
         self.assertEqual(candidate["dsa_context"]["quote"]["price"], 1688.0)
         self.assertEqual(candidate["dsa_context"]["fundamentals"]["coverage"]["valuation"], "available")
-        self.assertEqual(candidate["dsa_news"][0]["title"], "贵州茅台最新公告")
+        self.assertEqual(candidate["dsa_news"][0]["title"], "貴州茅臺最新公告")
         quote_mock.assert_not_called()
         fundamentals_mock.assert_not_called()
         news_mock.assert_called_once()

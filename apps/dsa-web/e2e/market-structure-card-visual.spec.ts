@@ -34,7 +34,7 @@ const context: MarketStructureContext = {
     ],
     leadingIndustries: [
       { name: '通用设备', changePct: 2.1, rank: 2, source: 'industry' },
-      { name: '软件开发', changePct: 1.8, rank: 4, source: 'industry' },
+      { name: '軟件開發', changePct: 1.8, rank: 4, source: 'industry' },
     ],
     laggingThemes: [],
     themeBreadth: {
@@ -70,8 +70,8 @@ const context: MarketStructureContext = {
     stockRole: 'follower',
     themePhase: 'accelerating',
     riskTags: [
-      { code: 'theme_data_partial', message: '题材主线数据不完整' },
-      { code: 'stock_theme_evidence_partial', message: '个股板块未匹配到市场题材榜单，个股位置按降级证据处理' },
+      { code: 'theme_data_partial', message: '題材主線數據不完整' },
+      { code: 'stock_theme_evidence_partial', message: '個股板块未匹配到市場題材榜單，個股位置按降级證據處理' },
     ],
     missingFields: ['hotspot_constituents', 'leader_stocks'],
   },
@@ -243,9 +243,9 @@ async function renderMarketStructureCard(distIndexPath: string, testInfo: TestIn
     await page.goto(staticServer.url, { waitUntil: 'networkidle' });
     const card = page.getByTestId('market-structure-visual-card');
     await expect(card).toBeVisible();
-    await expect(card.getByRole('region', { name: '题材主线与个股位置' })).toBeVisible();
-    await expect(card.getByText('大盘题材层')).toBeVisible();
-    await expect(card.getByText('个股位置层')).toBeVisible();
+    await expect(card.getByRole('region', { name: '題材主線與個股位置' })).toBeVisible();
+    await expect(card.getByText('大盘題材層')).toBeVisible();
+    await expect(card.getByText('個股位置層')).toBeVisible();
     await expect(card.getByText(/机器人概念 \+4\.20%/).first()).toBeVisible();
 
     const screenshotPath = testInfo.outputPath('market-structure-card-visual.png');
@@ -285,7 +285,7 @@ async function renderMarketStructureCard(distIndexPath: string, testInfo: TestIn
     }
     if (externalEvidenceUrl) {
       evidenceNotes.push(`External visual evidence URL: ${externalEvidenceUrl}`);
-      evidenceNotes.push(`可复用外部链接查看本次截图（复制后用于 PR 说明）：${externalEvidenceUrl}`);
+      evidenceNotes.push(`可複用外部鏈接查看本次截圖（複製後用於 PR 說明）：${externalEvidenceUrl}`);
     }
     if (externalEvidenceDir && !externalEvidenceUrl) {
       try {
@@ -306,17 +306,17 @@ async function renderMarketStructureCard(distIndexPath: string, testInfo: TestIn
         `GitHub Actions artifacts page: ${artifactHint}`,
         `GitHub Actions jobs page: ${artifactPageHint}`,
         `Download command: ${artifactDownloadHint}`,
-        `Evidence attachment name: ${artifactName}（请在 PR 说明/评论附上 screenshots 直接附件或该 run 的附件下载链接）`,
+        `Evidence attachment name: ${artifactName}（請在 PR 說明/評論附上 screenshots 直接附件或該 run 的附件下載鏈接）`,
       );
     } else {
       evidenceNotes.push(
-        '未在 GitHub Actions 运行，不具备公开 artifact 链接；请补充可复现截图与复现场景。',
-        '可复现证据路径（本地）：' + testInfo.outputPath('market-structure-card-visual.png'),
-        `复现命令：${reproductionCommand}`,
+        '未在 GitHub Actions 運行，不具備公開 artifact 鏈接；請補充可復現截圖與復現場景。',
+        '可復現證據路徑（本地）：' + testInfo.outputPath('market-structure-card-visual.png'),
+        `復現命令：${reproductionCommand}`,
       );
     }
     evidenceNotes.push(
-      `若需外部可追溯复核，请在有 PR 权限的环境重跑该测试并在该动作页下载附件 ${artifactName} 后在 PR 中补充下载链接。`,
+      `若需外部可追溯複核，請在有 PR 權限的環境重跑該测试並在該動作頁下載附件 ${artifactName} 後在 PR 中補充下載鏈接。`,
     );
     writeFile(
       artifactManifestPath,
@@ -329,8 +329,8 @@ async function renderMarketStructureCard(distIndexPath: string, testInfo: TestIn
         `Market structure card visual evidence attached in Playwright artifacts. `
         + `Attachment: ${artifactName}。`
         + (githubRepository && githubRunId
-          ? `请在 PR 说明/评论附上 ${artifactHint} 中的该附件。`
-          : '未在 GitHub Actions 运行，请将该截图附件或可访问外链输出到 PR 说明/评论。'),
+          ? `請在 PR 說明/評論附上 ${artifactHint} 中的該附件。`
+          : '未在 GitHub Actions 運行，請將該截圖附件或可訪問外鏈輸出到 PR 說明/評論。'),
     });
     await testInfo.attach('market-structure-card-visual', {
       path: screenshotPath,

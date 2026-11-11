@@ -385,7 +385,7 @@ class AgentSkillsEndpointTestCase(unittest.TestCase):
             context={"skills": ["old_skill"], "strategies": ["older_strategy"]},
         )
         with tempfile.TemporaryDirectory() as directory:
-            # 单例会忽略新 db_url（#2436），先重置以免复用前序测试已清理的临时库
+            # 單例會忽略新 db_url（#2436），先重置以免複用前序測試已清理的臨時庫
             DatabaseManager.reset_instance()
             db = DatabaseManager(db_url=f"sqlite:///{directory}/chat.db")
             try:

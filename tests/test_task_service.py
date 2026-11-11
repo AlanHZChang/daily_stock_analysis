@@ -71,11 +71,11 @@ class TestTaskService(unittest.TestCase):
             result = service._run_analysis(code="600519", task_id="task-1")
 
         self.assertFalse(result["success"])
-        self.assertEqual(result["error"], "JSON 解析失败")
+        self.assertEqual(result["error"], "JSON 解析失敗")
         task = service.get_task_status("task-1")
         self.assertIsNotNone(task)
         self.assertEqual(task["status"], "failed")
-        self.assertEqual(task["error"], "JSON 解析失败")
+        self.assertEqual(task["error"], "JSON 解析失敗")
         self.assertIsNone(task["result"])
 
     def test_submit_analysis_resolves_bare_jp_kr_code_before_submit(self):

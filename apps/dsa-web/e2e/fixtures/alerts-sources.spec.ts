@@ -22,11 +22,11 @@ test('alerts disclose legacy sources with an empty database list', async ({ page
     await route.fulfill({ json });
   });
   await page.goto('/alerts');
-  const notice = page.getByRole('alert').filter({ hasText: '存在环境变量告警规则' });
+  const notice = page.getByRole('alert').filter({ hasText: '存在環境變量告警規則' });
   await expect(notice).toBeVisible();
-  await expect(notice).toContainText('配置了 2 条有效规则');
-  await expect(notice).toContainText('去重后有 1 条');
-  await expect(notice).toContainText('删除或禁用页面规则不会停用环境规则');
+  await expect(notice).toContainText('配置了 2 條有效規則');
+  await expect(notice).toContainText('去重後有 1 條');
+  await expect(notice).toContainText('刪除或禁用頁面規則不會停用環境規則');
   for (const [name, width, height] of [['desktop', 1440, 900], ['mobile', 390, 844]] as const) {
     await page.setViewportSize({ width, height });
     await expect(notice).toBeVisible();

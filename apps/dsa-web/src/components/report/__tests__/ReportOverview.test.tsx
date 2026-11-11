@@ -12,7 +12,7 @@ const baseMeta = {
 };
 
 const baseSummary = {
-  analysisSummary: '趋势维持强势',
+  analysisSummary: '趋势維持強勢',
   operationAdvice: '继续观察买点',
   trendPrediction: '短线震荡偏强',
   sentimentScore: 78,
@@ -44,9 +44,9 @@ describe('ReportOverview', () => {
       />,
     );
 
-    expect(screen.getByLabelText('市场阶段: CN · 盘中')).toBeInTheDocument();
-    expect(screen.getByText('市场阶段: CN · 盘中')).toBeVisible();
-    expect(screen.getByLabelText('日线未完成')).toBeInTheDocument();
+    expect(screen.getByLabelText('市场阶段: CN · 盤中')).toBeInTheDocument();
+    expect(screen.getByText('市场阶段: CN · 盤中')).toBeVisible();
+    expect(screen.getByLabelText('日線未完成')).toBeInTheDocument();
   });
 
   it('renders English final market phase and partial-bar labels', () => {
@@ -104,15 +104,15 @@ describe('ReportOverview', () => {
       />,
     );
 
-    expect(screen.getByText('市场阶段: 阶段未知')).toBeVisible();
-    expect(screen.queryByText('日线未完成')).not.toBeInTheDocument();
+    expect(screen.getByText('市场阶段: 階段未知')).toBeVisible();
+    expect(screen.queryByText('日線未完成')).not.toBeInTheDocument();
   });
 
   it('does not render a market phase placeholder for legacy reports', () => {
     render(<ReportOverview meta={baseMeta} summary={baseSummary} />);
 
     expect(screen.queryByText(/市场阶段/)).not.toBeInTheDocument();
-    expect(screen.queryByText('日线未完成')).not.toBeInTheDocument();
+    expect(screen.queryByText('日線未完成')).not.toBeInTheDocument();
   });
 
   it('renders related boards with leading and lagging markers', () => {
@@ -123,7 +123,7 @@ describe('ReportOverview', () => {
         details={{
           belongBoards: [
             { name: ' 白酒 ', type: '行业' },
-            { name: '消费', type: '概念' },
+            { name: '消費', type: '概念' },
             { name: '新能源' },
           ],
           sectorRankings: {
@@ -131,19 +131,19 @@ describe('ReportOverview', () => {
             bottom: [{ name: '新能源', changePct: -1.2 }],
           },
           conceptRankings: {
-            top: [{ name: '消费', changePct: 4.56 }],
+            top: [{ name: '消費', changePct: 4.56 }],
             bottom: [],
           },
         }}
       />,
     );
 
-    expect(screen.getByText('关联板块')).toBeInTheDocument();
+    expect(screen.getByText('關聯板块')).toBeInTheDocument();
     expect(screen.getByText('白酒')).toBeInTheDocument();
-    expect(screen.getAllByText('领涨')).toHaveLength(2);
+    expect(screen.getAllByText('領漲')).toHaveLength(2);
     expect(screen.getByText('+2.31%')).toBeInTheDocument();
     expect(screen.getByText('+4.56%')).toBeInTheDocument();
-    expect(screen.getByText('领跌')).toBeInTheDocument();
+    expect(screen.getByText('領跌')).toBeInTheDocument();
     expect(screen.getByText('-1.20%')).toBeInTheDocument();
     expect(screen.queryByText('中性')).not.toBeInTheDocument();
   });
@@ -168,16 +168,16 @@ describe('ReportOverview', () => {
     );
 
     expect(screen.getByText('白酒')).toBeInTheDocument();
-    expect(screen.getByText('关联板块')).toBeInTheDocument();
-    expect(screen.getByText('领跌')).toBeInTheDocument();
+    expect(screen.getByText('關聯板块')).toBeInTheDocument();
+    expect(screen.getByText('領跌')).toBeInTheDocument();
     expect(screen.getByText('-3.20%')).toBeInTheDocument();
     expect(screen.queryByText('+2.31%')).not.toBeInTheDocument();
   });
 
   it('renders untyped boards in a single related-board row with ranking matches', () => {
-    const conceptRankingBoard = '榜单样例甲';
-    const fallbackConceptBoard = '未标注板块';
-    const sectorRankingBoard = '榜单样例乙';
+    const conceptRankingBoard = '榜單樣例甲';
+    const fallbackConceptBoard = '未標註板块';
+    const sectorRankingBoard = '榜單樣例乙';
 
     render(
       <ReportOverview
@@ -201,7 +201,7 @@ describe('ReportOverview', () => {
       />,
     );
 
-    const relatedBoardsRegion = screen.getByRole('region', { name: '关联板块' });
+    const relatedBoardsRegion = screen.getByRole('region', { name: '關聯板块' });
 
     expect(within(relatedBoardsRegion).getByText(sectorRankingBoard)).toBeInTheDocument();
     expect(within(relatedBoardsRegion).getByText(conceptRankingBoard)).toBeInTheDocument();
@@ -217,21 +217,21 @@ describe('ReportOverview', () => {
         details={{
           belongBoards: [
             { name: '白酒', type: '行业' },
-            { name: '消费', type: '概念' },
+            { name: '消費', type: '概念' },
             { name: '高端制造' },
-            { name: '沪股通' },
+            { name: '滬股通' },
           ],
         }}
       />,
     );
 
-    const actionAdviceTitle = screen.getByText('操作建议');
-    const relatedBoardsRegion = screen.getByRole('region', { name: '关联板块' });
+    const actionAdviceTitle = screen.getByText('操作建議');
+    const relatedBoardsRegion = screen.getByRole('region', { name: '關聯板块' });
     const boardLists = container.querySelectorAll('.home-related-board-list');
 
     expect(actionAdviceTitle.compareDocumentPosition(relatedBoardsRegion) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(screen.getByText('关联板块')).toBeInTheDocument();
-    expect(screen.getByText('沪股通')).toBeInTheDocument();
+    expect(screen.getByText('關聯板块')).toBeInTheDocument();
+    expect(screen.getByText('滬股通')).toBeInTheDocument();
     expect(boardLists[0]).toHaveClass(
       'flex-nowrap',
       'overflow-x-auto',
@@ -248,16 +248,16 @@ describe('ReportOverview', () => {
         meta={baseMeta}
         summary={baseSummary}
         details={{
-          belongBoards: [{ name: '半导体', type: '行业' }],
+          belongBoards: [{ name: '半導體', type: '行业' }],
         }}
       />,
     );
 
-    expect(screen.getByText('关联板块')).toBeInTheDocument();
-    expect(screen.getByText('半导体')).toBeInTheDocument();
+    expect(screen.getByText('關聯板块')).toBeInTheDocument();
+    expect(screen.getByText('半導體')).toBeInTheDocument();
     expect(screen.queryByText('中性')).not.toBeInTheDocument();
-    expect(screen.queryByText('领涨')).not.toBeInTheDocument();
-    expect(screen.queryByText('领跌')).not.toBeInTheDocument();
+    expect(screen.queryByText('領漲')).not.toBeInTheDocument();
+    expect(screen.queryByText('領跌')).not.toBeInTheDocument();
   });
 
   it('shows only the board when a matching ranking has no change percent', () => {
@@ -275,17 +275,17 @@ describe('ReportOverview', () => {
       />,
     );
 
-    expect(screen.getByText('关联板块')).toBeInTheDocument();
+    expect(screen.getByText('關聯板块')).toBeInTheDocument();
     expect(screen.getByText('白酒')).toBeInTheDocument();
     expect(screen.queryByText('行业')).not.toBeInTheDocument();
-    expect(screen.queryByText('领涨')).not.toBeInTheDocument();
-    expect(screen.queryByText('领跌')).not.toBeInTheDocument();
+    expect(screen.queryByText('領漲')).not.toBeInTheDocument();
+    expect(screen.queryByText('領跌')).not.toBeInTheDocument();
   });
 
   it('hides related boards section when no boards are available', () => {
     render(<ReportOverview meta={baseMeta} summary={baseSummary} details={{ belongBoards: [] }} />);
 
-    expect(screen.queryByText('板块联动')).not.toBeInTheDocument();
+    expect(screen.queryByText('板块聯動')).not.toBeInTheDocument();
   });
 
   it('renders the persisted empty-news disclosure beside the core conclusion', () => {
@@ -294,13 +294,13 @@ describe('ReportOverview', () => {
         meta={baseMeta}
         summary={baseSummary}
         details={{
-          emptyNewsDisclosure: '⚠️ 未配置搜索渠道，本次分析未纳入新闻面证据。',
+          emptyNewsDisclosure: '⚠️ 未配置搜索渠道，本次分析未納入新闻面證據。',
         }}
       />,
     );
 
     expect(screen.getByRole('note')).toHaveTextContent('未配置搜索渠道');
-    expect(screen.getByRole('note')).toHaveTextContent('未纳入新闻面证据');
+    expect(screen.getByRole('note')).toHaveTextContent('未納入新闻面證據');
   });
 
   it('fails open on malformed ranking payloads', () => {
@@ -318,9 +318,9 @@ describe('ReportOverview', () => {
       />,
     );
 
-    expect(screen.getByText('关联板块')).toBeInTheDocument();
+    expect(screen.getByText('關聯板块')).toBeInTheDocument();
     expect(screen.getByText('白酒')).toBeInTheDocument();
-    expect(screen.getByText('领跌')).toBeInTheDocument();
+    expect(screen.getByText('領跌')).toBeInTheDocument();
     expect(screen.getByText('-2.50%')).toBeInTheDocument();
   });
 
@@ -338,8 +338,8 @@ describe('ReportOverview', () => {
       />,
     );
 
-    expect(screen.queryByText('自选')).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /自选/ })).not.toBeInTheDocument();
+    expect(screen.queryByText('自選')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /自選/ })).not.toBeInTheDocument();
   });
 
   it('keeps the stock-only watchlist card for stock reports', () => {
@@ -356,8 +356,8 @@ describe('ReportOverview', () => {
       />,
     );
 
-    expect(screen.getByText('自选')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '加入自选' })).toBeInTheDocument();
+    expect(screen.getByText('自選')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '加入自選' })).toBeInTheDocument();
   });
 
   it('keeps the stock-only watchlist card when assetType is absent (legacy)', () => {
@@ -374,6 +374,6 @@ describe('ReportOverview', () => {
       />,
     );
 
-    expect(screen.getByText('自选')).toBeInTheDocument();
+    expect(screen.getByText('自選')).toBeInTheDocument();
   });
 });

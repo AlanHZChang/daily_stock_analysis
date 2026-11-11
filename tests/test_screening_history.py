@@ -351,7 +351,7 @@ class ScreeningHistoryTestCase(unittest.TestCase):
                     response = service.screen(strategy="dual_low", market="cn", max_results=1)
                 candidate = response["candidates"][0]
                 self.assertEqual(candidate["explanation_quality"]["why_selected"], "partial")
-                self.assertEqual(candidate["risk_summary"], "风险只保留在风险区")
+                self.assertEqual(candidate["risk_summary"], "风险只保留在风险區")
                 self.assertIn({"code": "llm_ranking", "text": "模型已参与排序（未提供入选理由）",
                                "source": "llm", "quality": "inferred"}, candidate["why_selected"])
                 self.assertEqual(service.history_detail(run_id)["result"]["candidates"], [candidate])
@@ -675,7 +675,7 @@ class ScreeningHistoryTestCase(unittest.TestCase):
             enriched = _build_dsa_candidate_context(candidate)
 
         event_search.assert_called_once_with("600519", "贵州茅台", max_results=3)
-        self.assertEqual(enriched["dsa_events"][0]["title"], "贵州茅台发布年度报告")
+        self.assertEqual(enriched["dsa_events"][0]["title"], "貴州茅臺發佈年度報告")
         self.assertEqual(enriched["dsa_context"]["events"], events)
         self.assertIn("DSA事件", enriched["dsa_analysis_summary"])
 

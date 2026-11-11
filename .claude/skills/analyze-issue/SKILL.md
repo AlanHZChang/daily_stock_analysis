@@ -1,6 +1,6 @@
 # Analyze Issue
 
-分析 GitHub Issue，判断其真实性、优先级、仓库责任边界与建议动作。
+分析 GitHub Issue，判斷其真實性、優先級、倉庫責任邊界與建議動作。
 
 **Repository**: https://github.com/ZhuLinsen/daily_stock_analysis/issues
 
@@ -12,22 +12,22 @@
 
 ## Instructions
 
-分析时使用简洁中文，优先遵循仓库根目录 `AGENTS.md`。
+分析時使用簡潔中文，優先遵循倉庫根目錄 `AGENTS.md`。
 
-### Step 1: 同步最新代码基线
+### Step 1: 同步最新代碼基線
 
-分析 issue 前必须先刷新远端状态，并尽量把本地安全推进到最新基线：
+分析 issue 前必須先刷新遠端狀態，並儘量把本地安全推進到最新基線：
 
 ```bash
 git status --short
 git fetch --all --prune
-# 仅当工作区干净且当前分支可 fast-forward 时执行：
+# 僅當工作區乾淨且當前分支可 fast-forward 時執行：
 git pull --ff-only
 ```
 
-- 只有在工作区干净、当前分支有可 fast-forward 的上游时，才执行并接受 `git pull --ff-only` 的结果。
-- 如存在本地改动、冲突状态、未跟踪风险文件、无上游分支或无法 fast-forward，不要执行 `stash`、`reset`、强制切分支或覆盖本地状态；改用已 fetch 的 `origin/main` 或相关远端 refs 做分析。
-- 在输出文档的 `Evidence` 中记录同步结果：本地 HEAD、使用的远端基线，以及未更新本地工作树的原因（如有）。
+- 只有在工作區乾淨、當前分支有可 fast-forward 的上游時，才執行並接受 `git pull --ff-only` 的結果。
+- 如存在本地改動、衝突狀態、未跟蹤風險文件、無上游分支或無法 fast-forward，不要執行 `stash`、`reset`、強制切分支或覆蓋本地狀態；改用已 fetch 的 `origin/main` 或相關遠端 refs 做分析。
+- 在輸出文檔的 `Evidence` 中記錄同步結果：本地 HEAD、使用的遠端基線，以及未更新本地工作樹的原因（如有）。
 
 ### Step 2: 拉取 Issue 信息
 
@@ -36,42 +36,42 @@ gh issue view <issue_number> --repo ZhuLinsen/daily_stock_analysis
 gh issue view <issue_number> --repo ZhuLinsen/daily_stock_analysis --comments
 ```
 
-如为 bug，优先核对 issue 模板中是否提供了以下信息：
+如為 bug，優先核對 issue 模板中是否提供了以下信息：
 
 - 是否已同步到最新版本
-- commit hash / 版本基线
-- 运行环境与复现步骤
-- 日志或报错信息
+- commit hash / 版本基線
+- 運行環境與復現步驟
+- 日誌或報錯信息
 
-### Step 3: 回答 4 个核心问题
+### Step 3: 回答 4 個核心問題
 
-1. 版本是否明确
-2. 问题是否真实且可验证
-3. 是否属于仓库责任边界
-4. 是否值得立即处理
+1. 版本是否明確
+2. 問題是否真實且可驗證
+3. 是否屬於倉庫責任邊界
+4. 是否值得立即處理
 
-### Step 4: 结合仓库现状做证据检查
+### Step 4: 結合倉庫現狀做證據檢查
 
-- 阅读相关代码、配置、测试、脚本、工作流与文档
-- 如果问题涉及 API、数据源 fallback、报告生成、通知发送、认证、桌面端、发布流程，明确写出影响面
-- 判断是实际 bug、环境配置问题、使用方式问题、还是外部依赖问题
-- 如怀疑已被修复，检查当前代码而不是只看 issue 描述
+- 閱讀相關代碼、配置、測試、腳本、工作流與文檔
+- 如果問題涉及 API、數據源 fallback、報告生成、通知發送、認證、桌面端、發佈流程，明確寫出影響面
+- 判斷是實際 bug、環境配置問題、使用方式問題、還是外部依賴問題
+- 如懷疑已被修復，檢查當前代碼而不是隻看 issue 描述
 
-### Step 5: 形成结论
+### Step 5: 形成結論
 
-至少给出以下字段：
+至少給出以下字段：
 
-- `版本基线`：最新 / 非最新 / 未提供
+- `版本基線`：最新 / 非最新 / 未提供
 - `是否合理`：是/否 + 理由
 - `是否是 issue`：是/否 + 理由
-- `是否好解决`：是/否 + 难点
+- `是否好解決`：是/否 + 難點
 - `结论`：`成立 / 部分成立 / 不成立`
-- `分类`：`bug / feature / docs / question / external`
-- `优先级`：`P0 / P1 / P2 / P3`
-- `难度`：`easy / medium / hard`
-- `建议动作`：`立即修复 / 排期修复 / 文档澄清 / 关闭`
+- `分類`：`bug / feature / docs / question / external`
+- `優先級`：`P0 / P1 / P2 / P3`
+- `難度`：`easy / medium / hard`
+- `建議動作`：`立即修復 / 排期修復 / 文檔澄清 / 關閉`
 
-### Step 6: 生成分析文档
+### Step 6: 生成分析文檔
 
 保存到 `.claude/reviews/issues/issue-<number>.md`
 
@@ -85,59 +85,59 @@ gh issue view <issue_number> --repo ZhuLinsen/daily_stock_analysis --comments
 
 ## Summary
 
-- 版本基线：
+- 版本基線：
 - 是否合理：
 - 是否是 issue：
-- 是否好解决：
-- 结论：
-- 分类：
-- 优先级：
-- 难度：
-- 建议动作：
+- 是否好解決：
+- 結論：
+- 分類：
+- 優先級：
+- 難度：
+- 建議動作：
 
 ## Evidence
 
-- 代码同步基线：
-- 关键 issue 信息：
-- 关键代码/脚本/工作流证据：
+- 代碼同步基線：
+- 關鍵 issue 信息：
+- 關鍵代碼/腳本/工作流證據：
 
 ## Impact Scope
 
-- 受影响模块：
-- 受影响运行路径（本地 / Docker / GitHub Actions / API / Web / Desktop）：
+- 受影響模塊：
+- 受影響運行路徑（本地 / Docker / GitHub Actions / API / Web / Desktop）：
 
 ## Root Cause / Main Reasoning
 
-<根因或主要判断依据>
+<根因或主要判斷依據>
 
 ## Proposed Handling
 
-<建议修复、澄清或关闭方式>
+<建議修復、澄清或關閉方式>
 
-若建议后续创建 PR，给出的 PR title 建议符合 `AGENTS.md`：使用 `<类型>: <修改内容>`，不添加 `[codex]`、`codex`、`autocode`、`copilot` 或其他工具/agent 来源前缀；该约定仅用于协作一致性提醒，不应单独作为 review process blocker。
+若建議後續創建 PR，給出的 PR title 建議符合 `AGENTS.md`：使用 `<類型>: <修改內容>`，不添加 `[codex]`、`codex`、`autocode`、`copilot` 或其他工具/agent 來源前綴；該約定僅用於協作一致性提醒，不應單獨作為 review process blocker。
 
 ## Risks And Rollback
 
-- 风险点：
-- 若修复，回滚方式：
+- 風險點：
+- 若修復，回滾方式：
 
 ## Draft Reply
 
-<建议回复内容>
+<建議回覆內容>
 ```
 
 ## Allowed Auto-Actions (No Confirmation Needed)
 
-- 拉取 issue 详情与评论
-- 执行 `git fetch --all --prune`，并在工作区干净且可 fast-forward 时执行 `git pull --ff-only`
-- 阅读相关代码、配置、脚本、工作流和文档
-- 生成分析文档
+- 拉取 issue 詳情與評論
+- 執行 `git fetch --all --prune`，並在工作區乾淨且可 fast-forward 時執行 `git pull --ff-only`
+- 閱讀相關代碼、配置、腳本、工作流和文檔
+- 生成分析文檔
 
 ## Actions Requiring Confirmation
 
-执行以下动作前，先询问用户：
+執行以下動作前，先詢問用戶：
 
-1. 添加或修改标签
-2. 在 issue 下评论
-3. 关闭 issue
-4. 开始修复 issue
+1. 添加或修改標籤
+2. 在 issue 下評論
+3. 關閉 issue
+4. 開始修復 issue

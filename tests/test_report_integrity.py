@@ -505,17 +505,17 @@ class TestApplyPlaceholderFill(unittest.TestCase):
         self.assertEqual(phase_decision["phase_context"], {})
         self.assertEqual(phase_decision["watch_conditions"], [])
         self.assertEqual(phase_decision["data_limitations"], [])
-        self.assertEqual(phase_decision["action_window"], "模型未提供阶段化行动窗口")
-        self.assertEqual(phase_decision["immediate_action"], "模型未提供阶段化即时动作")
-        self.assertEqual(phase_decision["next_check_time"], "模型未提供下一次检查点")
-        self.assertEqual(phase_decision["confidence_reason"], "模型未提供阶段化置信度理由")
+        self.assertEqual(phase_decision["action_window"], "模型未提供階段化行動窗口")
+        self.assertEqual(phase_decision["immediate_action"], "模型未提供階段化即時動作")
+        self.assertEqual(phase_decision["next_check_time"], "模型未提供下一次檢查點")
+        self.assertEqual(phase_decision["confidence_reason"], "模型未提供階段化置信度理由")
 
 
 class TestIntegrityRetryPrompt(unittest.TestCase):
     """Retry prompt construction tests."""
 
     def test_retry_prompt_includes_previous_response(self) -> None:
-        """Retry prompt should carry previous response so补全是增量的。"""
+        """Retry prompt should carry previous response so補全是增量的。"""
         with patch.object(GeminiAnalyzer, "_init_litellm", return_value=None):
             analyzer = GeminiAnalyzer()
         prompt = analyzer._build_integrity_retry_prompt(
@@ -524,5 +524,5 @@ class TestIntegrityRetryPrompt(unittest.TestCase):
             ["dashboard.core_conclusion.one_sentence"],
         )
         self.assertIn("原始提示", prompt)
-        self.assertIn('{"analysis_summary": "已有内容"}', prompt)
+        self.assertIn('{"analysis_summary": "已有內容"}', prompt)
         self.assertIn("dashboard.core_conclusion.one_sentence", prompt)

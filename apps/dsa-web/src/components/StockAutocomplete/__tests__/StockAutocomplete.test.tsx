@@ -151,7 +151,7 @@ describe('StockAutocomplete', () => {
       />
     );
 
-    const input = screen.getByPlaceholderText(/输入股票代码或名称/);
+    const input = screen.getByPlaceholderText(/輸入股票代碼或名稱/);
     expect(input).toBeInTheDocument();
   });
 
@@ -161,11 +161,11 @@ describe('StockAutocomplete', () => {
         value=""
         onChange={mockOnChange}
         onSubmit={mockOnSubmit}
-        placeholder="请输入代码"
+        placeholder="請輸入代碼"
       />
     );
 
-    const input = screen.getByPlaceholderText(/请输入代码/);
+    const input = screen.getByPlaceholderText(/請輸入代碼/);
     expect(input).toBeInTheDocument();
   });
 
@@ -245,11 +245,11 @@ describe('StockAutocomplete', () => {
         value=""
         onChange={mockOnChange}
         onSubmit={mockOnSubmit}
-        ariaLabel="当前股票"
+        ariaLabel="當前股票"
       />
     );
 
-    expect(screen.getByLabelText('当前股票')).toBeInTheDocument();
+    expect(screen.getByLabelText('當前股票')).toBeInTheDocument();
   });
 
   describe('fallback mode', () => {
@@ -270,7 +270,7 @@ describe('StockAutocomplete', () => {
         />
       );
 
-      const input = screen.getByPlaceholderText(/输入股票代码或名称/);
+      const input = screen.getByPlaceholderText(/輸入股票代碼或名稱/);
       expect(input).toHaveAttribute('data-autocomplete-mode', 'fallback');
     });
 
@@ -301,7 +301,7 @@ describe('StockAutocomplete', () => {
         />
       );
 
-      const input = screen.getByPlaceholderText(/输入股票代码或名称/);
+      const input = screen.getByPlaceholderText(/輸入股票代碼或名稱/);
       expect(input).toHaveAttribute('data-autocomplete-mode', 'fallback');
     });
 
@@ -362,11 +362,11 @@ describe('StockAutocomplete', () => {
           value=""
           onChange={mockOnChange}
           onSubmit={mockOnSubmit}
-          ariaLabel="当前股票"
+          ariaLabel="當前股票"
         />
       );
 
-      expect(screen.getByLabelText('当前股票')).toHaveAttribute('data-autocomplete-mode', 'fallback');
+      expect(screen.getByLabelText('當前股票')).toHaveAttribute('data-autocomplete-mode', 'fallback');
     });
 
     it('prevents duplicate form submission when fallback input receives Enter', () => {
@@ -637,7 +637,7 @@ describe('StockAutocomplete', () => {
       const input = screen.getByDisplayValue('000660');
       fireEvent.focus(input);
 
-      expect(screen.getByText('韩股')).toBeInTheDocument();
+      expect(screen.getByText('韓股')).toBeInTheDocument();
       expect(screen.getByText('日股')).toBeInTheDocument();
       expect(screen.getByText('000660.KS')).toBeInTheDocument();
       expect(screen.getByText('7203.T')).toBeInTheDocument();

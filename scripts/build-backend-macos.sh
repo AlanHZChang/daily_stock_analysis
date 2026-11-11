@@ -145,7 +145,7 @@ if [[ ! -x "${packaged_entry}" ]]; then
   exit 1
 fi
 
-# 先校验可执行文件可启动（不进入业务流程的参数），再检查冻结产物中的关键依赖。
+# 先校驗可執行文件可啟動（不進入業務流程的參數），再檢查凍結產物中的關鍵依賴。
 if ! "${packaged_entry}" --help >/tmp/dsa-packaged-help.log 2>&1; then
   echo "ERROR: packaged backend help startup check failed."
   cat /tmp/dsa-packaged-help.log

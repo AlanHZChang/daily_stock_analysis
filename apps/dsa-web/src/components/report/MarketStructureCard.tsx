@@ -28,20 +28,20 @@ const STATUS_VARIANT: Record<MarketStructureStatus, BadgeVariant> = {
 
 const TEXT = {
   zh: {
-    eyebrow: '市场位置',
-    title: '题材主线与个股位置',
-    marketLayer: '大盘题材层',
-    stockLayer: '个股位置层',
-    activeThemes: '活跃题材',
-    leadingConcepts: '领涨概念',
-    leadingIndustries: '领涨行业',
-    primaryTheme: '主关联题材',
-    themePhase: '题材阶段',
-    stockRole: '个股位置',
-    riskTags: '风险标签',
-    dataQuality: '数据质量',
-    missingFields: '缺失证据',
-    empty: '暂无',
+    eyebrow: '市場位置',
+    title: '題材主線與個股位置',
+    marketLayer: '大盘題材層',
+    stockLayer: '個股位置層',
+    activeThemes: '活躍題材',
+    leadingConcepts: '領漲概念',
+    leadingIndustries: '領漲行业',
+    primaryTheme: '主關聯題材',
+    themePhase: '題材階段',
+    stockRole: '個股位置',
+    riskTags: '风险標籤',
+    dataQuality: '數據質量',
+    missingFields: '缺失證據',
+    empty: '暫無',
     status: {
       ok: '可用',
       partial: '部分可用',
@@ -49,9 +49,9 @@ const TEXT = {
       not_supported: '不支持',
     },
     phase: {
-      warming: '升温',
+      warming: '升溫',
       accelerating: '加速',
-      cooling: '降温',
+      cooling: '降溫',
       unknown: '未知',
     },
     role: {
@@ -133,9 +133,9 @@ const TEXT = {
 
 const RISK_TAG_TEXT = {
   zh: {
-    theme_data_partial: '题材主线数据不完整',
-    stock_theme_evidence_partial: '个股板块未匹配到市场题材榜单，个股位置按降级证据处理',
-    board_membership_missing: '缺少个股所属板块证据，无法判断题材位置',
+    theme_data_partial: '題材主線數據不完整',
+    stock_theme_evidence_partial: '個股板块未匹配到市場題材榜單，個股位置按降级證據處理',
+    board_membership_missing: '缺少個股所屬板块證據，無法判斷題材位置',
   },
   en: {
     theme_data_partial: 'Market theme data is incomplete',

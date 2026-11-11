@@ -41,49 +41,49 @@ export interface LLMProviderTemplate {
 export const LLM_PROVIDER_CAPABILITY_LABELS: Record<LLMProviderCapability, { label: string; hint: string }> = {
   'openai-compatible': {
     label: 'OpenAI 兼容',
-    hint: '按 OpenAI-compatible endpoint 配置 Base URL，不额外拼接 /chat/completions。',
+    hint: '按 OpenAI-compatible endpoint 配置 Base URL，不額外拼接 /chat/completions。',
   },
   aggregator: {
-    label: '聚合平台',
-    hint: '模型可见性、路由和价格可能随账号权限与平台策略变化。',
+    label: '聚合平臺',
+    hint: '模型可見性、路由和價格可能隨賬號權限與平臺策略變化。',
   },
   'official-api': {
     label: '官方 API',
-    hint: '使用服务商官方协议或官方兼容入口。',
+    hint: '使用服務商官方協議或官方兼容入口。',
   },
   'model-discovery': {
-    label: '可获取模型',
-    hint: '支持尝试通过 /models 获取模型列表；实际结果仍取决于账号权限和 API Key。',
+    label: '可獲取模型',
+    hint: '支持嘗試通過 /models 獲取模型列表；實際結果仍取決於賬號權限和 API Key。',
   },
   vision: {
     label: 'Vision 提示',
-    hint: '模板提示该 provider 常用于 Vision 场景；具体模型能力仍以账号和模型列表为准。',
+    hint: '模板提示該 provider 常用於 Vision 場景；具體模型能力仍以賬號和模型列表為準。',
   },
   'local-runtime': {
-    label: '本地运行',
-    hint: '需要当前运行环境能访问对应本地服务。',
+    label: '本地運行',
+    hint: '需要當前運行環境能訪問對應本地服務。',
   },
 };
 
 export const LLM_PROVIDER_TEMPLATES: LLMProviderTemplate[] = [
   {
     channelId: 'modelflare',
-    label: 'Modelflare（聚合平台）',
+    label: 'Modelflare（聚合平臺）',
     protocol: 'openai',
     baseUrl: 'https://modelflare.dev/v1',
     placeholderModels: MODELFLARE_DEFAULT_MODEL,
     capabilities: ['openai-compatible', 'aggregator', 'model-discovery'],
     configHint:
-      'API Key 的路由分组需支持所选模型；模型 ID 请以控制台或获取模型的结果为准。modelflare 渠道的 Base URL 留空时使用默认 /v1 地址，可按需覆盖，不额外拼接 /chat/completions。',
+      'API Key 的路由分組需支持所選模型；模型 ID 請以控制檯或獲取模型的結果為準。modelflare 渠道的 Base URL 留空時使用默認 /v1 地址，可按需覆蓋，不額外拼接 /chat/completions。',
     officialSources: [
-      { label: 'Modelflare 专属注册', url: MODELFLARE_APP_REGISTRATION_URL },
+      { label: 'Modelflare 專屬註冊', url: MODELFLARE_APP_REGISTRATION_URL },
       { label: 'Modelflare Docs', url: 'https://docs.modelflare.dev/' },
       { label: 'Modelflare Models & Pricing', url: 'https://modelflare.dev/pricing' },
     ],
   },
   {
     channelId: 'aihubmix',
-    label: 'AIHubmix（聚合平台）',
+    label: 'AIHubmix（聚合平臺）',
     protocol: 'openai',
     baseUrl: 'https://aihubmix.com/v1',
     placeholderModels: 'gpt-6.1-sol,claude-sonnet-4-6,gemini-3.6-flash',
@@ -101,7 +101,7 @@ export const LLM_PROVIDER_TEMPLATES: LLMProviderTemplate[] = [
   },
   {
     channelId: 'dashscope',
-    label: '通义千问（Dashscope）',
+    label: '通義千問（Dashscope）',
     protocol: 'openai',
     baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
     placeholderModels: 'qwen3.6-plus,qwen3.6-flash',
@@ -112,7 +112,7 @@ export const LLM_PROVIDER_TEMPLATES: LLMProviderTemplate[] = [
   },
   {
     channelId: 'zhipu',
-    label: '智谱 GLM',
+    label: '智譜 GLM',
     protocol: 'openai',
     baseUrl: 'https://open.bigmodel.cn/api/paas/v4',
     placeholderModels: 'glm-5.1,glm-4.7-flash',
@@ -147,7 +147,7 @@ export const LLM_PROVIDER_TEMPLATES: LLMProviderTemplate[] = [
     baseUrl: 'https://ark.cn-beijing.volces.com/api/v3',
     placeholderModels: 'doubao-seed-1-6-251015,doubao-seed-1-6-thinking-251015',
     capabilities: ['openai-compatible'],
-    configHint: '确认在线推理 endpoint / region 与 Coding Plan 专用入口不要混用。',
+    configHint: '確認在線推理 endpoint / region 與 Coding Plan 專用入口不要混用。',
     officialSources: [
       { label: 'Volcengine Ark Inference', url: 'https://www.volcengine.com/docs/82379/2121998' },
       { label: 'Volcengine Ark Models', url: 'https://www.volcengine.com/docs/82379/1949118' },
@@ -155,12 +155,12 @@ export const LLM_PROVIDER_TEMPLATES: LLMProviderTemplate[] = [
   },
   {
     channelId: 'siliconflow',
-    label: '硅基流动（SiliconFlow）',
+    label: '硅基流動（SiliconFlow）',
     protocol: 'openai',
     baseUrl: 'https://api.siliconflow.cn/v1',
     placeholderModels: 'deepseek-ai/DeepSeek-V3.2,Qwen/Qwen3-235B-A22B-Thinking-2507',
     capabilities: ['openai-compatible', 'model-discovery'],
-    configHint: '模型列表和模型可见性依赖账号权限与 API Key。',
+    configHint: '模型列表和模型可見性依賴賬號權限與 API Key。',
     officialSources: [{ label: 'SiliconFlow Models', url: 'https://docs.siliconflow.cn/quickstart/models' }],
   },
   {
@@ -170,7 +170,7 @@ export const LLM_PROVIDER_TEMPLATES: LLMProviderTemplate[] = [
     baseUrl: 'https://openrouter.ai/api/v1',
     placeholderModels: '~anthropic/claude-sonnet-latest,~openai/gpt-latest',
     capabilities: ['openai-compatible', 'aggregator', 'model-discovery'],
-    configHint: '模型列表和模型可见性依赖账号权限与 API Key。',
+    configHint: '模型列表和模型可見性依賴賬號權限與 API Key。',
     officialSources: [
       { label: 'OpenRouter Models API', url: 'https://openrouter.ai/docs/api/api-reference/models/get-models' },
     ],
@@ -182,7 +182,7 @@ export const LLM_PROVIDER_TEMPLATES: LLMProviderTemplate[] = [
     baseUrl: 'https://router.requesty.ai/v1',
     placeholderModels: 'claude-sonnet-4-6,gpt-6.1-sol',
     capabilities: ['openai-compatible', 'aggregator', 'model-discovery'],
-    configHint: '模型列表和模型可见性依赖账号权限与 API Key；EU 区域可将 Base URL 改为 https://router.eu.requesty.ai/v1。',
+    configHint: '模型列表和模型可見性依賴賬號權限與 API Key；EU 區域可將 Base URL 改為 https://router.eu.requesty.ai/v1。',
     officialSources: [
       { label: 'Requesty Models API', url: 'https://docs.requesty.ai/api-reference/endpoint/models-list' },
     ],
@@ -223,7 +223,7 @@ export const LLM_PROVIDER_TEMPLATES: LLMProviderTemplate[] = [
     baseUrl: 'http://127.0.0.1:11434',
     placeholderModels: 'llama3.2,qwen2.5',
     capabilities: ['local-runtime'],
-    configHint: '需要本机、Docker 或 self-hosted runner 能访问 Ollama 服务。',
+    configHint: '需要本機、Docker 或 self-hosted runner 能訪問 Ollama 服務。',
     officialSources: [{ label: 'Ollama API', url: 'https://github.com/ollama/ollama/blob/main/docs/api.md' }],
   },
   {
@@ -234,7 +234,7 @@ export const LLM_PROVIDER_TEMPLATES: LLMProviderTemplate[] = [
     placeholderModels: 'Doubao-Seed-2.0-lite,Doubao-Seed-2.0-pro,qwen3.5-flash',
     capabilities: ['openai-compatible'],
     configHint:
-      '同一 ANSPIRE_API_KEYS 可复用到搜索与 LLM 渠道。以下模型与网关为配置示例，实际可用性请以账号权限和控制台为准；建议先点“测试连接”确认。',
+      '同一 ANSPIRE_API_KEYS 可複用到搜索與 LLM 渠道。以下模型與網關為配置示例，實際可用性請以賬號權限和控制檯為準；建議先點“测试連接”確認。',
     officialSources: [
       { label: 'Anspire Open', url: 'https://open.anspire.cn/dsa?share_code=QFBC0FYC' },
       {
@@ -245,7 +245,7 @@ export const LLM_PROVIDER_TEMPLATES: LLMProviderTemplate[] = [
   },
   {
     channelId: 'custom',
-    label: '自定义渠道',
+    label: '自定義渠道',
     protocol: 'openai',
     baseUrl: '',
     placeholderModels: 'model-name-1,model-name-2',

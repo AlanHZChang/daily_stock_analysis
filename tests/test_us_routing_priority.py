@@ -67,7 +67,7 @@ class TestUSRoutingByPriority:
 
 
 def test_env_example_has_no_conflict_markers() -> None:
-    """配置模板不得包含未解决的 git 冲突标记。"""
+    """配置模板不得包含未解決的 git 衝突標記。"""
     content = Path(".env.example").read_text(encoding="utf-8")
     for line in content.splitlines():
         stripped = line.strip()

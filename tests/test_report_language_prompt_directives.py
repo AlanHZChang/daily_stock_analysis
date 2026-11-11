@@ -46,7 +46,7 @@ class DecisionAgentLanguageDirectiveTestCase(unittest.TestCase):
 
     def test_chinese_directive_unchanged(self) -> None:
         prompt = self._system_prompt("zh")
-        self.assertIn("所有面向用户的人类可读文本值必须使用中文。", prompt)
+        self.assertIn("所有面向用户的人類可讀文本值必須使用中文。", prompt)
 
 
 class StructuralLanguageRoutingTestCase(unittest.TestCase):

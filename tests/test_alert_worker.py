@@ -356,7 +356,7 @@ class AlertWorkerTestCase(unittest.TestCase):
         self.assertEqual(summary["action"], "sell")
         alert_text = notifier.send_with_results.call_args.args[0]
         self.assertIn("AI 决策信号", alert_text)
-        self.assertIn("跌破关键支撑", alert_text)
+        self.assertIn("跌破關鍵支撑", alert_text)
         self.assertIn("观察能否收回均线", alert_text)
 
     def test_p6_triggered_stock_alert_creates_alert_signal_when_no_active_signal(self) -> None:

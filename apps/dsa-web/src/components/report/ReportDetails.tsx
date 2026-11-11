@@ -7,12 +7,12 @@ import { getReportText, normalizeReportLanguage } from '../../utils/reportLangua
 
 interface ReportDetailsProps {
   details?: ReportDetailsType;
-  recordId?: number;  // 分析历史记录主键 ID
+  recordId?: number;  // 分析歷史記錄主鍵 ID
   language?: ReportLanguage;
 }
 
 /**
- * 透明度与追溯区组件 - 终端风格
+ * 透明度與追溯區組件 - 終端風格
  */
 export const ReportDetails: React.FC<ReportDetailsProps> = ({
   details,

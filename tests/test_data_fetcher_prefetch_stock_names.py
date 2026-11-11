@@ -89,7 +89,7 @@ class TestPrefetchStockNames(unittest.TestCase):
 
         name = DataFetcherManager.get_stock_name(manager, "123456", allow_realtime=False)
 
-        self.assertEqual(name, "测试股票")
+        self.assertEqual(name, "測試股票")
         manager.get_realtime_quote.assert_not_called()
 
     def test_get_stock_name_prefers_static_mapping_before_remote_fetchers(self):
@@ -119,10 +119,10 @@ class TestPrefetchStockNames(unittest.TestCase):
         with patch("data_provider.base.get_index_stock_name", return_value="索引名称"):
             name = DataFetcherManager.get_stock_name(manager, "123456", allow_realtime=False)
 
-        self.assertEqual(name, "索引名称")
+        self.assertEqual(name, "索引名稱")
         manager.get_realtime_quote.assert_not_called()
         remote_fetcher.get_stock_name.assert_not_called()
-        self.assertEqual(manager._stock_name_cache["123456"], "索引名称")
+        self.assertEqual(manager._stock_name_cache["123456"], "索引名稱")
 
     def test_get_stock_name_prefers_static_mapping_before_index_hits(self):
         manager = DataFetcherManager.__new__(DataFetcherManager)
@@ -146,9 +146,9 @@ class TestPrefetchStockNames(unittest.TestCase):
             with patch("data_provider.base.get_index_stock_name", return_value="索引名称"):
                 name = DataFetcherManager.get_stock_name(manager, "123456", allow_realtime=True)
 
-        self.assertEqual(name, "索引名称")
+        self.assertEqual(name, "索引名稱")
         manager.get_realtime_quote.assert_not_called()
-        self.assertEqual(manager._stock_name_cache["123456"], "索引名称")
+        self.assertEqual(manager._stock_name_cache["123456"], "索引名稱")
 
     def test_get_stock_name_preserves_raw_exchange_hint_for_realtime_lookup(self):
         manager = DataFetcherManager.__new__(DataFetcherManager)
@@ -272,8 +272,8 @@ class TestPrefetchStockNames(unittest.TestCase):
             first = manager.get_stock_name("159559", allow_realtime=False)
             second = manager.get_stock_name("159560", allow_realtime=False)
 
-        self.assertEqual(first, "创业板人工智能ETF")
-        self.assertEqual(second, "创业板人工智能ETF")
+        self.assertEqual(first, "創業板人工智能ETF")
+        self.assertEqual(second, "創業板人工智能ETF")
         self.assertEqual(fallback.calls, ["159559", "159560"])
         self.assertEqual(len(instances), 1)
         self.assertEqual(instances[0].connect_calls, 1)

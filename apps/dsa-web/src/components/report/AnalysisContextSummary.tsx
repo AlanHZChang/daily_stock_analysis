@@ -38,11 +38,11 @@ const QUALITY_STYLE = {
 const BLOCK_LABELS: Record<ReportLanguage, Record<string, string>> = {
   zh: {
     quote: '行情',
-    daily_bars: '日线',
-    technical: '技术',
+    daily_bars: '日線',
+    technical: '技術',
     news: '新闻',
     fundamentals: '基本面',
-    chip: '筹码',
+    chip: '籌碼',
   },
   en: {
     quote: 'quote',
@@ -64,25 +64,25 @@ const BLOCK_LABELS: Record<ReportLanguage, Record<string, string>> = {
 
 const TEXT = {
   zh: {
-    eyebrow: '数据上下文',
-    title: '输入数据块',
-    counts: '状态计数',
-    source: '来源',
-    sourceUnavailable: '未记录输入来源',
+    eyebrow: '數據上下文',
+    title: '輸入數據塊',
+    counts: '状态計數',
+    source: '來源',
+    sourceUnavailable: '未記錄輸入來源',
     warnings: '告警',
-    missingReasons: '说明',
-    diagnosticCode: '诊断码',
-    inputScope: '本次分析输入',
-    evidenceScope: '仅代表进入本次 LLM 的输入，不等同于数据源运行成功',
-    qualityScore: '质量分',
-    limitations: '数据限制',
-    newsResultCount: '新闻结果数',
-    triggerSource: '触发来源',
+    missingReasons: '說明',
+    diagnosticCode: '诊断碼',
+    inputScope: '本次分析輸入',
+    evidenceScope: '僅代表進入本次 LLM 的輸入，不等同於數據源運行成功',
+    qualityScore: '質量分',
+    limitations: '數據限制',
+    newsResultCount: '新闻結果數',
+    triggerSource: '觸發來源',
     qualityLevel: {
       good: '良好',
       usable: '可用',
       limited: '受限',
-      poor: '较差',
+      poor: '較差',
     },
     status: {
       available: '可用',
@@ -163,19 +163,19 @@ const TEXT = {
 
 const MISSING_REASON_LABELS: Record<ReportLanguage, Record<string, string>> = {
   zh: {
-    daily_bars_missing: '日线数据未进入本次分析，技术指标可能不完整；请检查日线数据源、网络或限流后重新分析',
-    news_context_missing: '新闻未进入本次 LLM 分析，结论未使用新闻上下文；报告页相关资讯由独立接口补充，显示与否不代表已进入本次分析。请检查搜索配置、网络或限流后重新分析',
-    realtime_quote_missing: '实时行情未进入本次分析，当前价格相关结论可能受限；请检查行情数据源、网络或限流后重新分析',
-    trend_result_missing: '技术分析结果未进入本次分析，技术面判断可能不完整；请检查日线完整性后重新分析',
-    fundamental_context_missing: '基本面未进入本次分析，结论未使用基本面数据；请检查基本面数据源、网络或限流后重新分析',
-    fundamental_pipeline_failed: '基本面抓取失败，本次分析未使用基本面数据；请检查数据源配置、网络或限流后重新分析',
-    fundamentals_not_supported: '当前市场或标的不支持基本面数据，本次分析未使用该数据；请结合其他指标判断',
-    fundamental_coverage_missing: '基本面覆盖数据未进入本次分析，结论可能缺少部分财务信息；请检查数据源覆盖范围后重新分析',
-    fundamental_source_chain_missing: '未记录基本面来源链元数据；基本面是否进入本次分析以当前状态为准，请结合来源和告警复核数据出处',
-    chip_distribution_missing: '筹码数据未进入本次分析，结论未使用筹码分布；请确认当前市场或标的数据支持情况',
-    chip_not_supported: '当前市场或标的不支持筹码数据，本次分析未使用该指标；请结合其他指标判断',
-    today_missing: '今日数据未进入本次分析，盘中判断可能受限；请结合实时行情复核后重新分析',
-    yesterday_missing: '昨日数据未进入本次分析，日线对比可能不完整；请等待数据源更新后重新分析',
+    daily_bars_missing: '日線數據未進入本次分析，技術指标可能不完整；請檢查日線數據源、網絡或限流後重新分析',
+    news_context_missing: '新闻未進入本次 LLM 分析，結論未使用新闻上下文；報告頁相關資訊由獨立接口補充，顯示與否不代表已進入本次分析。請檢查搜索配置、網絡或限流後重新分析',
+    realtime_quote_missing: '實時行情未進入本次分析，當前價格相關結論可能受限；請檢查行情數據源、網絡或限流後重新分析',
+    trend_result_missing: '技術分析結果未進入本次分析，技術面判斷可能不完整；請檢查日線完整性後重新分析',
+    fundamental_context_missing: '基本面未進入本次分析，結論未使用基本面數據；請檢查基本面數據源、網絡或限流後重新分析',
+    fundamental_pipeline_failed: '基本面抓取失败，本次分析未使用基本面數據；請檢查數據源配置、網絡或限流後重新分析',
+    fundamentals_not_supported: '當前市場或標的不支持基本面數據，本次分析未使用該數據；請結合其他指标判斷',
+    fundamental_coverage_missing: '基本面覆蓋數據未進入本次分析，結論可能缺少部分財務信息；請檢查數據源覆蓋範圍後重新分析',
+    fundamental_source_chain_missing: '未記錄基本面來源鏈元數據；基本面是否進入本次分析以當前状态為準，請結合來源和告警複核數據出處',
+    chip_distribution_missing: '籌碼數據未進入本次分析，結論未使用籌碼分佈；請確認當前市場或標的數據支持情況',
+    chip_not_supported: '當前市場或標的不支持籌碼數據，本次分析未使用該指标；請結合其他指标判斷',
+    today_missing: '今日數據未進入本次分析，盤中判斷可能受限；請結合實時行情複核後重新分析',
+    yesterday_missing: '昨日數據未進入本次分析，日線对比可能不完整；請等待數據源更新後重新分析',
   },
   en: {
     daily_bars_missing: 'Daily bars were not included, so technical indicators may be incomplete; check the daily data source, network, or rate limits and rerun',
@@ -210,7 +210,7 @@ const MISSING_REASON_LABELS: Record<ReportLanguage, Record<string, string>> = {
 };
 
 const UNKNOWN_REASON_DETAILS: Record<ReportLanguage, string> = {
-  zh: '未记录明确原因；请结合状态、来源和告警排查',
+  zh: '未記錄明確原因；請結合状态、來源和告警排查',
   en: 'No specific reason was recorded; review the status, source, and warnings',
   ko: '명확한 원인이 기록되지 않았습니다. 상태, 출처 및 경고를 함께 확인하세요',
 };
@@ -220,13 +220,13 @@ const STATUS_FALLBACK_GUIDANCE: Record<
   Partial<Record<AnalysisContextPackBlockStatus, string>>
 > = {
   zh: {
-    missing: '数据未进入本次分析，相关结论可能不完整；请检查数据源、配置或网络后重新分析',
-    fetch_failed: '数据抓取失败，本次分析未使用该数据；请检查数据源、网络或限流后重新分析',
-    not_supported: '当前市场或标的不支持该数据，本次分析未使用该数据；请结合其他指标判断',
-    fallback: '本次分析使用了备用数据路径；请结合来源和告警复核结果',
-    stale: '本次分析使用的不是最新数据；请检查更新时间并按需重新分析',
-    estimated: '本次分析使用了估算数据；请结合原始数据复核结果',
-    partial: '仅部分数据进入本次分析，相关结论可能不完整；请检查告警和数据源后重新分析',
+    missing: '數據未進入本次分析，相關結論可能不完整；請檢查數據源、配置或網絡後重新分析',
+    fetch_failed: '數據抓取失败，本次分析未使用該數據；請檢查數據源、網絡或限流後重新分析',
+    not_supported: '當前市場或標的不支持該數據，本次分析未使用該數據；請結合其他指标判斷',
+    fallback: '本次分析使用了備用數據路徑；請結合來源和告警複核結果',
+    stale: '本次分析使用的不是最新數據；請檢查更新時間並按需重新分析',
+    estimated: '本次分析使用了估算數據；請結合原始數據複核結果',
+    partial: '僅部分數據進入本次分析，相關結論可能不完整；請檢查告警和數據源後重新分析',
   },
   en: {
     missing: 'Data was not included, so related conclusions may be incomplete; check the data source, configuration, or network and rerun',

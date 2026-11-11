@@ -139,7 +139,7 @@ class FutuFetcher(BaseFetcher):
             while ctx.status != ContextStatus.READY:
                 if time.monotonic() >= deadline:
                     raise TimeoutError(
-                        f"OpenD 未在 {_CONNECT_TIMEOUT_SECONDS:g}s 内就绪 (status={ctx.status})"
+                        f"OpenD 未在 {_CONNECT_TIMEOUT_SECONDS:g}s 內就緒 (status={ctx.status})"
                     )
                 time.sleep(_CONNECT_POLL_SECONDS)
             logger.info("[Futu] OpenQuoteContext 初始化成功: %s:%s", self._host, self._port)
@@ -150,7 +150,7 @@ class FutuFetcher(BaseFetcher):
                 self._close_ctx(ctx)
             self._retry_after = time.monotonic() + _CONNECT_RETRY_COOLDOWN_SECONDS
             logger.warning(
-                "[Futu] 连接 OpenD %s:%s 失败，%d 分钟内跳过 Futu 并回退其他数据源: %s",
+                "[Futu] 連接 OpenD %s:%s 失敗，%d 分钟內跳過 Futu 並回退其他數據源: %s",
                 self._host,
                 self._port,
                 _CONNECT_RETRY_COOLDOWN_SECONDS // 60,

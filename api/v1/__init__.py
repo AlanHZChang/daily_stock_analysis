@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 """
 ===================================
-API v1 模块初始化
+API v1 模塊初始化
 ===================================
 
-职责：
-1. 延迟导出 v1 版本 API 的路由，避免 schema import 触发整棵 endpoint 导入树
+職責：
+1. 延遲導出 v1 版本 API 的路由，避免 schema import 觸發整棵 endpoint 導入樹
 """
 
 from typing import Any

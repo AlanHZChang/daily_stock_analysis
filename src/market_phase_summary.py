@@ -56,7 +56,7 @@ _MARKET_LABELS_ZH = {
     "cn": "A股",
     "hk": "港股",
     "us": "美股",
-    "tw": "台股",
+    "tw": "臺股",
 }
 _MARKET_LABELS_EN = {
     "cn": "A-shares",

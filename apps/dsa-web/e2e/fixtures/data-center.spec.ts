@@ -52,7 +52,7 @@ for (const state of ['partial', 'empty', 'error'] as const) {
     });
     await page.setViewportSize({ width: 1440, height: 1100 });
     await page.goto('/data');
-    await expect(page.getByRole('heading', { name: '数据中心', exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { name: '數據中心', exact: true })).toBeVisible();
     if (state === 'partial') {
       await expect(page.getByText('AkShare', { exact: true })).toBeVisible();
       const row = page.getByRole('row').filter({ hasText: 'financial.snapshot' });
@@ -62,9 +62,9 @@ for (const state of ['partial', 'empty', 'error'] as const) {
       await expect(page.getByRole('row').filter({ hasText: 'screening.snapshot' })).toContainText('unknown');
       await expect(page.getByText('tencent → akshare', { exact: true })).toBeVisible();
     } else if (state === 'empty') {
-      await expect(page.getByText('暂无能力数据', { exact: true })).toBeVisible();
+      await expect(page.getByText('暫無能力數據', { exact: true })).toBeVisible();
     } else {
-      await expect(page.getByText('数据概览加载失败', { exact: true })).toBeVisible();
+      await expect(page.getByText('數據概覽加載失敗', { exact: true })).toBeVisible();
     }
     const desktop = testInfo.outputPath(`data-center-${state}-1440.png`);
     await page.screenshot({ path: desktop, fullPage: true, animations: 'disabled' });
@@ -72,8 +72,8 @@ for (const state of ['partial', 'empty', 'error'] as const) {
     if (state === 'error') {
       failed = false;
       await page.getByRole('button', { name: '重试', exact: true }).click();
-      await expect(page.getByText('暂无能力数据', { exact: true })).toBeVisible();
-      await expect(page.getByText('数据概览加载失败', { exact: true })).toHaveCount(0);
+      await expect(page.getByText('暫無能力數據', { exact: true })).toBeVisible();
+      await expect(page.getByText('數據概覽加載失敗', { exact: true })).toHaveCount(0);
     }
     if (state === 'partial') {
       await page.setViewportSize({ width: 390, height: 844 });
@@ -106,23 +106,23 @@ test('short desktop rail keeps settings and controls reachable', async ({ page }
   });
   await page.setViewportSize({ width: 1280, height: 720 });
   await page.goto('/data');
-  const rail = page.getByRole('complementary', { name: '桌面侧边导航' });
-  await expect(rail.getByRole('link', { name: '选股', exact: true })).toBeVisible();
-  const nav = rail.getByRole('navigation', { name: '主导航' });
+  const rail = page.getByRole('complementary', { name: '桌面側邊導航' });
+  await expect(rail.getByRole('link', { name: '選股', exact: true })).toBeVisible();
+  const nav = rail.getByRole('navigation', { name: '主導航' });
   await expect.poll(() => nav.evaluate((element) => element.scrollHeight > element.clientHeight)).toBe(true);
   const pageScroll = await page.evaluate(() => window.scrollY);
   await nav.evaluate((element) => { element.scrollTop = element.scrollHeight; });
-  const settings = rail.getByRole('link', { name: '设置', exact: true });
+  const settings = rail.getByRole('link', { name: '設置', exact: true });
   await expect(settings).toBeInViewport();
   await expect(rail.getByRole('button', { name: '退出', exact: true })).toBeInViewport();
-  await rail.getByRole('button', { name: '切换主题', exact: true }).click();
+  await rail.getByRole('button', { name: '切換主题', exact: true }).click();
   const themeMenu = rail.getByRole('menu', { name: '主题模式' });
   await expect(themeMenu).toBeInViewport();
   await themeMenu.getByRole('menuitemradio', { name: '深色', exact: true }).click();
   await rail.getByRole('button', { name: '退出', exact: true }).click();
-  await expect(page.getByRole('heading', { name: '退出登录', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '退出登錄', exact: true })).toBeVisible();
   await page.getByRole('button', { name: '取消', exact: true }).click();
-  await expect(page.getByRole('heading', { name: '退出登录', exact: true })).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: '退出登錄', exact: true })).toHaveCount(0);
   expect(await page.evaluate(() => window.scrollY)).toBe(pageScroll);
   const screenshot = testInfo.outputPath('data-center-short-desktop-1280x720.png');
   await page.screenshot({ path: screenshot, animations: 'disabled' });

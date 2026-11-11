@@ -446,7 +446,7 @@ class TestAgentFactorySkillBaseline(unittest.TestCase):
             instructions="bull_trend instructions",
         )
 
-        self.assertIn("严进策略", kwargs["default_skill_policy"])
+        self.assertIn("嚴進策略", kwargs["default_skill_policy"])
         self.assertTrue(kwargs["use_legacy_default_prompt"])
         skill_manager.activate.assert_called_once_with(["bull_trend"])
 
@@ -467,7 +467,7 @@ class TestAgentFactorySkillBaseline(unittest.TestCase):
             instructions="bull_trend instructions",
         )
 
-        self.assertIn("严进策略", kwargs["default_skill_policy"])
+        self.assertIn("嚴進策略", kwargs["default_skill_policy"])
         self.assertTrue(kwargs["use_legacy_default_prompt"])
         skill_manager.activate.assert_called_once_with(["bull_trend"])
 
@@ -509,7 +509,7 @@ class TestAgentFactorySkillBaseline(unittest.TestCase):
             instructions="bull_trend instructions",
         )
 
-        self.assertIn("严进策略", kwargs["default_skill_policy"])
+        self.assertIn("嚴進策略", kwargs["default_skill_policy"])
         self.assertTrue(kwargs["use_legacy_default_prompt"])
         skill_manager.activate.assert_called_once_with(["bull_trend"])
 
@@ -951,7 +951,7 @@ class TestAgentResultConversion(unittest.TestCase):
         ok, missing = check_content_integrity(result)
         self.assertTrue(ok, missing)
         self.assertEqual(result.sentiment_score, 68)
-        self.assertEqual(result.analysis_summary, "趋势结论：多头排列；操作建议：买入。")
+        self.assertEqual(result.analysis_summary, "趋势結論：多头排列；操作建议：买入。")
         self.assertEqual(result.dashboard["sentiment_score"], 68)
         self.assertEqual(result.dashboard["core_conclusion"]["one_sentence"], result.analysis_summary)
         self.assertEqual(result.dashboard["intelligence"]["risk_alerts"], ["跌破 MA20 需止损"])
@@ -1022,7 +1022,7 @@ class TestAgentResultConversion(unittest.TestCase):
             trend_result=trend_result,
         )
 
-        self.assertEqual(result.operation_advice, "不跌破支撑位继续持有")
+        self.assertEqual(result.operation_advice, "不跌破支撑位繼續持有")
         self.assertEqual(result.decision_type, "hold")
 
     def test_convert_empty_top_level_advice_uses_nested_dashboard_advice(self):
@@ -1124,8 +1124,8 @@ class TestAgentResultConversion(unittest.TestCase):
             "q-nested-summary",
         )
 
-        self.assertEqual(result.analysis_summary, "AI 已给出的摘要")
-        self.assertEqual(result.dashboard["analysis_summary"], "AI 已给出的摘要")
+        self.assertEqual(result.analysis_summary, "AI 已給出的摘要")
+        self.assertEqual(result.dashboard["analysis_summary"], "AI 已給出的摘要")
 
     def test_convert_non_string_summary_falls_back_to_nested_or_local_summary(self):
         """Non-string analysis_summary should trigger fallback to nested summary or local fallback."""
@@ -1158,8 +1158,8 @@ class TestAgentResultConversion(unittest.TestCase):
                 f"q-summary-non-string-{raw_summary}",
             )
 
-            self.assertEqual(result.analysis_summary, "AI 已给出的摘要")
-            self.assertEqual(result.dashboard["analysis_summary"], "AI 已给出的摘要")
+            self.assertEqual(result.analysis_summary, "AI 已給出的摘要")
+            self.assertEqual(result.dashboard["analysis_summary"], "AI 已給出的摘要")
 
     def test_convert_malformed_scalar_fields_fallback_to_trend_result(self):
         """Malformed non-scalar scalar fields should not be treated as valid values."""
@@ -1330,7 +1330,7 @@ class TestAgentResultConversion(unittest.TestCase):
         self.assertEqual(result.decision_type, "buy")
         self.assertEqual(result.dashboard["sentiment_score"], 66)
         self.assertEqual(result.dashboard["operation_advice"], "买入")
-        self.assertEqual(result.dashboard["core_conclusion"]["one_sentence"], "AI 已给出的核心结论")
+        self.assertEqual(result.dashboard["core_conclusion"]["one_sentence"], "AI 已給出的核心結論")
         self.assertEqual(result.dashboard["intelligence"]["risk_alerts"], ["AI 风险"])
         self.assertEqual(result.dashboard["battle_plan"]["sniper_points"]["stop_loss"], 108.5)
         self.assertIn("trend:fallback", result.data_sources)
@@ -1487,7 +1487,7 @@ class TestAgentResultConversion(unittest.TestCase):
         result = pipeline._agent_result_to_analysis_result(
             agent_result, "588200", "股票588200", ReportType.SIMPLE, "q-placeholder"
         )
-        self.assertEqual(result.name, "科创芯片ETF")
+        self.assertEqual(result.name, "科創芯片ETF")
 
     def test_convert_keeps_input_stock_name_when_valid(self):
         """When input name is already valid, do not overwrite with dashboard value."""
@@ -1972,7 +1972,7 @@ class TestAnalyzeWithAgentStockName(unittest.TestCase):
             )
 
             self.assertIsNotNone(result)
-            self.assertEqual(result.name, "科创芯片ETF")
+            self.assertEqual(result.name, "科創芯片ETF")
             pipeline.search_service.search_stock_news.assert_called_once_with(
                 stock_code="588200",
                 stock_name="科创芯片ETF",
@@ -1980,7 +1980,7 @@ class TestAnalyzeWithAgentStockName(unittest.TestCase):
             )
             pipeline.db.save_news_intel.assert_called_once()
             saved_kwargs = pipeline.db.save_news_intel.call_args.kwargs
-            self.assertEqual(saved_kwargs["name"], "科创芯片ETF")
+            self.assertEqual(saved_kwargs["name"], "科創芯片ETF")
 
     def test_analyze_with_agent_keeps_dashboard_top_level_fields_after_stability(self):
         """Decision stability downgrade in agent flow should sync dashboard and top-level decision fields."""
@@ -2229,11 +2229,11 @@ class TestAnalyzeWithAgentStockName(unittest.TestCase):
             self.assertTrue(ok, missing)
             phase_decision = result.dashboard["phase_decision"]
             self.assertEqual(phase_decision["phase_context"]["phase"], "intraday")
-            self.assertEqual(phase_decision["action_window"], "模型未提供阶段化行动窗口")
-            self.assertEqual(phase_decision["immediate_action"], "模型未提供阶段化即时动作")
+            self.assertEqual(phase_decision["action_window"], "模型未提供階段化行動窗口")
+            self.assertEqual(phase_decision["immediate_action"], "模型未提供階段化即時動作")
             self.assertEqual(phase_decision["watch_conditions"], [])
-            self.assertEqual(phase_decision["next_check_time"], "模型未提供下一次检查点")
-            self.assertEqual(phase_decision["confidence_reason"], "模型未提供阶段化置信度理由")
+            self.assertEqual(phase_decision["next_check_time"], "模型未提供下一次檢查點")
+            self.assertEqual(phase_decision["confidence_reason"], "模型未提供階段化置信度理由")
 
     def test_analyze_with_agent_explains_daily_market_softening_before_risk(self):
         """A partial result produced before risk must retain its Pipeline start signal."""
@@ -2451,7 +2451,7 @@ class TestAnalyzeWithAgentStockName(unittest.TestCase):
             self.assertNotIn("chip_unavailable_reason", dp)
 
     def test_analyze_with_agent_history_context_includes_diagnostic_snapshot(self):
-        """Agent 分析入库存档时应保留 diagnostics 快照，避免历史诊断返回 unknown。"""
+        """Agent 分析入庫存檔時應保留 diagnostics 快照，避免歷史診斷返回 unknown。"""
         with patch('src.core.pipeline.get_config') as mock_config, \
              patch('src.core.pipeline.get_db'), \
              patch('src.core.pipeline.DataFetcherManager'), \
@@ -2537,7 +2537,7 @@ class TestAnalyzeWithAgentStockName(unittest.TestCase):
             history_context = call_kwargs["context_snapshot"]
             self.assertIn("diagnostics", history_context)
             self.assertEqual(history_context["diagnostics"]["trace_id"], "trace-1391")
-            self.assertEqual(history_context["stock_name"], "科创芯片ETF")
+            self.assertEqual(history_context["stock_name"], "科創芯片ETF")
             pipeline._persist_skill_opinion_samples_after_history_save.assert_called_once()
             sample_kwargs = (
                 pipeline._persist_skill_opinion_samples_after_history_save.call_args.kwargs
@@ -2624,7 +2624,7 @@ class TestAgentConstructionChain(unittest.TestCase):
         skill_manager.register(test_skill)
         skill_manager.activate(["test_skill"])
         instructions = skill_manager.get_skill_instructions()
-        self.assertIn("测试策略", instructions)
+        self.assertIn("測試策略", instructions)
 
         # Build LLM adapter with mocked config (no real API keys)
         mock_cfg = MagicMock()

@@ -551,10 +551,10 @@ describe('stockIndexLoader', () => {
         {
           canonicalCode: 'TEST.US',
           displayCode: 'TEST',
-          nameZh: '测试·公司',
+          nameZh: '測試·公司',
           pinyinFull: 'test-gongsi',
           pinyinAbbr: 'test',
-          aliases: ['测试(集团)'],
+          aliases: ['測試(集團)'],
           market: 'US',
           assetType: 'stock',
           active: true,
@@ -563,8 +563,8 @@ describe('stockIndexLoader', () => {
       ];
 
       const compressed = compressIndex(specialChars);
-      expect(compressed[0][2]).toBe('测试·公司');
-      expect(compressed[0][5]).toEqual(['测试(集团)']);
+      expect(compressed[0][2]).toBe('測試·公司');
+      expect(compressed[0][5]).toEqual(['測試(集團)']);
     });
   });
 });

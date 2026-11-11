@@ -33,7 +33,7 @@ class ConfigEnvCompatibilityTestCase(unittest.TestCase):
             configured = Config._load_from_env()
 
         self.assertEqual(configured.share_image_xiaohongshu_url, "https://example.com/xhs")
-        self.assertEqual(configured.share_image_xiaohongshu_handle, "@自定义账号")
+        self.assertEqual(configured.share_image_xiaohongshu_handle, "@自定義賬號")
         self.assertEqual(configured.share_image_xiaohongshu_id, "123456")
         self.assertEqual(configured.share_image_xiaohongshu_qr_path, "assets/custom-xhs.png")
 

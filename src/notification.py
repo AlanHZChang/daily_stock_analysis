@@ -2839,7 +2839,7 @@ class NotificationService(
                     )
                 )
 
-        logger.info(f"通知發送完成：成功 {success_count} 個，失敗 {fail_count} 个")
+        logger.info(f"通知發送完成：成功 {success_count} 個，失敗 {fail_count} 個")
         if success_count > 0:
             self.record_noise_control(noise_decision)
         else:

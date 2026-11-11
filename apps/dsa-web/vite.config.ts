@@ -238,7 +238,7 @@ export default defineConfig({
     },
   },
   build: {
-    // 打包输出到项目根目录的 static 文件夹
+    // 打包輸出到項目根目錄的 static 文件夾
     outDir: path.resolve(__dirname, '../../static'),
     emptyOutDir: true,
     rollupOptions: {

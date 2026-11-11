@@ -1,117 +1,117 @@
 ---
 name: "stock_analyzer"
-description: "分析股票和市场。当用户想要分析单个或多个股票，或进行市场复盘时调用。"
+description: "分析股票和市場。當用戶想要分析單個或多個股票，或進行市場覆盤時調用。"
 ---
 
 # 股票分析器
 
-本技能基于 `src/services/analyzer_service.py` 的逻辑，提供分析股票和整体市场的功能。
+本技能基於 `src/services/analyzer_service.py` 的邏輯，提供分析股票和整體市場的功能。
 
-## 输出结构 (`AnalysisResult`)
+## 輸出結構 (`AnalysisResult`)
 
-分析函数返回一个 `AnalysisResult` 对象（或其列表），该对象具有丰富的结构。以下是其关键组件的简要概述，并附有真实的输出示例：
+分析函數返回一個 `AnalysisResult` 對象（或其列表），該對象具有豐富的結構。以下是其關鍵組件的簡要概述，並附有真實的輸出示例：
 
-`dashboard` 属性包含核心分析，分为四个主要部分：
-1.  **`core_conclusion`**: 一句话总结、信号类型和仓位建议。
-2.  **`data_perspective`**: 技术数据，包括趋势状态、价格位置、量能分析和筹码结构。
-3.  **`intelligence`**: 定性信息，如新闻、风险警报和积极催化剂。
-4.  **`battle_plan`**: 可操作的策略，包括狙击点（买/卖目标）、仓位策略和风险控制清单。
+`dashboard` 屬性包含核心分析，分為四個主要部分：
+1.  **`core_conclusion`**: 一句話總結、信號類型和倉位建議。
+2.  **`data_perspective`**: 技術數據，包括趨勢狀態、價格位置、量能分析和籌碼結構。
+3.  **`intelligence`**: 定性信息，如新聞、風險警報和積極催化劑。
+4.  **`battle_plan`**: 可操作的策略，包括狙擊點（買/賣目標）、倉位策略和風險控制清單。
 
 ## 配置 (`Config`)
 
-所有分析函数都可以接受一个可选的 `config` 对象。该对象包含应用程序的所有配置，例如 API 密钥、通知设置和分析参数。
+所有分析函數都可以接受一個可選的 `config` 對象。該對象包含應用程序的所有配置，例如 API 密鑰、通知設置和分析參數。
 
-如果未提供 `config` 对象，函数将自动使用从 `.env` 文件加载的全局单例实例。
+如果未提供 `config` 對象，函數將自動使用從 `.env` 文件加載的全局單例實例。
 
-**参考:** [`Config`](src/config.py)
+**參考:** [`Config`](src/config.py)
 
-## 函数
+## 函數
 
-### 1. 分析单只股票
+### 1. 分析單隻股票
 
-**描述:** 分析单只股票并返回分析结果。
+**描述:** 分析單隻股票並返回分析結果。
 
-**何时使用:** 当用户要求分析特定股票时。
+**何時使用:** 當用戶要求分析特定股票時。
 
-**输入:**
-- `stock_code` (str): 要分析的股票代码。
-- `config` (Config, 可选): 配置对象。默认为 `None`。
-- `full_report` (bool, 可选): 是否生成完整报告。默认为 `False`。
-- `notifier` (NotificationService, 可选): 通知服务对象。默认为 `None`。
+**輸入:**
+- `stock_code` (str): 要分析的股票代碼。
+- `config` (Config, 可選): 配置對象。默認為 `None`。
+- `full_report` (bool, 可選): 是否生成完整報告。默認為 `False`。
+- `notifier` (NotificationService, 可選): 通知服務對象。默認為 `None`。
 
-**输出:** `Optional[AnalysisResult]`
-一个包含分析结果的 `AnalysisResult` 对象，如果分析失败则为 `None`。
+**輸出:** `Optional[AnalysisResult]`
+一個包含分析結果的 `AnalysisResult` 對象，如果分析失敗則為 `None`。
 
 **示例:**
 
 ```python
 from src.services.analyzer_service import analyze_stock
 
-# 分析单只股票
+# 分析單隻股票
 result = analyze_stock("600989")
 if result:
     print(f"股票: {result.name} ({result.code})")
-    print(f"情绪得分: {result.sentiment_score}")
-    print(f"操作建议: {result.operation_advice}")
+    print(f"情緒得分: {result.sentiment_score}")
+    print(f"操作建議: {result.operation_advice}")
 ```
 
-**参考:** [`analyze_stock`](src/services/analyzer_service.py)
+**參考:** [`analyze_stock`](src/services/analyzer_service.py)
 
-### 2. 分析多只股票
+### 2. 分析多隻股票
 
-**描述:** 分析一个股票列表并返回分析结果列表。
+**描述:** 分析一個股票列表並返回分析結果列表。
 
-**何时使用:** 当用户想要一次分析多只股票时。
+**何時使用:** 當用戶想要一次分析多隻股票時。
 
-**输入:**
-- `stock_codes` (List[str]): 要分析的股票代码列表。
-- `config` (Config, 可选): 配置对象。默认为 `None`。
-- `full_report` (bool, 可选): 是否为每只股票生成完整报告。默认为 `False`。
-- `notifier` (NotificationService, 可选): 通知服务对象。默认为 `None`。
+**輸入:**
+- `stock_codes` (List[str]): 要分析的股票代碼列表。
+- `config` (Config, 可選): 配置對象。默認為 `None`。
+- `full_report` (bool, 可選): 是否為每隻股票生成完整報告。默認為 `False`。
+- `notifier` (NotificationService, 可選): 通知服務對象。默認為 `None`。
 
-**输出:** `List[AnalysisResult]`
-一个 `AnalysisResult` 对象列表。
+**輸出:** `List[AnalysisResult]`
+一個 `AnalysisResult` 對象列表。
 
 **示例:**
 
 ```python
 from src.services.analyzer_service import analyze_stocks
 
-# 分析多只股票
+# 分析多隻股票
 results = analyze_stocks(["600989", "000001"])
 for result in results:
-    print(f"股票: {result.name}, 操作建议: {result.operation_advice}")
+    print(f"股票: {result.name}, 操作建議: {result.operation_advice}")
 ```
 
-**参考:** [`analyze_stocks`](src/services/analyzer_service.py)
+**參考:** [`analyze_stocks`](src/services/analyzer_service.py)
 
-### 3. 执行大盘复盘
+### 3. 執行大盤覆盤
 
-**描述:** 对整体市场进行复盘并返回一份报告。
+**描述:** 對整體市場進行復盤並返回一份報告。
 
-**何时使用:** 当用户要求市场概览、摘要或复盘时。
+**何時使用:** 當用戶要求市場概覽、摘要或覆盤時。
 
-**输入:**
-- `config` (Config, 可选): 配置对象。默认为 `None`。
-- `notifier` (NotificationService, 可选): 通知服务对象。默认为 `None`。
+**輸入:**
+- `config` (Config, 可選): 配置對象。默認為 `None`。
+- `notifier` (NotificationService, 可選): 通知服務對象。默認為 `None`。
 
-**输出:** `Optional[str]`
-一个包含市场复盘报告的字符串，如果失败则为 `None`。
+**輸出:** `Optional[str]`
+一個包含市場覆盤報告的字符串，如果失敗則為 `None`。
 
 **示例:**
 
 ```python
 from src.services.analyzer_service import perform_market_review
 
-# 执行大盘复盘
+# 執行大盤覆盤
 report = perform_market_review()
 if report:
     print(report)
 ```
 
-**参考:** [`perform_market_review`](src/services/analyzer_service.py)
+**參考:** [`perform_market_review`](src/services/analyzer_service.py)
 
-## 模型与外部 Bot
+## 模型與外部 Bot
 
-- 若把 **xAI Grok** 当作 DSA 分析模型：配置 `XAI_API_KEY` + `LITELLM_MODEL=xai/<官方模型ID>`（LiteLLM 直连，非托管渠道），并用 `python scripts/check_env.py --llm` 验证。示例见 [`docs/LLM_CONFIG_GUIDE.md`](docs/LLM_CONFIG_GUIDE.md)。
-- 2026-08-11 上线的 **[Grok Bot](https://x.ai/bot)** 是另一条路径：它是带 Skills / Routines / MCP / computer use 的 AI teammate，应通过 HTTP 调用本仓库的 `analyze_stock` / REST API，而不是把 Bot 本身配成 LiteLLM provider。对接说明见 [`docs/grok-bot-integration.md`](docs/grok-bot-integration.md)。
+- 若把 **xAI Grok** 當作 DSA 分析模型：配置 `XAI_API_KEY` + `LITELLM_MODEL=xai/<官方模型ID>`（LiteLLM 直連，非託管渠道），並用 `python scripts/check_env.py --llm` 驗證。示例見 [`docs/LLM_CONFIG_GUIDE.md`](docs/LLM_CONFIG_GUIDE.md)。
+- 2026-08-11 上線的 **[Grok Bot](https://x.ai/bot)** 是另一條路徑：它是帶 Skills / Routines / MCP / computer use 的 AI teammate，應通過 HTTP 調用本倉庫的 `analyze_stock` / REST API，而不是把 Bot 本身配成 LiteLLM provider。對接說明見 [`docs/grok-bot-integration.md`](docs/grok-bot-integration.md)。

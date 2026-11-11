@@ -131,9 +131,9 @@ class TestReportRenderer(unittest.TestCase):
         r = _make_result()
         out = render("markdown", [r], summary_only=False)
         self.assertIsNotNone(out)
-        self.assertIn("核心结论", out)
-        self.assertIn("作战计划", out)
-        self.assertNotIn("盘中决策护栏", out)
+        self.assertIn("核心結論", out)
+        self.assertIn("作戰計劃", out)
+        self.assertNotIn("盤中決策護欄", out)
 
     def test_render_markdown_omits_decision_signal_excerpt(self) -> None:
         """Markdown reports omit the duplicated DecisionSignal excerpt."""
@@ -169,8 +169,8 @@ class TestReportRenderer(unittest.TestCase):
         out = render("markdown", [r], summary_only=False)
 
         self.assertIsNotNone(out)
-        self.assertIn("盘中决策护栏", out)
-        self.assertIn("盘中跟踪", out)
+        self.assertIn("盤中決策護欄", out)
+        self.assertIn("盤中跟蹤", out)
         self.assertIn("放量突破", out)
         self.assertIn("quote: stale", out)
 
@@ -196,7 +196,7 @@ class TestReportRenderer(unittest.TestCase):
         out = render("markdown", [r], summary_only=False)
 
         self.assertIsNotNone(out)
-        self.assertNotIn("盘中决策护栏", out)
+        self.assertNotIn("盤中決策護欄", out)
 
     def test_render_wechat(self) -> None:
         """Wechat platform renders."""
@@ -223,7 +223,7 @@ class TestReportRenderer(unittest.TestCase):
         r = _make_result()
         out = render("brief", [r])
         self.assertIsNotNone(out)
-        self.assertIn("决策简报", out)
+        self.assertIn("決策簡報", out)
         self.assertIn("贵州茅台", out)
 
     def test_render_brief_omits_decision_signal_excerpt(self) -> None:
@@ -267,10 +267,10 @@ class TestReportRenderer(unittest.TestCase):
         out = render("brief", [r])
 
         self.assertIsNotNone(out)
-        self.assertIn("市场状态：A股 · 盘中", out)
-        self.assertNotIn("阶段：intraday", out)
-        self.assertNotIn("盘中数据提示", out)
-        self.assertNotIn("数据质量: limited", out)
+        self.assertIn("市場狀態：A股 · 盤中", out)
+        self.assertNotIn("階段：intraday", out)
+        self.assertNotIn("盤中數據提示", out)
+        self.assertNotIn("數據質量: limited", out)
         self.assertNotIn("限制: quote: stale", out)
         self.assertNotIn("限制: news: missing", out)
         self.assertNotIn("technical: fallback", out)
@@ -282,7 +282,7 @@ class TestReportRenderer(unittest.TestCase):
         out = render("brief", [r])
 
         self.assertIsNotNone(out)
-        self.assertNotIn("摘要来源", out)
+        self.assertNotIn("摘要來源", out)
         self.assertNotIn("evaluator snapshot", out)
 
     def test_render_market_status_preserves_input_order(self) -> None:
@@ -302,8 +302,8 @@ class TestReportRenderer(unittest.TestCase):
         out = render("markdown", [cn, us], summary_only=True)
 
         self.assertIsNotNone(out)
-        self.assertIn("市场状态：A股 · 盘后", out)
-        self.assertNotIn("市场状态：美股 · 盘前", out)
+        self.assertIn("市場狀態：A股 · 盤後", out)
+        self.assertNotIn("市場狀態：美股 · 盤前", out)
 
     def test_render_markdown_footer_uses_consistent_separator(self) -> None:
         r = _make_result(model_used="gemini/gemini-2.5-flash")
@@ -312,7 +312,7 @@ class TestReportRenderer(unittest.TestCase):
             out = render("markdown", [r], summary_only=True)
 
         self.assertIsNotNone(out)
-        self.assertIn("报告生成时间：", out)
+        self.assertIn("報告生成時間：", out)
         self.assertIn("分析模型：gemini/gemini-2.5-flash", out)
         self.assertNotIn("分析模型: gemini/gemini-2.5-flash", out)
 
@@ -379,7 +379,7 @@ class TestReportRenderer(unittest.TestCase):
         out = render("markdown", [r], summary_only=False)
 
         self.assertIsNotNone(out)
-        self.assertIn("**筹码**: 筹码分布未启用或数据源暂不可用，未纳入筹码判断。", out)
+        self.assertIn("**筹码**: 筹码分佈未啟用或數據源暫不可用，未納入筹码判斷。", out)
         self.assertEqual(out.count("数据缺失，无法判断"), 0)
 
     def test_render_markdown_renders_strategy_synthesis_with_localized_labels(self) -> None:
@@ -418,9 +418,9 @@ class TestReportRenderer(unittest.TestCase):
 
         self.assertIsNotNone(out)
         self.assertIn("多策略综合", out)
-        self.assertIn("综合信号: 买入", out)
-        self.assertIn("默认多头趋势/买入/80%", out)
-        self.assertIn("热点题材/卖出/75%", out)
+        self.assertIn("綜合信號: 买入", out)
+        self.assertIn("默認多头趋势/买入/80%", out)
+        self.assertIn("熱點題材/卖出/75%", out)
         self.assertNotIn("bull_trend/买入", out)
 
     def test_render_templates_handle_legacy_strategy_synthesis_shapes(self) -> None:
@@ -462,7 +462,7 @@ class TestReportRenderer(unittest.TestCase):
 
             self.assertIsNotNone(out)
             self.assertIn("多策略综合", out)
-            self.assertIn("另有 3 个策略解析失败", out)
+            self.assertIn("另有 3 個策略解析失敗", out)
 
     def test_render_unknown_platform_returns_none(self) -> None:
         """Unknown platform returns None (caller fallback)."""

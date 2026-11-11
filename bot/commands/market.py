@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """
 ===================================
-大盘复盘命令
+大盤覆盤命令
 ===================================
 
-执行大盘复盘分析，生成市场概览报告。
+執行大盤覆盤分析，生成市場概覽報告。
 """
 
 import logging
@@ -19,16 +19,16 @@ logger = logging.getLogger(__name__)
 
 class MarketCommand(BotCommand):
     """
-    大盘复盘命令
+    大盤覆盤命令
 
-    执行大盘复盘分析，包括：
-    - 主要指数表现
-    - 板块热点
-    - 市场情绪
-    - 后市展望
+    執行大盤覆盤分析，包括：
+    - 主要指數表現
+    - 板塊熱點
+    - 市場情緒
+    - 後市展望
 
     用法：
-        /market - 执行大盘复盘
+        /market - 執行大盤覆盤
     """
 
     @property
@@ -48,11 +48,11 @@ class MarketCommand(BotCommand):
         return "/market"
 
     def execute(self, message: BotMessage, args: List[str]) -> BotResponse:
-        """执行大盘复盘命令"""
+        """執行大盤覆盤命令"""
         config = self._get_config()
         lock_token = self._try_acquire_market_review_lock(config)
         if lock_token is None:
-            return BotResponse.markdown_response("⚠️ 大盘复盘正在执行中，请稍后再试。")
+            return BotResponse.markdown_response("⚠️ 大盘复盘正在執行中，請稍後再試。")
 
         thread = threading.Thread(
             target=self._run_market_review,
@@ -63,22 +63,22 @@ class MarketCommand(BotCommand):
             thread.start()
         except Exception as exc:
             logger.error(
-                "[MarketCommand] 大盘复盘后台线程启动失败: %s",
+                "[MarketCommand] 大盘复盘後臺線程啟動失敗: %s",
                 exc,
             )
             self._release_market_review_lock(lock_token)
             return BotResponse.error_response(
-                "大盘复盘启动失败，已释放运行锁；请稍后重试"
+                "大盘复盘啟動失敗，已釋放運行鎖；請稍後重试"
             )
 
         return BotResponse.markdown_response(
-            "✅ **大盘复盘任务已启动**\n\n"
+            "✅ **大盘复盘任務已啟動**\n\n"
             "正在分析：\n"
-            "• 主要指数表现\n"
-            "• 板块热点分析\n"
-            "• 市场情绪判断\n"
-            "• 后市展望\n\n"
-            "分析完成后将自动推送结果。"
+            "• 主要指数表現\n"
+            "• 板块熱點分析\n"
+            "• 市場情绪判斷\n"
+            "• 後市展望\n\n"
+            "分析完成後將自動推送結果。"
         )
 
     def _get_config(self):
@@ -109,7 +109,7 @@ class MarketCommand(BotCommand):
                 open_markets,
             )
         except Exception as exc:
-            logger.warning("交易日过滤失败，按配置继续执行大盘复盘: %s", exc)
+            logger.warning("交易日過濾失敗，按配置繼續執行大盘复盘: %s", exc)
             return None
 
     def _run_market_review(
@@ -118,16 +118,16 @@ class MarketCommand(BotCommand):
         config,
         lock_token: Optional[Any],
     ) -> None:
-        """后台执行大盘复盘"""
+        """後臺執行大盤覆盤"""
         try:
             override_region = self._compute_market_review_override_region(config)
             if override_region == "":
                 from src.notification import NotificationService
                 notifier = NotificationService(source_message=message)
-                logger.info("[MarketCommand] 今日相关市场休市，跳过大盘复盘")
+                logger.info("[MarketCommand] 今日相關市場休市，跳過大盘复盘")
                 if notifier.is_available():
                     notifier.send(
-                        "🎯 大盘复盘\n\n今日相关市场休市，已跳过大盘复盘。",
+                        "🎯 大盘复盘\n\n今日相關市場休市，已跳過大盘复盘。",
                         email_send_to_all=True,
                         route_type="report",
                     )
@@ -149,11 +149,11 @@ class MarketCommand(BotCommand):
                 trigger_source="bot",
             )
             if review_report:
-                logger.info("[MarketCommand] 大盘复盘完成并已推送")
+                logger.info("[MarketCommand] 大盘复盘完成並已推送")
             else:
-                logger.warning("[MarketCommand] 大盘复盘返回空结果")
+                logger.warning("[MarketCommand] 大盘复盘返回空結果")
         except Exception as e:
-            logger.error("[MarketCommand] 大盘复盘失败: %s", e)
+            logger.error("[MarketCommand] 大盘复盘失敗: %s", e)
             logger.exception(e)
         finally:
             self._release_market_review_lock(lock_token)

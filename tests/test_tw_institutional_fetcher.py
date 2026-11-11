@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Offline unit tests for TwInstitutionalFetcher (台股三大法人 data-layer fetcher).
+"""Offline unit tests for TwInstitutionalFetcher (臺股三大法人 data-layer fetcher).
 
 Fixtures are trimmed from real TWSE T86 / TPEx OpenAPI responses (captured
 2026-06-26) so the parser is pinned to the actual field layout, date formats,
@@ -19,7 +19,7 @@ from data_provider.tw_institutional_fetcher import (  # noqa: E402
     _to_int,
 )
 
-# --- real TWSE T86 row for 2330 台積電 @ 20260626 (西元 date, comma-grouped values) ---
+# --- real TWSE T86 row for 2330 臺積電 @ 20260626 (西元 date, comma-grouped values) ---
 T86_FIXTURE = {
     "stat": "OK",
     "date": "20260626",

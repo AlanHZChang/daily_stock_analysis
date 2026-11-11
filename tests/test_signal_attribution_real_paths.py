@@ -4,7 +4,7 @@
 import sys
 import os
 
-# 确保项目根目录在 sys.path
+# 確保項目根目錄在 sys.path
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
@@ -12,12 +12,12 @@ if PROJECT_ROOT not in sys.path:
 from src.utils.data_processing import normalize_signal_attribution_values, normalize_dashboard_signal_attribution
 from src.schemas.report_schema import Dashboard, SignalAttribution
 
-# AnalysisResult 在 analyzer.py 中定义
+# AnalysisResult 在 analyzer.py 中定義
 from src.analyzer import AnalysisResult
 
 
 class TestNormalizeSignalAttribution:
-    """测试归一化函数（接在 _parse_response 之前执行）"""
+    """測試歸一化函數（接在 _parse_response 之前執行）"""
 
     def test_string_percentage_conversion(self):
         d = {"technical_indicators": "70%", "news_sentiment": "0%", "fundamentals": "15%", "market_conditions": "15%"}
@@ -45,13 +45,13 @@ class TestNormalizeSignalAttribution:
     def test_partial_none_no_normalization(self):
         d = {"technical_indicators": 70, "news_sentiment": None, "fundamentals": 30, "market_conditions": None}
         normalize_signal_attribution_values(d)
-        # 只有两个有效值，不归一化
+        # 只有兩個有效值，不歸一化
         assert d["technical_indicators"] == 70
         assert d["news_sentiment"] is None
 
 
 class TestNormalizeDashboardSignalAttribution:
-    """测试 dashboard 级别的归一化（直接在 dashboard dict 上操作）"""
+    """測試 dashboard 級別的歸一化（直接在 dashboard dict 上操作）"""
 
     def test_inplace_normalization(self):
         dashboard = {
@@ -68,26 +68,26 @@ class TestNormalizeDashboardSignalAttribution:
 
     def test_no_signal_attribution_key(self):
         dashboard = {"core_conclusion": {}}
-        normalize_dashboard_signal_attribution(dashboard)  # 不应报错
+        normalize_dashboard_signal_attribution(dashboard)  # 不應報錯
         assert "signal_attribution" not in dashboard
 
     def test_signal_attribution_none(self):
         dashboard = {"signal_attribution": None}
-        normalize_dashboard_signal_attribution(dashboard)  # 不应报错
+        normalize_dashboard_signal_attribution(dashboard)  # 不應報錯
 
 
 class TestParseResponseIntegration:
     """
-    测试 _parse_response 能正确解析 signal_attribution。
-    由于 _parse_response 是实例方法且依赖很多配置，这里用集成测试验证归一化函数被正确调用。
+    測試 _parse_response 能正確解析 signal_attribution。
+    由於 _parse_response 是實例方法且依賴很多配置，這裡用集成測試驗證歸一化函數被正確調用。
     """
 
     def test_normalization_called_in_parse_response(self):
         """
-        验证：如果 LLM 返回字符串百分比，归一化后变成 int。
-        通过直接测试 _parse_response 的归一化调用来验证。
+        驗證：如果 LLM 返回字符串百分比，歸一化後變成 int。
+        通過直接測試 _parse_response 的歸一化調用來驗證。
         """
-        # 模拟 LLM 返回的 data dict
+        # 模擬 LLM 返回的 data dict
         data = {
             "sentiment_score": 50,
             "trend_prediction": "震荡",
@@ -106,7 +106,7 @@ class TestParseResponseIntegration:
                 }
             },
         }
-        # 手动调用归一化（模拟 _parse_response 的行为）
+        # 手動調用歸一化（模擬 _parse_response 的行為）
         normalize_dashboard_signal_attribution(data.get("dashboard"))
         sa = data["dashboard"]["signal_attribution"]
         assert sa["technical_indicators"] == 70
@@ -114,10 +114,10 @@ class TestParseResponseIntegration:
 
 
 class TestHistoryServiceDisplay:
-    """测试 HistoryService._generate_single_stock_markdown 能展示 signal_attribution"""
+    """測試 HistoryService._generate_single_stock_markdown 能展示 signal_attribution"""
 
     def test_signal_attribution_in_markdown(self):
-        """验证 markdown 报告包含信号归因段落"""
+        """驗證 markdown 報告包含信號歸因段落"""
         from src.services.history_service import HistoryService
 
         result = AnalysisResult(
@@ -138,7 +138,7 @@ class TestHistoryServiceDisplay:
             },
         )
 
-        # 创建一个 mock record
+        # 創建一個 mock record
         class MockRecord:
             created_at = None
 
@@ -147,7 +147,7 @@ class TestHistoryServiceDisplay:
         assert "70%" in markdown or "70%" in markdown
 
     def test_no_signal_attribution_no_section(self):
-        """验证没有 signal_attribution 时不显示段落"""
+        """驗證沒有 signal_attribution 時不顯示段落"""
         from src.services.history_service import HistoryService
 
         result = AnalysisResult(

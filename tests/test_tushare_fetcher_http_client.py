@@ -80,7 +80,7 @@ class TestTushareFetcherInit(unittest.TestCase):
 
 
 class TestResolveTushareHttpUrl(unittest.TestCase):
-    """``TUSHARE_HTTP_URL`` 环境变量解析与校验。"""
+    """``TUSHARE_HTTP_URL`` 環境變量解析與校驗。"""
 
     def test_unset_returns_none(self) -> None:
         with patch.dict("os.environ", {}, clear=False):
@@ -101,7 +101,7 @@ class TestResolveTushareHttpUrl(unittest.TestCase):
             self.assertEqual(_resolve_tushare_http_url(), "https://gw.example.com/tushare")
 
     def test_missing_schema_raises_value_error(self) -> None:
-        # 防止有人误填纯主机名（如 'api.tushare.pro'）后被 requests 当成相对路径
+        # 防止有人誤填純主機名（如 'api.tushare.pro'）後被 requests 當成相對路徑
         with patch.dict("os.environ", {"TUSHARE_HTTP_URL": "gw.example.com"}):
             with self.assertRaises(ValueError):
                 _resolve_tushare_http_url()
@@ -132,7 +132,7 @@ class TestTushareFetcherCustomHttpUrl(unittest.TestCase):
         self.assertEqual(fetcher._api._api_url, "http://api.tushare.pro")
 
     def test_query_posts_to_custom_endpoint(self) -> None:
-        """端到端确保自定义 url 真正驱动 requests.post 的目标地址。"""
+        """端到端確保自定義 url 真正驅動 requests.post 的目標地址。"""
         config = SimpleNamespace(tushare_token="demo-token")
 
         with patch("data_provider.tushare_fetcher.get_config", return_value=config), \

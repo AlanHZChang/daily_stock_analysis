@@ -390,7 +390,7 @@ describe('agentChatStore.startStream', () => {
   it('preserves the HTTP 400 retirement error, messages and Skill draft without a retry', async () => {
     useAgentChatStore.setState({ selectedSkillIds: ['risk'] });
     vi.mocked(agentApi.chatStream).mockRejectedValue({response:{status:400,data:{
-      error:'backend_removed',message:'Codex App Server 已移除，请修正 Agent 设置',
+      error:'backend_removed',message:'Codex App Server 已移除，請修正 Agent 設置',
     }}});
     await useAgentChatStore.getState().startStream({message:'风险呢',skills:[]});
     expect(useAgentChatStore.getState()).toMatchObject({messages:[],selectedSkillIds:['risk'],
@@ -473,8 +473,8 @@ describe('agentChatStore.startStream', () => {
 
     streamController.enqueue(encoder.encode([
       accepted('request-old-session', 'session-test'),
-      'data: {"type":"thinking","message":"旧请求处理中"}',
-      'data: {"type":"error","message":"旧请求失败"}',
+      'data: {"type":"thinking","message":"舊請求處理中"}',
+      'data: {"type":"error","message":"舊請求失敗"}',
     ].join('\n')));
     streamController.close();
     await streamPromise;
@@ -515,8 +515,8 @@ describe('agentChatStore.startStream', () => {
 
     streamController.enqueue(encoder.encode([
       accepted('request-old-chat', 'session-test'),
-      'data: {"type":"thinking","message":"旧请求处理中"}',
-      'data: {"type":"done","success":true,"content":"旧请求结果"}',
+      'data: {"type":"thinking","message":"舊請求處理中"}',
+      'data: {"type":"done","success":true,"content":"舊請求結果"}',
     ].join('\n')));
     streamController.close();
     await streamPromise;
@@ -538,7 +538,7 @@ describe('agentChatStore.startStream', () => {
         accepted('request-success', 'session-test', 'litellm'),
         'data: {"type":"thinking","step":1,"message":"分析中"}',
         'data: {"type":"tool_done","tool":"quote","display_name":"行情","success":true,"duration":0.3}',
-        'data: {"type":"done","success":true,"content":"最终分析结果","backend":"litellm"}',
+        'data: {"type":"done","success":true,"content":"最終分析結果","backend":"litellm"}',
       ]),
     );
 
@@ -568,7 +568,7 @@ describe('agentChatStore.startStream', () => {
     });
     expect(state.messages[1]).toMatchObject({
       role: 'assistant',
-      content: '最终分析结果',
+      content: '最終分析結果',
       skillName: '趋势技能',
       backend: 'litellm',
     });
@@ -626,7 +626,7 @@ describe('agentChatStore.startStream', () => {
     const state = useAgentChatStore.getState();
     expect(state.messages).toHaveLength(1);
     expect(state.chatError).toMatchObject({
-      title: '请求未被接受',
+      title: '請求未被接受',
       rawMessage: 'Agent stream emitted accepted more than once.',
     });
   });
@@ -648,7 +648,7 @@ describe('agentChatStore.startStream', () => {
     expect(state.messages).toEqual([]);
     expect(state.sessions).toEqual([]);
     expect(state.chatError).toMatchObject({
-      title: '请求未被接受',
+      title: '請求未被接受',
       rawMessage: 'Agent stream emitted done before accepted.',
     });
   });
@@ -657,7 +657,7 @@ describe('agentChatStore.startStream', () => {
     vi.mocked(agentApi.chatStream).mockResolvedValue(
       createStreamResponse([
         accepted('request-skills'),
-        'data: {"type":"done","success":true,"content":"多策略分析结果"}',
+        'data: {"type":"done","success":true,"content":"多策略分析結果"}',
       ]),
     );
 
@@ -682,7 +682,7 @@ describe('agentChatStore.startStream', () => {
     });
     expect(state.messages[1]).toMatchObject({
       role: 'assistant',
-      content: '多策略分析结果',
+      content: '多策略分析結果',
       skills: ['bull_trend', 'ma_golden_cross'],
       skill: 'bull_trend',
       skillNames: ['趋势分析', '均线金叉'],
@@ -707,8 +707,8 @@ describe('agentChatStore.startStream', () => {
     const state = useAgentChatStore.getState();
     expect(state.messages).toHaveLength(1);
     expect(state.chatError).toMatchObject({
-      title: '回复未完整返回',
-      message: 'Agent 流式响应在完成前中断，请重试。',
+      title: '回覆未完整返回',
+      message: 'Agent 流式響應在完成前中斷，請重试。',
       category: 'upstream_network',
     });
   });
@@ -728,7 +728,7 @@ describe('agentChatStore.startStream', () => {
     });
 
     expect(useAgentChatStore.getState().chatError).toMatchObject({
-      title: '系统没有配置可用的 LLM 模型',
+      title: '系統沒有配置可用的 LLM 模型',
       category: 'llm_not_configured',
       rawMessage: 'Agent LLM: no effective primary model configured',
     });
@@ -749,7 +749,7 @@ describe('agentChatStore.startStream', () => {
     });
 
     expect(useAgentChatStore.getState().chatError).toMatchObject({
-      title: '连接上游服务超时',
+      title: '連接上游服務超時',
       category: 'upstream_timeout',
       rawMessage: 'connect timeout while calling upstream provider',
     });
@@ -762,19 +762,19 @@ describe('agentChatStore.switchSession', () => {
     vi.mocked(agentApi.getChatSessionMessages).mockResolvedValue({
       session_id: 'session-2',
       messages: [
-        { id: 'msg-2', role: 'assistant', content: '历史回复', created_at: null },
+        { id: 'msg-2', role: 'assistant', content: '歷史回覆', created_at: null },
       ],
       session_state: { selected_skill_ids: ['risk'] },
     });
     useAgentChatStore.setState({
       loading: true,
-      progressSteps: [{ type: 'thinking', message: '正在制定分析路径...' }],
+      progressSteps: [{ type: 'thinking', message: '正在制定分析路徑...' }],
       abortController: ac,
       chatError: {
-        title: '请求失败',
-        message: '旧错误',
+        title: '請求失敗',
+        message: '舊錯誤',
         category: 'unknown',
-        rawMessage: '旧错误',
+        rawMessage: '舊錯誤',
       },
     });
 
@@ -788,7 +788,7 @@ describe('agentChatStore.switchSession', () => {
     expect(state.abortController).toBeNull();
     expect(state.chatError).toBeNull();
     expect(state.messages).toEqual([
-      { id: 'msg-2', role: 'assistant', content: '历史回复' },
+      { id: 'msg-2', role: 'assistant', content: '歷史回覆' },
     ]);
     expect(state.selectedSkillIds).toEqual(['risk']);
   });
@@ -811,14 +811,14 @@ describe('agentChatStore.switchSession', () => {
 
     sessionB.resolve({
       session_id: 'session-b',
-      messages: [{ id: 'msg-b', role: 'assistant', content: 'B 回复', created_at: null }],
+      messages: [{ id: 'msg-b', role: 'assistant', content: 'B 回覆', created_at: null }],
       session_state: { selected_skill_ids: ['risk'] },
     });
     await switchToB;
 
     sessionA.resolve({
       session_id: 'session-a',
-      messages: [{ id: 'msg-a', role: 'assistant', content: 'A 回复', created_at: null }],
+      messages: [{ id: 'msg-a', role: 'assistant', content: 'A 回覆', created_at: null }],
       session_state: { selected_skill_ids: ['technical'] },
     });
     await switchToA;
@@ -826,7 +826,7 @@ describe('agentChatStore.switchSession', () => {
     const state = useAgentChatStore.getState();
     expect(state.sessionId).toBe('session-b');
     expect(state.messages).toEqual([
-      { id: 'msg-b', role: 'assistant', content: 'B 回复' },
+      { id: 'msg-b', role: 'assistant', content: 'B 回覆' },
     ]);
     expect(state.selectedSkillIds).toEqual(['risk']);
   });

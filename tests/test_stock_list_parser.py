@@ -2,9 +2,9 @@
 """Tests for :mod:`src.services.stock_list_parser`.
 
 Phase 1 (issue #2063): covers the three core contracts —
-* 前缀白名单指数: prefixed ``sh``/``sz`` + registry-known code → ``index``
-* 裸码默认个股: bare numeric code → ``stock`` even if it's an index code
-* 前缀未命中降级为股票: prefixed unknown code → ``stock`` (never ``unsupported``)
+* 前綴白名單指數: prefixed ``sh``/``sz`` + registry-known code → ``index``
+* 裸碼默認個股: bare numeric code → ``stock`` even if it's an index code
+* 前綴未命中降級為股票: prefixed unknown code → ``stock`` (never ``unsupported``)
 
 Also keeps the legacy ``split_stock_list`` / ``serialize_stock_list`` tests
 so PR1 is a strict superset of pre-PR coverage rather than a replacement.
@@ -54,7 +54,7 @@ def test_serialize_stock_list_uses_canonical_commas() -> None:
 # Contract #1 — prefixed index white-list.
 # ---------------------------------------------------------------------------
 class TestContract1PrefixedIndex:
-    """前缀白名单指数 — prefixed ``sh``/``sz`` + registry-known code → index."""
+    """前綴白名單指數 — prefixed ``sh``/``sz`` + registry-known code → index."""
 
     def test_sh000300_resolves_to_index(self) -> None:
         target = parse_analysis_target("sh000300")
@@ -113,10 +113,10 @@ class TestContract1PrefixedIndex:
 # Contract #2 — bare code defaults to stock.
 # ---------------------------------------------------------------------------
 class TestContract2BareCodeDefaultsToStock:
-    """裸码默认个股 — bare numeric code always resolves to stock."""
+    """裸碼默認個股 — bare numeric code always resolves to stock."""
 
     def test_bare_000300_is_stock_not_index(self) -> None:
-        """Conflict code: ``000300`` is the沪深300 index code, but per the
+        """Conflict code: ``000300`` is the滬深300 index code, but per the
         contract the parser MUST default bare codes to ``stock``. We surface
         the conflict via ``matched_index`` so the UI can warn, but we never
         flip asset_type.
@@ -138,7 +138,7 @@ class TestContract2BareCodeDefaultsToStock:
         assert target.matched_index.display_name == "沪深300"
 
     def test_bare_000001_is_stock(self) -> None:
-        """Conflict code: ``000001`` is平安银行 (SZ stock) AND the上证指数
+        """Conflict code: ``000001`` is平安銀行 (SZ stock) AND the上證指數
         (``sh000001``) is now in the registry. Per contract #2 bare codes
         always resolve to stock; the index conflict is surfaced via
         ``matched_index`` without flipping asset_type.
@@ -148,7 +148,7 @@ class TestContract2BareCodeDefaultsToStock:
         assert target.exchange == "SZ"
         # canonical_id is round-trippable: sh/sz prefix synthesised from 0/2/3.
         assert target.canonical_id == "sz000001"
-        # The registry now carries sh000001 (上证指数) whose alias base is 000001.
+        # The registry now carries sh000001 (上證指數) whose alias base is 000001.
         assert target.matched_index is not None
         assert target.matched_index.canonical_id == "sh000001"
 
@@ -161,7 +161,7 @@ class TestContract2BareCodeDefaultsToStock:
         assert target.matched_index is None
 
     def test_bare_000016_conflict_is_visible(self) -> None:
-        """same logic as 000300 — bare code conflicts with sh000016 上证50."""
+        """same logic as 000300 — bare code conflicts with sh000016 上證50."""
         target = parse_analysis_target("000016")
         assert target.asset_type == ParseStatus.STOCK
         assert target.matched_index is not None
@@ -207,7 +207,7 @@ class TestContract2BareCodeDefaultsToStock:
 # Contract #3 — prefixed unknown degrades to stock.
 # ---------------------------------------------------------------------------
 class TestContract3PrefixedUnknownDegradesToStock:
-    """前缀未命中降级为股票 — prefixed unknown → stock (never unsupported)."""
+    """前綴未命中降級為股票 — prefixed unknown → stock (never unsupported)."""
 
     def test_sh_unknown_code_is_stock(self) -> None:
         target = parse_analysis_target("sh000999")
@@ -567,7 +567,7 @@ class TestMaintainerSpecSamples:
 
     def test_sz399300_resolves_to_index(self) -> None:
         """``sz399300`` is a registered cross-market alias of ``sh000300``
-        (沪深300) per the manifest, so it resolves to the index.
+        (滬深300) per the manifest, so it resolves to the index.
         """
         target = parse_analysis_target("sz399300")
         assert target.asset_type == ParseStatus.INDEX

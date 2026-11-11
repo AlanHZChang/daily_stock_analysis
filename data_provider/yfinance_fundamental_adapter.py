@@ -19,7 +19,7 @@ without changing downstream consumers. Adds HK/US-specific fields:
   ``info.dividendYield`` is only used as a last-resort fallback and is
   passed through as-is (current yfinance reports it in percent units).
 - ``belong_boards`` — derived from ``info.sector`` + ``info.industry``; the CN
-  pipeline derives it from AkShare 板块名单, this is the HK/US analogue.
+  pipeline derives it from AkShare 板塊名單, this is the HK/US analogue.
 
 This adapter intentionally treats every yfinance call as best-effort and never
 raises to caller. Partial data is allowed; downstream `_infer_block_status` will

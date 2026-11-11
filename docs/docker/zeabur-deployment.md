@@ -1,218 +1,218 @@
 # Zeabur 部署指南
 
-本指南详细介绍如何在 Zeabur 上部署 A股自选股智能分析系统，包括 WebUI 和 Discord 机器人功能。
+本指南詳細介紹如何在 Zeabur 上部署 A股自選股智能分析系統，包括 WebUI 和 Discord 機器人功能。
 
-## 目录
+## 目錄
 
-- [1. 部署前准备](#1-部署前准备)
+- [1. 部署前準備](#1-部署前準備)
 - [2. 在 Zeabur 上部署](#2-在-zeabur-上部署)
-- [3. 配置启动命令](#3-配置启动命令)
-- [4. Discord 机器人部署](#4-discord-机器人部署)
-- [5. 环境变量配置](#5-环境变量配置)
-- [6. 挂载配置](#6-挂载配置)
-- [7. 健康检查](#7-健康检查)
-- [8. 常见问题](#8-常见问题)
+- [3. 配置啟動命令](#3-配置啟動命令)
+- [4. Discord 機器人部署](#4-discord-機器人部署)
+- [5. 環境變量配置](#5-環境變量配置)
+- [6. 掛載配置](#6-掛載配置)
+- [7. 健康檢查](#7-健康檢查)
+- [8. 常見問題](#8-常見問題)
 
-## 1. 部署前准备
+## 1. 部署前準備
 
-### 1.1 必要条件
+### 1.1 必要條件
 
-- Zeabur 账号
-- GitHub 账号（用于连接仓库）
-- Discord 开发者账号（如需部署机器人）
-- 相关 API 密钥（如 Gemini API Key、搜索服务 API Key 等）
+- Zeabur 賬號
+- GitHub 賬號（用於連接倉庫）
+- Discord 開發者賬號（如需部署機器人）
+- 相關 API 密鑰（如 Gemini API Key、搜索服務 API Key 等）
 
-### 1.2 仓库准备
+### 1.2 倉庫準備
 
-确保你的仓库包含以下文件：
+確保你的倉庫包含以下文件：
 
-- `.github/workflows/docker-publish.yml`（已自动创建）
+- `.github/workflows/docker-publish.yml`（已自動創建）
 - `docker/Dockerfile`（已存在）
-- 完整的项目代码
+- 完整的項目代碼
 
 ## 2. 在 Zeabur 上部署
 
-### 2.1 连接 GitHub 仓库
+### 2.1 連接 GitHub 倉庫
 
-1. 登录 Zeabur 控制台
-2. 点击「新建项目」
-3. 选择「从 GitHub 导入」
-4. 选择你的仓库和分支（推荐使用 `main` ）
-5. 点击「导入」
+1. 登錄 Zeabur 控制檯
+2. 點擊「新建項目」
+3. 選擇「從 GitHub 導入」
+4. 選擇你的倉庫和分支（推薦使用 `main` ）
+5. 點擊「導入」
 
-### 2.2 配置构建规则
+### 2.2 配置構建規則
 
-Zeabur 会自动检测 `.github/workflows/docker-publish.yml` 文件，并使用 GitHub Actions 构建镜像。
+Zeabur 會自動檢測 `.github/workflows/docker-publish.yml` 文件，並使用 GitHub Actions 構建鏡像。
 
-如果没有自动检测到，可以手动配置：
+如果沒有自動檢測到，可以手動配置：
 
-1. 在项目页面，点击「构建规则」
-2. 选择「Dockerfile」
-3. Dockerfile 路径填写：`docker/Dockerfile`
-4. 点击「保存」
+1. 在項目頁面，點擊「構建規則」
+2. 選擇「Dockerfile」
+3. Dockerfile 路徑填寫：`docker/Dockerfile`
+4. 點擊「保存」
 
-### 2.3 启动服务
+### 2.3 啟動服務
 
-1. 等待镜像构建完成
-2. 点击「启动服务」
-3. 服务启动后，你可以在「访问」标签页获取访问地址
+1. 等待鏡像構建完成
+2. 點擊「啟動服務」
+3. 服務啟動後，你可以在「訪問」標籤頁獲取訪問地址
 
-### 2.4 前端构建与静态资源
+### 2.4 前端構建與靜態資源
 
-FastAPI 会自动托管 `static/` 目录下的前端资源。前端打包输出位置由
-`apps/dsa-web/vite.config.ts` 决定，默认输出到项目根目录 `static/`。
+FastAPI 會自動託管 `static/` 目錄下的前端資源。前端打包輸出位置由
+`apps/dsa-web/vite.config.ts` 決定，默認輸出到項目根目錄 `static/`。
 
-Dockerfile 已采用多阶段构建，前端会在镜像构建时自动打包。
-如需覆盖默认静态资源，可在宿主机手动构建并挂载到容器内 `/app/static`。
+Dockerfile 已採用多階段構建，前端會在鏡像構建時自動打包。
+如需覆蓋默認靜態資源，可在宿主機手動構建並掛載到容器內 `/app/static`。
 
-### 2.5 资源配置建议
+### 2.5 資源配置建議
 
-Zeabur 服务建议从 `1G` 内存起步；`512M` 仅适合轻量 Web/API、单股、低并发场景，并建议设置 `MAX_WORKERS=1`。
+Zeabur 服務建議從 `1G` 內存起步；`512M` 僅適合輕量 Web/API、單股、低併發場景，並建議設置 `MAX_WORKERS=1`。
 
-- 最低可尝试：`512M`，不要同时运行多个重型任务。
-- 推荐：`1G`，适合单服务常规分析。
-- 高负载：`2G+`，适合同时运行 Web/API 与定时分析、多股票、大盘复盘、新闻扩展、图片报告或选股。
+- 最低可嘗試：`512M`，不要同時運行多個重型任務。
+- 推薦：`1G`，適合單服務常規分析。
+- 高負載：`2G+`，適合同時運行 Web/API 與定時分析、多股票、大盤覆盤、新聞擴展、圖片報告或選股。
 
-如果只能使用 `512M`，请避免同时部署等价于 `server + analyzer` 的多服务组合，并关闭非必要的大盘复盘、新闻扩展和图片报告能力。
+如果只能使用 `512M`，請避免同時部署等價於 `server + analyzer` 的多服務組合，並關閉非必要的大盤覆盤、新聞擴展和圖片報告能力。
 
-## 3. 配置启动命令
+## 3. 配置啟動命令
 
-### 3.1 支持的启动模式
+### 3.1 支持的啟動模式
 
-系统支持多种启动模式，你可以根据需要配置不同的启动命令：
+系統支持多種啟動模式，你可以根據需要配置不同的啟動命令：
 
-| 模式 | 启动命令 | 描述 |
+| 模式 | 啟動命令 | 描述 |
 |------|----------|------|
-| 定时任务模式（默认） | `python main.py --schedule` | 按计划执行股票分析 |
-| FastAPI 模式 | `python main.py --serve` | 启动 FastAPI 并执行分析 |
-| 仅 FastAPI 模式 | `python main.py --serve-only` | 仅启动 FastAPI，不执行分析 |
-| 仅大盘复盘 | `python main.py --market-review` | 仅执行大盘复盘分析 |
+| 定時任務模式（默認） | `python main.py --schedule` | 按計劃執行股票分析 |
+| FastAPI 模式 | `python main.py --serve` | 啟動 FastAPI 並執行分析 |
+| 僅 FastAPI 模式 | `python main.py --serve-only` | 僅啟動 FastAPI，不執行分析 |
+| 僅大盤覆盤 | `python main.py --market-review` | 僅執行大盤覆盤分析 |
 
-### 3.2 配置启动命令
+### 3.2 配置啟動命令
 
-1. 在 Zeabur 控制台，进入服务页面
-2. 点击「设置」
-3. 找到「启动命令」配置项
-4. 输入你需要的启动命令，例如：
-    - 启动 FastAPI：`python main.py --serve`
-    - 仅启动 FastAPI：`python main.py --serve-only --host 0.0.0.0 --port 8000`
-    - 启动定时任务：`python main.py --schedule`
-5. 点击「保存」
-6. 重启服务
+1. 在 Zeabur 控制檯，進入服務頁面
+2. 點擊「設置」
+3. 找到「啟動命令」配置項
+4. 輸入你需要的啟動命令，例如：
+    - 啟動 FastAPI：`python main.py --serve`
+    - 僅啟動 FastAPI：`python main.py --serve-only --host 0.0.0.0 --port 8000`
+    - 啟動定時任務：`python main.py --schedule`
+5. 點擊「保存」
+6. 重啟服務
 
-## 4. Discord 机器人部署
+## 4. Discord 機器人部署
 
-### 4.1 准备工作
+### 4.1 準備工作
 
-1. 创建 Discord 应用和机器人
-   - 访问 [Discord 开发者平台](https://discord.com/developers/applications)
-   - 点击「New Application」创建新应用
-   - 在「Bot」标签页，点击「Add Bot」创建机器人
-   - 复制机器人 Token
+1. 創建 Discord 應用和機器人
+   - 訪問 [Discord 開發者平臺](https://discord.com/developers/applications)
+   - 點擊「New Application」創建新應用
+   - 在「Bot」標籤頁，點擊「Add Bot」創建機器人
+   - 複製機器人 Token
 
-2. 配置机器人权限
-   - 在「Bot」标签页，向下滚动到「Privileged Gateway Intents」
-   - 启用「Server Members Intent」和「Message Content Intent」
-   - 在「OAuth2」→「URL Generator」中，选择「bot」范围
-   - 选择所需权限（如「Send Messages」、「Read Messages/View Channels」等）
-   - 复制生成的邀请链接，将机器人添加到你的服务器
+2. 配置機器人權限
+   - 在「Bot」標籤頁，向下滾動到「Privileged Gateway Intents」
+   - 啟用「Server Members Intent」和「Message Content Intent」
+   - 在「OAuth2」→「URL Generator」中，選擇「bot」範圍
+   - 選擇所需權限（如「Send Messages」、「Read Messages/View Channels」等）
+   - 複製生成的邀請鏈接，將機器人添加到你的服務器
 
-### 4.2 配置环境变量
+### 4.2 配置環境變量
 
-在 Zeabur 控制台的「环境变量」配置中，添加以下变量：
+在 Zeabur 控制檯的「環境變量」配置中，添加以下變量：
 
-| 变量名 | 说明 | 示例值 |
+| 變量名 | 說明 | 示例值 |
 |--------|------|--------|
-| `DISCORD_BOT_TOKEN` | Discord 机器人 Token | `MTAxMjM0NTY3ODkwMTEyMzQ1Ng.GhIjKl.MnOpQrStUvWxYz1234567890` |
-| `DISCORD_MAIN_CHANNEL_ID` | 主频道 ID | `123456789012345678` |
-| `DISCORD_WEBHOOK_URL` | Discord Webhook URL（可选） | `https://discord.com/api/webhooks/...` |
+| `DISCORD_BOT_TOKEN` | Discord 機器人 Token | `MTAxMjM0NTY3ODkwMTEyMzQ1Ng.GhIjKl.MnOpQrStUvWxYz1234567890` |
+| `DISCORD_MAIN_CHANNEL_ID` | 主頻道 ID | `123456789012345678` |
+| `DISCORD_WEBHOOK_URL` | Discord Webhook URL（可選） | `https://discord.com/api/webhooks/...` |
 
-### 4.3 启动机器人
+### 4.3 啟動機器人
 
-机器人功能默认通过配置启用，无需特殊启动命令。确保你的配置文件中包含机器人相关配置，或通过环境变量设置。
+機器人功能默認通過配置啟用，無需特殊啟動命令。確保你的配置文件中包含機器人相關配置，或通過環境變量設置。
 
-## 5. 环境变量配置
+## 5. 環境變量配置
 
-### 5.1 基本环境变量
+### 5.1 基本環境變量
 
-| 变量名 | 说明 | 默认值 |
+| 變量名 | 說明 | 默認值 |
 |--------|------|--------|
-| `PYTHONUNBUFFERED` | 启用 Python 无缓冲输出 | `1` |
-| `LOG_DIR` | 日志目录 | `/app/logs` |
-| `DATABASE_PATH` | 数据库路径 | `/app/data/stock_analysis.db` |
+| `PYTHONUNBUFFERED` | 啟用 Python 無緩衝輸出 | `1` |
+| `LOG_DIR` | 日誌目錄 | `/app/logs` |
+| `DATABASE_PATH` | 數據庫路徑 | `/app/data/stock_analysis.db` |
 
-### 5.2 API 服务配置
+### 5.2 API 服務配置
 
-| 变量名 | 说明 | 默认值 |
+| 變量名 | 說明 | 默認值 |
 |--------|------|--------|
-| `API_HOST` | API 服务监听地址 | `0.0.0.0` |
-| `API_PORT` | API 服务端口 | `8000` |
+| `API_HOST` | API 服務監聽地址 | `0.0.0.0` |
+| `API_PORT` | API 服務端口 | `8000` |
 
-> 旧版 `WEBUI_HOST`/`WEBUI_PORT`/`WEBUI_ENABLED` 环境变量仍兼容，会自动转发到 API 服务。
+> 舊版 `WEBUI_HOST`/`WEBUI_PORT`/`WEBUI_ENABLED` 環境變量仍兼容，會自動轉發到 API 服務。
 
-### 5.3 分析相关配置
+### 5.3 分析相關配置
 
-| 变量名 | 说明 |
+| 變量名 | 說明 |
 |--------|------|
-| `AIHUBMIX_KEY` | AIHubMix API 密钥（一 Key 多模型，推荐） |
-| `GEMINI_API_KEY` | Gemini API 密钥 |
-| `OPENAI_API_KEY` | OpenAI 兼容 API 密钥 |
-| `SERPAPI_API_KEYS` | SerpAPI 密钥（推荐） |
-| `ANSPIRE_API_KEYS` | [Anspire](https://open.anspire.cn/dsa?share_code=QFBC0FYC) API Key（可选，模型与搜索共用；可用性以账号权限为准） |
-| `TAVILY_API_KEYS` | Tavily API 密钥（用逗号分隔） |
-| `BOCHA_API_KEYS` | Bocha API 密钥（用逗号分隔） |
-| `BRAVE_API_KEYS` | Brave Search API 密钥（用逗号分隔） |
-| `MINIMAX_API_KEYS` | MiniMax API 密钥（用逗号分隔） |
-| `SEARXNG_BASE_URLS` | SearXNG 实例地址（逗号分隔，无配额兜底，需在 settings.yml 启用 format: json）；留空时仅在显式启用公共实例发现后使用 `searx.space` |
-| `SEARXNG_PUBLIC_INSTANCES_ENABLED` | 是否在 `SEARXNG_BASE_URLS` 为空时自动从 `searx.space` 获取公共实例（默认 `false`） |
+| `AIHUBMIX_KEY` | AIHubMix API 密鑰（一 Key 多模型，推薦） |
+| `GEMINI_API_KEY` | Gemini API 密鑰 |
+| `OPENAI_API_KEY` | OpenAI 兼容 API 密鑰 |
+| `SERPAPI_API_KEYS` | SerpAPI 密鑰（推薦） |
+| `ANSPIRE_API_KEYS` | [Anspire](https://open.anspire.cn/dsa?share_code=QFBC0FYC) API Key（可選，模型與搜索共用；可用性以賬號權限為準） |
+| `TAVILY_API_KEYS` | Tavily API 密鑰（用逗號分隔） |
+| `BOCHA_API_KEYS` | Bocha API 密鑰（用逗號分隔） |
+| `BRAVE_API_KEYS` | Brave Search API 密鑰（用逗號分隔） |
+| `MINIMAX_API_KEYS` | MiniMax API 密鑰（用逗號分隔） |
+| `SEARXNG_BASE_URLS` | SearXNG 實例地址（逗號分隔，無配額兜底，需在 settings.yml 啟用 format: json）；留空時僅在顯式啟用公共實例發現後使用 `searx.space` |
+| `SEARXNG_PUBLIC_INSTANCES_ENABLED` | 是否在 `SEARXNG_BASE_URLS` 為空時自動從 `searx.space` 獲取公共實例（默認 `false`） |
 
 ### 5.4 配置方法
 
-在 Zeabur 控制台：
+在 Zeabur 控制檯：
 
-1. 进入服务页面
-2. 点击「环境变量」
-3. 点击「添加环境变量」
-4. 输入变量名和值
-5. 点击「保存」
-6. 重启服务
+1. 進入服務頁面
+2. 點擊「環境變量」
+3. 點擊「添加環境變量」
+4. 輸入變量名和值
+5. 點擊「保存」
+6. 重啟服務
 
-## 6. 挂载配置
+## 6. 掛載配置
 
-### 6.1 支持的挂载目录
+### 6.1 支持的掛載目錄
 
-| 目录 | 说明 |
+| 目錄 | 說明 |
 |------|------|
-| `/app/data` | 数据库和数据文件 |
-| `/app/logs` | 日志文件 |
-| `/app/reports` | 分析报告 |
+| `/app/data` | 數據庫和數據文件 |
+| `/app/logs` | 日誌文件 |
+| `/app/reports` | 分析報告 |
 
-### 6.2 配置挂载
+### 6.2 配置掛載
 
-1. 在 Zeabur 控制台，进入服务页面
-2. 点击「存储」
-3. 点击「添加存储卷」
-4. 选择「持久化存储」
-5. 配置挂载路径：
-   - 存储卷路径：`/app/data`
-   - 容器内路径：`/app/data`
-6. 点击「保存」
-7. 对其他需要挂载的目录重复上述步骤
+1. 在 Zeabur 控制檯，進入服務頁面
+2. 點擊「存儲」
+3. 點擊「添加存儲卷」
+4. 選擇「持久化存儲」
+5. 配置掛載路徑：
+   - 存儲卷路徑：`/app/data`
+   - 容器內路徑：`/app/data`
+6. 點擊「保存」
+7. 對其他需要掛載的目錄重複上述步驟
 
-### 6.3 注意事项
+### 6.3 注意事項
 
-- 挂载后，数据会持久化保存，不会因容器重启而丢失
-- 建议至少挂载 `/app/data` 目录，以保存数据库
+- 掛載後，數據會持久化保存，不會因容器重啟而丟失
+- 建議至少掛載 `/app/data` 目錄，以保存數據庫
 
-## 7. 健康检查
+## 7. 健康檢查
 
-系统内置了健康检查机制，默认检查：
+系統內置了健康檢查機制，默認檢查：
 
-- WebUI 模式：检查 `http://localhost:8000/health` 端点
-- FastAPI 模式：检查 `http://localhost:8000/api/health` 端点
-- 非服务模式：始终返回健康状态
+- WebUI 模式：檢查 `http://localhost:8000/health` 端點
+- FastAPI 模式：檢查 `http://localhost:8000/api/health` 端點
+- 非服務模式：始終返回健康狀態
 
-健康检查配置如下：
+健康檢查配置如下：
 
 ```dockerfile
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
@@ -220,129 +220,129 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
     || python -c "import sys; sys.exit(0)"
 ```
 
-## 8. 常见问题
+## 8. 常見問題
 
-### 8.1 API 服务无法访问
+### 8.1 API 服務無法訪問
 
-- 检查启动命令是否包含 `--serve` 或 `--serve-only` 参数
-- 检查「访问」标签页是否已配置域名
-- 检查防火墙设置
+- 檢查啟動命令是否包含 `--serve` 或 `--serve-only` 參數
+- 檢查「訪問」標籤頁是否已配置域名
+- 檢查防火牆設置
 
-### 8.2 机器人不响应
+### 8.2 機器人不響應
 
-- 检查 Discord 机器人 Token 是否正确
-- 检查机器人是否已添加到服务器
-- 检查机器人权限是否足够
-- 检查日志文件，查看是否有错误信息
+- 檢查 Discord 機器人 Token 是否正確
+- 檢查機器人是否已添加到服務器
+- 檢查機器人權限是否足夠
+- 檢查日誌文件，查看是否有錯誤信息
 
-### 8.3 分析任务不执行
+### 8.3 分析任務不執行
 
-- 检查定时任务配置是否正确
-- 检查 API 密钥是否有效
-- 检查日志文件，查看是否有错误信息
+- 檢查定時任務配置是否正確
+- 檢查 API 密鑰是否有效
+- 檢查日誌文件，查看是否有錯誤信息
 
-### 8.4 数据丢失
+### 8.4 數據丟失
 
-- 确保已挂载 `/app/data` 目录
-- 检查存储卷配置是否正确
+- 確保已掛載 `/app/data` 目錄
+- 檢查存儲卷配置是否正確
 
-## 9. 高级配置
+## 9. 高級配置
 
-### 9.1 多实例部署
+### 9.1 多實例部署
 
-你可以在 Zeabur 上部署多个实例，用于不同的功能：
+你可以在 Zeabur 上部署多個實例，用於不同的功能：
 
-1. 一个实例用于 API 服务（`python main.py --serve-only`）
-2. 一个实例用于定时任务（`python main.py --schedule`）
-3. 一个实例用于机器人（`python main.py --discord-bot`）
+1. 一個實例用於 API 服務（`python main.py --serve-only`）
+2. 一個實例用於定時任務（`python main.py --schedule`）
+3. 一個實例用於機器人（`python main.py --discord-bot`）
 
-确保它们共享同一个 `/app/data` 存储卷，以共享数据库。
+確保它們共享同一個 `/app/data` 存儲卷，以共享數據庫。
 
-### 9.2 自定义域名
+### 9.2 自定義域名
 
-在 Zeabur 控制台的「访问」标签页，你可以：
+在 Zeabur 控制檯的「訪問」標籤頁，你可以：
 
-1. 使用自动生成的域名
-2. 绑定自定义域名
+1. 使用自動生成的域名
+2. 綁定自定義域名
 3. 配置 HTTPS
 
 ## 10. 更新部署
 
-### 10.1 自动更新
+### 10.1 自動更新
 
-当你向仓库推送新代码时：
+當你向倉庫推送新代碼時：
 
-1. GitHub Actions 会自动构建新镜像
-2. Zeabur 会检测到新镜像
-3. 你可以选择「自动部署」或手动触发部署
+1. GitHub Actions 會自動構建新鏡像
+2. Zeabur 會檢測到新鏡像
+3. 你可以選擇「自動部署」或手動觸發部署
 
-### 10.2 手动更新
+### 10.2 手動更新
 
-1. 在 Zeabur 控制台，进入服务页面
-2. 点击「部署历史」
-3. 选择「重新部署」
-4. 或点击「更新镜像」
+1. 在 Zeabur 控制檯，進入服務頁面
+2. 點擊「部署歷史」
+3. 選擇「重新部署」
+4. 或點擊「更新鏡像」
 
-## 11. 监控和日志
+## 11. 監控和日誌
 
-### 11.1 查看日志
+### 11.1 查看日誌
 
-在 Zeabur 控制台，进入服务页面，点击「日志」标签页，可以查看实时日志和历史日志。
+在 Zeabur 控制檯，進入服務頁面，點擊「日誌」標籤頁，可以查看實時日誌和歷史日誌。
 
-### 11.2 监控指标
+### 11.2 監控指標
 
-Zeabur 提供了基础的监控指标：
+Zeabur 提供了基礎的監控指標：
 
 - CPU 使用率
-- 内存使用率
-- 网络流量
-- 磁盘使用率
+- 內存使用率
+- 網絡流量
+- 磁盤使用率
 
-在「监控」标签页查看详细指标。
+在「監控」標籤頁查看詳細指標。
 
 ## 12. 故障排查
 
-### 12.1 查看详细日志
+### 12.1 查看詳細日誌
 
 ```bash
-# 进入容器
-zeabur exec <服务名> bash
+# 進入容器
+zeabur exec <服務名> bash
 
-# 查看日志文件
+# 查看日誌文件
 cat /app/logs/stock_analysis_20260125.log
 ```
 
-### 12.2 检查配置
+### 12.2 檢查配置
 
 ```bash
-# 进入容器
-zeabur exec <服务名> bash
+# 進入容器
+zeabur exec <服務名> bash
 
-# 检查环境变量
+# 檢查環境變量
 printenv | grep -i discord
 printenv | grep -i webui
 ```
 
-### 12.3 测试连接
+### 12.3 測試連接
 
 ```bash
-# 测试网络连接
-zeabur exec <服务名> curl -I https://api.discord.com
+# 測試網絡連接
+zeabur exec <服務名> curl -I https://api.discord.com
 
-# 测试 API 连接
-zeabur exec <服务名> python -c "import requests; print(requests.get('https://api.discord.com').status_code)"
+# 測試 API 連接
+zeabur exec <服務名> python -c "import requests; print(requests.get('https://api.discord.com').status_code)"
 ```
 
-## 13. 最佳实践
+## 13. 最佳實踐
 
-1. **使用持久化存储**：始终挂载 `/app/data` 目录，以保存数据库
-2. **配置合理的健康检查**：根据实际情况调整健康检查参数
-3. **使用环境变量管理敏感信息**：不要将 API 密钥硬编码到代码中
-4. **定期备份数据**：定期下载 `/app/data` 目录的内容进行备份
-5. **使用合适的启动模式**：根据需求选择合适的启动命令
-6. **监控服务状态**：定期检查服务状态和日志
-7. **按负载配置内存**：完整分析推荐 `1G` 起步；`512M` 低配环境设置 `MAX_WORKERS=1`，高负载场景使用 `2G+`
+1. **使用持久化存儲**：始終掛載 `/app/data` 目錄，以保存數據庫
+2. **配置合理的健康檢查**：根據實際情況調整健康檢查參數
+3. **使用環境變量管理敏感信息**：不要將 API 密鑰硬編碼到代碼中
+4. **定期備份數據**：定期下載 `/app/data` 目錄的內容進行備份
+5. **使用合適的啟動模式**：根據需求選擇合適的啟動命令
+6. **監控服務狀態**：定期檢查服務狀態和日誌
+7. **按負載配置內存**：完整分析推薦 `1G` 起步；`512M` 低配環境設置 `MAX_WORKERS=1`，高負載場景使用 `2G+`
 
-## 14. 联系方式
+## 14. 聯繫方式
 
-如有问题，欢迎联系项目维护者或在 GitHub Issues 中提问。
+如有問題，歡迎聯繫項目維護者或在 GitHub Issues 中提問。

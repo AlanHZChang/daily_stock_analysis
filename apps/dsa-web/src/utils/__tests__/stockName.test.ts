@@ -30,10 +30,10 @@ describe('truncateStockName', () => {
     });
 
     test('truncates to 8 chars with trailing dot', () => {
-      // 贵州茅台股票有限公司: 10 Chinese chars -> slice(0,8) + dot = 8 ch + dot
+      // 貴州茅臺股票有限公司: 10 Chinese chars -> slice(0,8) + dot = 8 ch + dot
       expect(truncateStockName('贵州茅台股票有限公司')).toBe('贵州茅台股票有限.');
-      // 中华人民共和国ABCD: mixed, 11 chars > 10 → truncate to '中华人民共和国ABC.'
-      expect(truncateStockName('中华人民共和国ABCD')).toBe('中华人民共和国ABC.');
+      // 中華人民共和國ABCD: mixed, 11 chars > 10 → truncate to '中華人民共和國ABC.'
+      expect(truncateStockName('中華人民共和國ABCD')).toBe('中華人民共和國ABC.');
     });
   });
 
@@ -44,10 +44,10 @@ describe('truncateStockName', () => {
     });
 
     test('truncates to 10 chars with trailing dot', () => {
-      // 贵州茅台股票有限公司AB: 10 Chinese + 2 English = 12 mixed -> slice(0,10) + dot
-      // First 10: 贵 州 茅 台 股 票 有 限 公 司 = 8 ch + 2 en
+      // 貴州茅臺股票有限公司AB: 10 Chinese + 2 English = 12 mixed -> slice(0,10) + dot
+      // First 10: 貴 州 茅 臺 股 票 有 限 公 司 = 8 ch + 2 en
       expect(truncateStockName('贵州茅台股票有限公司AB')).toBe('贵州茅台股票有限公司.');
-      // 腾讯控股00700H: 4 Chinese + 6 English = 10 mixed -> no truncation (10 <= 10)
+      // 騰訊控股00700H: 4 Chinese + 6 English = 10 mixed -> no truncation (10 <= 10)
       expect(truncateStockName('腾讯控股00700H')).toBe('腾讯控股00700H');
     });
   });

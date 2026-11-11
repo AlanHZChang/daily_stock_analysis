@@ -71,7 +71,7 @@ def test_prepare_webui_frontend_assets_fails_without_static_or_source(tmp_path, 
 
 
 def test_prepare_webui_frontend_assets_warns_when_assets_missing(tmp_path, monkeypatch, caplog):
-    """index.html 存在但 static/assets/ 缺失时应发出 WebUI 显示异常警告（Issue #944）。"""
+    """index.html 存在但 static/assets/ 缺失時應發出 WebUI 顯示異常警告（Issue #944）。"""
     repo_root = _prepare_fake_repo(tmp_path, monkeypatch)
     static_index = repo_root / "static" / "index.html"
     static_index.parent.mkdir(parents=True)
@@ -91,7 +91,7 @@ def test_prepare_webui_frontend_assets_warns_when_assets_missing(tmp_path, monke
 
 
 def test_prepare_webui_frontend_assets_auto_build_disabled_warns_when_assets_missing(tmp_path, monkeypatch, caplog):
-    """WEBUI_AUTO_BUILD=false 且 assets 缺失时也应发出警告。"""
+    """WEBUI_AUTO_BUILD=false 且 assets 缺失時也應發出警告。"""
     repo_root = _prepare_fake_repo(tmp_path, monkeypatch)
     static_index = repo_root / "static" / "index.html"
     static_index.parent.mkdir(parents=True)

@@ -159,7 +159,7 @@ class TestStockIndexLoader(unittest.TestCase):
                      return_value=(remote_cache, bundled_path),
                  ):
                 self.assertEqual(stock_index_loader.find_existing_stock_index_path(), bundled_path)
-                self.assertEqual(stock_index_loader.get_index_stock_name("000001"), "新内置索引")
+                self.assertEqual(stock_index_loader.get_index_stock_name("000001"), "新內置索引")
 
     def test_newer_remote_cache_wins_when_valid(self):
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -177,7 +177,7 @@ class TestStockIndexLoader(unittest.TestCase):
                      return_value=(remote_cache, bundled_path),
                  ):
                 self.assertEqual(stock_index_loader.find_existing_stock_index_path(), remote_cache)
-                self.assertEqual(stock_index_loader.get_index_stock_name("000001"), "新远程缓存")
+                self.assertEqual(stock_index_loader.get_index_stock_name("000001"), "新遠程緩存")
 
     def test_invalid_remote_cache_is_skipped_even_when_newer(self):
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -196,7 +196,7 @@ class TestStockIndexLoader(unittest.TestCase):
                      return_value=(remote_cache, bundled_path),
                  ):
                 self.assertEqual(stock_index_loader.find_existing_stock_index_path(), bundled_path)
-                self.assertEqual(stock_index_loader.get_index_stock_name("000001"), "内置索引")
+                self.assertEqual(stock_index_loader.get_index_stock_name("000001"), "內置索引")
 
     def test_resolve_index_stock_code_falls_through_to_bundled_jp_kr_pool(self):
         with tempfile.TemporaryDirectory() as temp_dir:

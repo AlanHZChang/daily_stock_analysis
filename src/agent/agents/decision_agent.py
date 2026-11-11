@@ -206,7 +206,7 @@ should sum to 100; all-zero means no effective signal and must not be faked.
                 reason = str(item.get("reason") or "unrecognized_signal")
                 reason_counts[reason] = reason_counts.get(reason, 0) + 1
             reason_summary = "、".join(
-                f"{reason_labels.get(reason, reason)} {count} 个"
+                f"{reason_labels.get(reason, reason)} {count} 個"
                 for reason, count in reason_counts.items()
             )
             parts.append("## Invalid Skill Opinions (Diagnostics only — not in evidence chain)")

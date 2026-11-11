@@ -400,7 +400,7 @@ _REPORT_LABELS: Dict[str, Dict[str, str]] = {
         "volume_ratio_label": "量比",
         "turnover_rate_label": "换手率",
         "source_label": "行情來源",
-        "data_sources_label": "数据来源",
+        "data_sources_label": "數據來源",
         "data_perspective_heading": "數據透視",
         "ma_alignment_label": "均線排列",
         "bullish_alignment_label": "多头排列",
@@ -1331,11 +1331,11 @@ def get_sentiment_label(score: int, language: Optional[str]) -> str:
         return "매우 비관"
 
     if score >= 80:
-        return "極度樂觀"
+        return "极度乐观"
     if score >= 60:
         return "乐观"
     if score >= 40:
         return "中性"
     if score >= 20:
-        return "悲觀"
-    return "極度悲觀"
+        return "悲观"
+    return "极度悲观"

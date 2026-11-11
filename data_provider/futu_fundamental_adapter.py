@@ -98,8 +98,8 @@ class FutuFundamentalAdapter:
                     return items[name]
             return None
 
-        revenue = item("营业总收入", "营业额")
-        net_profit = item("归属母公司净利润", "归属普通股股东净利润", "净利润")
+        revenue = item("营业总收入", "營業額")
+        net_profit = item("歸屬母公司淨利潤", "歸屬普通股股東淨利潤", "净利润")
         gross_profit = item("毛利")
         revenue_value = self._number((revenue or {}).get("data"))
         net_value = self._number((net_profit or {}).get("data"))

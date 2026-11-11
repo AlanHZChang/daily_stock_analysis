@@ -1,32 +1,32 @@
-# 数据中心
+# 數據中心
 
-Web 数据中心位于 `/data`，用于只读查看数据源能力、数据集质量与运行时优先级。页面只消费 `GET /api/v1/data/overview`，不读取系统配置原始值，也不自行拼接 screening、provider 或配置探针。
+Web 數據中心位於 `/data`，用於只讀查看數據源能力、數據集質量與運行時優先級。頁面只消費 `GET /api/v1/data/overview`，不讀取系統配置原始值，也不自行拼接 screening、provider 或配置探針。
 
-## 页面内容
+## 頁面內容
 
-- Provider 能力：卡片展示运行状态及 `dataset_markets` 给出的精确数据集/市场支持关系；页面顶部汇总已配置的 Provider 数量，不在卡片中单独展示 enabled/configured 标志。
-- 数据集质量：`ok`、`degraded`、`partial`、`unconfigured`、`unavailable`、`unknown`、`stale`，以及当前来源、最近成功时间和脱敏诊断。
-- 路由优先级：每个运行场景的 provider 顺序及其配置来源。
-- Overview warnings：接口认为需要关注、但不应阻断其他块展示的警告代码。
+- Provider 能力：卡片展示運行狀態及 `dataset_markets` 給出的精確數據集/市場支持關係；頁面頂部彙總已配置的 Provider 數量，不在卡片中單獨展示 enabled/configured 標誌。
+- 數據集質量：`ok`、`degraded`、`partial`、`unconfigured`、`unavailable`、`unknown`、`stale`，以及當前來源、最近成功時間和脫敏診斷。
+- 路由優先級：每個運行場景的 provider 順序及其配置來源。
+- Overview warnings：接口認為需要關注、但不應阻斷其他塊展示的警告代碼。
 
-## 状态边界
+## 狀態邊界
 
-- 页面不会根据“已知 provider 名称”把冷启动状态推断为 `ok`；后端返回 `unknown` 时原样展示。
-- 页面不会把 Provider 的 `markets` 与 `datasets` 计算笛卡尔积；精确支持范围以 `dataset_markets` 为准。
-- 多市场数据集使用不同 provider 时，顶层 `source` 合法地为空；页面会读取 `coverage.markets`，按市场展示实际来源，而不是显示成 `--`。
-- Overview 请求失败时整页显示可重试错误；接口成功但 provider/dataset 均为空时显示 empty 状态。
-- 单个 provider 或 dataset 的 `partial`、`unknown`、`stale`、`unavailable` 只影响对应条目，其余条目继续展示。
+- 頁面不會根據“已知 provider 名稱”把冷啟動狀態推斷為 `ok`；後端返回 `unknown` 時原樣展示。
+- 頁面不會把 Provider 的 `markets` 與 `datasets` 計算笛卡爾積；精確支持範圍以 `dataset_markets` 為準。
+- 多市場數據集使用不同 provider 時，頂層 `source` 合法地為空；頁面會讀取 `coverage.markets`，按市場展示實際來源，而不是顯示成 `--`。
+- Overview 請求失敗時整頁顯示可重試錯誤；接口成功但 provider/dataset 均為空時顯示 empty 狀態。
+- 單個 provider 或 dataset 的 `partial`、`unknown`、`stale`、`unavailable` 隻影響對應條目，其餘條目繼續展示。
 
-## 安全边界
+## 安全邊界
 
-该页面不调用 `/api/v1/system/config`，不展示 API Key、Token、Cookie 或原始环境变量。需要修改配置时仅跳转到 Settings，由现有配置脱敏和权限边界负责处理。
+該頁面不調用 `/api/v1/system/config`，不展示 API Key、Token、Cookie 或原始環境變量。需要修改配置時僅跳轉到 Settings，由現有配置脫敏和權限邊界負責處理。
 
-## 验证与回滚
+## 驗證與回滾
 
-前端测试使用与 `DataCapabilityOverviewResponse` 同形的 payload，覆盖 success、cold-start unknown、warning、empty、error 和 retry。回滚页面时可移除 `/data` 路由、导航、API/type、页面及文档；后端 capability 契约不受影响。
+前端測試使用與 `DataCapabilityOverviewResponse` 同形的 payload，覆蓋 success、cold-start unknown、warning、empty、error 和 retry。回滾頁面時可移除 `/data` 路由、導航、API/type、頁面及文檔；後端 capability 契約不受影響。
 
-## 浏览器验收
+## 瀏覽器驗收
 
-`cd apps/dsa-web && npx playwright test --config playwright.fixture.config.ts` 使用固定 API fixture 渲染真实页面，不依赖后端服务或密钥。CI 的 `web-gate` 安装 Chromium、执行验收，并将截图上传为 `web-ui-evidence-<head SHA>` artifact（保留 30 天）；截图不提交到仓库。该验收验证页面交互和展示，不代表实时 provider/LLM 可用性。
+`cd apps/dsa-web && npx playwright test --config playwright.fixture.config.ts` 使用固定 API fixture 渲染真實頁面，不依賴後端服務或密鑰。CI 的 `web-gate` 安裝 Chromium、執行驗收，並將截圖上傳為 `web-ui-evidence-<head SHA>` artifact（保留 30 天）；截圖不提交到倉庫。該驗收驗證頁面交互和展示，不代表實時 provider/LLM 可用性。
 
-桌面导航在短窗口中仅滚动链接列表，主题、语言与退出控件保留在可见区域；主题菜单不进入滚动裁剪容器。浏览器验收包括 1280×720、认证与选股均开启时的设置/退出可达性、主题菜单及取消退出。
+桌面導航在短窗口中僅滾動鏈接列表，主題、語言與退出控件保留在可見區域；主題菜單不進入滾動裁剪容器。瀏覽器驗收包括 1280×720、認證與選股均開啟時的設置/退出可達性、主題菜單及取消退出。

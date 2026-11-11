@@ -1813,7 +1813,7 @@ class AnalysisResult:
     market_structure_context: Optional[Dict[str, Any]] = None
 
     def to_dict(self) -> Dict[str, Any]:
-        """转换为字典"""
+        """轉換為字典"""
         return {
             'code': self.code,
             'name': self.name,
@@ -2025,7 +2025,7 @@ class GeminiAnalyzer:
         },
 
         "intelligence": {
-            "latest_news": "【最新消息】近期重要新聞摘要",
+            "latest_news": "【最新消息】近期重要新闻摘要",
             "risk_alerts": ["風險點1：具體描述", "風險點2：具體描述"],
             "positive_catalysts": ["利好1：具體描述", "利好2：具體描述"],
             "earnings_outlook": "業績預期分析（基於年報預告、業績快報等）",
@@ -2066,7 +2066,7 @@ class GeminiAnalyzer:
 
         "signal_attribution": {
             "technical_indicators": 技術指標貢獻度(0-100),
-            "news_sentiment": 新聞輿情貢獻度(0-100),
+            "news_sentiment": 新闻輿情貢獻度(0-100),
             "fundamentals": 基本面貢獻度(0-100),
             "market_conditions": 市場環境貢獻度(0-100),
             "strongest_bullish_signal": "最強看多信號名稱",
@@ -2144,7 +2144,7 @@ class GeminiAnalyzer:
 - 只有在接近支撐確認或有效突破壓力，且資金流/量價配合時，才能給出買入；接近壓力且資金流出時不得追買。
 - 只有在跌破關鍵支撐、主力資金持續流出或風險顯著放大時，才能給出賣出/減倉。
 - 必須輸出 `dashboard.phase_decision` 七字段；盤中/午休/臨近收盤要給出當前動作、觀察條件和下一次檢查點。
-- 建議輸出可選展示字段 `dashboard.signal_attribution` 六字段；解釋推薦理由的構成，包括技術指標、新聞輿情、基本面、市場環境的貢獻度，以及最強看多/看空信號。
+- 建議輸出可選展示字段 `dashboard.signal_attribution` 六字段；解釋推薦理由的構成，包括技術指標、新闻輿情、基本面、市場環境的貢獻度，以及最強看多/看空信號。
 - 盤前、非交易日或未知階段不得偽造今日盤中走勢；quote/daily_bars/technical 存在 stale、fallback、missing、fetch_failed、partial 或 estimated 時，`confidence_level` 不得為高。"""
 
     SYSTEM_PROMPT = """你是一位{market_placeholder}投資分析師，負責生成專業的【決策儀表盤】分析報告。
@@ -2213,7 +2213,7 @@ class GeminiAnalyzer:
         },
 
         "intelligence": {
-            "latest_news": "【最新消息】近期重要新聞摘要",
+            "latest_news": "【最新消息】近期重要新闻摘要",
             "risk_alerts": ["風險點1：具體描述", "風險點2：具體描述"],
             "positive_catalysts": ["利好1：具體描述", "利好2：具體描述"],
             "earnings_outlook": "業績預期分析（基於年報預告、業績快報等）",
@@ -2254,7 +2254,7 @@ class GeminiAnalyzer:
 
         "signal_attribution": {
             "technical_indicators": 技術指標貢獻度(0-100),
-            "news_sentiment": 新聞輿情貢獻度(0-100),
+            "news_sentiment": 新闻輿情貢獻度(0-100),
             "fundamentals": 基本面貢獻度(0-100),
             "market_conditions": 市場環境貢獻度(0-100),
             "strongest_bullish_signal": "最強看多信號名稱",
@@ -2330,7 +2330,7 @@ class GeminiAnalyzer:
 - 只有在接近支撐確認或有效突破壓力，且資金流/量價配合時，才能給出買入；接近壓力且資金流出時不得追買。
 - 只有在跌破關鍵支撐、主力資金持續流出或風險顯著放大時，才能給出賣出/減倉。
 - 必須輸出 `dashboard.phase_decision` 七字段；盤中/午休/臨近收盤要給出當前動作、觀察條件和下一次檢查點。
-- 建議輸出可選展示字段 `dashboard.signal_attribution` 六字段；解釋推薦理由的構成，包括技術指標、新聞輿情、基本面、市場環境的貢獻度，以及最強看多/看空信號。
+- 建議輸出可選展示字段 `dashboard.signal_attribution` 六字段；解釋推薦理由的構成，包括技術指標、新闻輿情、基本面、市場環境的貢獻度，以及最強看多/看空信號。
 - 盤前、非交易日或未知階段不得偽造今日盤中走勢；quote/daily_bars/technical 存在 stale、fallback、missing、fetch_failed、partial 或 estimated 時，`confidence_level` 不得為高。"""
 
     # English templates (REPORT_LANGUAGE=en/ko). They mirror LEGACY_DEFAULT_SYSTEM_PROMPT /
@@ -5566,7 +5566,7 @@ Output the complete Decision Dashboard in JSON format."""
             )
                 
         except json.JSONDecodeError as e:
-            logger.warning(f"JSON 解析失败: {e}，標記為解析失敗")
+            logger.warning(f"JSON 解析失敗: {e}，標記為解析失敗")
             return self._parse_text_response(response_text, code, name)
     
     def _fix_json_string(self, json_str: str) -> str:

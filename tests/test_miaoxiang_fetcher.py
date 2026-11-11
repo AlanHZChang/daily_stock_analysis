@@ -72,7 +72,7 @@ class TestParsers:
 
 class TestChipDistribution:
     def test_prefers_table_with_more_target_fields(self, monkeypatch):
-        """自然语言返回的表格组合不稳定：应选中字段最全的快照表而非单字段序列表。"""
+        """自然語言返回的表格組合不穩定：應選中字段最全的快照表而非單字段序列表。"""
         snapshot = {
             "table": {
                 "headName": ["2026-08-21 21:52"],
@@ -141,7 +141,7 @@ class TestDailyNotSupported:
 
 
 class TestCapitalFlowBudgetContract:
-    """资金流补充必须受剩余阶段预算硬约束（PR #2247 评审 blocker）。"""
+    """資金流補充必須受剩餘階段預算硬約束（PR #2247 評審 blocker）。"""
 
     def _manager_with_slow_supplement(self, sleep_seconds: float):
         import threading
@@ -189,19 +189,19 @@ class TestCapitalFlowBudgetContract:
         start = __import__("time").time()
         manager._supplement_capital_flow_from_fetchers("001205", payload, budget_seconds=0.5)
         elapsed = __import__("time").time() - start
-        # 线程超时硬切断:总耗时不得显著超过预算
+        # 線程超時硬切斷:總耗時不得顯著超過預算
         assert elapsed < 3.0, f"supplement blocked for {elapsed:.1f}s beyond budget"
-        assert payload["stock_flow"] == {}  # 未拿到结果
+        assert payload["stock_flow"] == {}  # 未拿到結果
         assert any("timeout" in str(e) for e in payload["errors"])
 
     def test_default_request_timeout_is_budget_friendly(self):
-        """妙想请求默认超时必须与基本面阶段预算同量级（≤10s）。"""
+        """妙想請求默認超時必須與基本面階段預算同量級（≤10s）。"""
         fetcher = MiaoxiangFetcher(api_key="test-key")
         assert fetcher.timeout <= 10
 
 
 class TestPayloadContract:
-    """MX query 响应契约:公开文档形态与实测形态都必须可用(评审 blocker)。"""
+    """MX query 響應契約:公開文檔形態與實測形態都必須可用(評審 blocker)。"""
 
     PUBLIC_SHAPE = {
         "status": 0,
@@ -260,14 +260,14 @@ class TestPayloadContract:
         with pytest.raises(DataFetchError) as exc_info:
             fetcher.get_chip_distribution("001205")
         assert "1001" in str(exc_info.value)
-        # 资金流侧必须 fail-open 为 not_supported,而不是抛出
+        # 資金流側必須 fail-open 為 not_supported,而不是拋出
         flow = fetcher.get_capital_flow("001205")
         assert flow["status"] == "not_supported"
         assert flow["stock_flow"] == {}
 
 
 class TestSupplementMarketDetection:
-    """补充源探测必须按市场能力收窄:仅 Futu OpenD(港股)时不得削减 A 股主预算(评审 blocker)。"""
+    """補充源探測必須按市場能力收窄:僅 Futu OpenD(港股)時不得削減 A 股主預算(評審 blocker)。"""
 
     @staticmethod
     def _bare_manager(fetchers):
@@ -302,21 +302,21 @@ class TestSupplementMarketDetection:
             priority = 10
 
             def get_capital_flow(self, stock_code):
-                return None  # 港股专用,A 股立即空返回
+                return None  # 港股專用,A 股立即空返回
 
         budgets = []
         manager = self._captured_budgets(self._bare_manager([_FutuLike()]), budgets)
         manager.get_capital_flow_context("001205", budget_seconds=10.0)
-        assert budgets and budgets[0] == ("capital_flow", 10.0)  # 全额预算,不被缩到 6
+        assert budgets and budgets[0] == ("capital_flow", 10.0)  # 全額預算,不被縮到 6
 
     def test_miaoxiang_present_cuts_adapter_budget(self):
         fetcher = MiaoxiangFetcher(api_key="test-key")
         budgets = []
         manager = self._captured_budgets(self._bare_manager([fetcher]), budgets)
-        # 让补充调用立即失败,聚焦预算断言
+        # 讓補充調用立即失敗,聚焦預算斷言
         manager._run_with_timeout = lambda task, t, name, **kwargs: (None, f"{name} timeout", int(t * 1000))
         manager.get_capital_flow_context("001205", budget_seconds=10.0)
-        assert budgets and budgets[0] == ("capital_flow", 6.0)  # 60% 留余量
+        assert budgets and budgets[0] == ("capital_flow", 6.0)  # 60% 留餘量
 
     def test_supplement_loop_skips_non_market_fetchers(self):
         class _FutuLike:
@@ -332,11 +332,11 @@ class TestSupplementMarketDetection:
                    "source_chain": [], "errors": []}
         manager = self._bare_manager([_FutuLike()])
         manager._supplement_capital_flow_from_fetchers("001205", payload, budget_seconds=5.0)
-        assert _FutuLike.calls == 0  # 未声明 cn 能力,循环不调用
+        assert _FutuLike.calls == 0  # 未聲明 cn 能力,循環不調用
 
 
 class TestFlowWindowCompletenessContract:
-    """5日/10日窗口字段必须具备完整交易日数据才输出(评审 blocker OR-COR-mx-partial-window-sums-mislabelled)。"""
+    """5日/10日窗口字段必須具備完整交易日數據才輸出(評審 blocker OR-COR-mx-partial-window-sums-mislabelled)。"""
 
     @staticmethod
     def _fetcher_with_rows(monkeypatch, rows):
@@ -368,17 +368,17 @@ class TestFlowWindowCompletenessContract:
 
 
 class TestMarketGatingContract:
-    """市场门禁必须使用仓库权威判定:所有非 A 股形态都不得触发妙想请求(评审 blocker OR-COR-mx-bare-hk-short-code-misrouted 及同类)。"""
+    """市場門禁必須使用倉庫權威判定:所有非 A 股形態都不得觸發妙想請求(評審 blocker OR-COR-mx-bare-hk-short-code-misrouted 及同類)。"""
 
     NON_CN_CODES = [
-        "1810",            # 4位裸港股短码(stock_list_parser 归类为 HK)
-        "0001",            # 4位裸港股短码
+        "1810",            # 4位裸港股短碼(stock_list_parser 歸類為 HK)
+        "0001",            # 4位裸港股短碼
         "00700",           # 5位裸港股
-        "00700.HK",        # 后缀形式
-        "HK00700",         # 前缀形式
-        "AAPL",            # 美股裸码
-        "BRK.B",           # 美股带点
-        "AAPL.US",         # 美股后缀
+        "00700.HK",        # 後綴形式
+        "HK00700",         # 前綴形式
+        "AAPL",            # 美股裸碼
+        "BRK.B",           # 美股帶點
+        "AAPL.US",         # 美股後綴
         "6758.T",          # 日股
     ]
 
@@ -412,7 +412,7 @@ class TestMarketGatingContract:
 
 
 class TestManagerLevelMarketGate:
-    """manager 级:非 A 股(含 .US 后缀)不得进入 cn 补充循环(评审建议的 manager 级回归)。"""
+    """manager 級:非 A 股(含 .US 後綴)不得進入 cn 補充循環(評審建議的 manager 級迴歸)。"""
 
     def test_bare_hk_short_code_returns_none_at_manager_level(self, monkeypatch):
         import threading
@@ -432,7 +432,7 @@ class TestManagerLevelMarketGate:
         manager._stock_name_cache = {}
         manager._stock_name_cache_lock = manager._fetchers_lock
         manager._priority_override_names = set()
-        # 港股短码走 manager 筹码链路:妙想被跳过,最终所有源失败返回 None
+        # 港股短碼走 manager 籌碼鏈路:妙想被跳過,最終所有源失敗返回 None
         assert manager.get_chip_distribution("1810") is None
 
     def test_us_suffix_never_enters_cn_supplement(self):
@@ -450,13 +450,13 @@ class TestManagerLevelMarketGate:
 
         payload = {"stock_flow": {}, "sector_rankings": {"top": [], "bottom": []},
                    "source_chain": [], "errors": []}
-        # 即使外层误判市场,补充循环也不得为美股后缀代码调用妙想
+        # 即使外層誤判市場,補充循環也不得為美股後綴代碼調用妙想
         manager._supplement_capital_flow_from_fetchers("AAPL.US", payload, budget_seconds=5.0)
         assert payload["stock_flow"] == {}
 
 
 class TestUnifiedBudgetProbeGate:
-    """外层预算探测必须与补充循环同口径:.US 请求不得被切走预算(评审 blocker OR-COR-mx-us-suffix-budget-probe-misclassified)。"""
+    """外層預算探測必須與補充循環同口徑:.US 請求不得被切走預算(評審 blocker OR-COR-mx-us-suffix-budget-probe-misclassified)。"""
 
     def test_us_suffix_short_circuits_to_not_supported(self):
         budgets = []
@@ -469,7 +469,7 @@ class TestUnifiedBudgetProbeGate:
 
         manager._run_with_retry = fake_run_with_retry
         block = manager.get_capital_flow_context("AAPL.US", budget_seconds=10.0)
-        # .US 美股后缀:首层门禁直接 not_supported,不进入 CN 适配器,也不分配预算
+        # .US 美股後綴:首層門禁直接 not_supported,不進入 CN 適配器,也不分配預算
         assert budgets == []
         assert block.get("status") == "not_supported"
 
@@ -489,7 +489,7 @@ class TestUnifiedBudgetProbeGate:
 
 
 class TestConfigSchemaContract:
-    """system-config schema 回归:MX 设置项的字段类型与敏感属性(评审建议)。"""
+    """system-config schema 迴歸:MX 設置項的字段類型與敏感屬性(評審建議)。"""
 
     def test_mx_apikey_is_sensitive_password_field(self):
         from src.core.config_registry import get_field_definition

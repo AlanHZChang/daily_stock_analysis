@@ -47,9 +47,9 @@ describe('authentication response redirect', () => {
     } } } };
     await expect(apiClient.post(endpoint, {}, { adapter: () => Promise.reject(error) })).rejects.toBe(error);
     const parsed = getParsedApiError(error);
-    expect(parsed.title).toBe('配置需要调整');
-    expect(parsed.message).toContain('LLM_MODELFLARE_API_KEY：请填写此渠道的 API Key。');
-    expect(parsed.message).toContain('LITELLM_FALLBACK_MODELS：请选择当前启用渠道中的模型');
+    expect(parsed.title).toBe('配置需要調整');
+    expect(parsed.message).toContain('LLM_MODELFLARE_API_KEY：請填寫此渠道的 API Key。');
+    expect(parsed.message).toContain('LITELLM_FALLBACK_MODELS：請選擇當前啟用渠道中的模型');
     expect(parsed.rawMessage).not.toContain('private-key-value');
     expect(parsed.code).toBe('validation_failed');
     expect(assign).not.toHaveBeenCalled();
@@ -61,7 +61,7 @@ describe('authentication response redirect', () => {
       issues: [null, { actual: 'private-key-value' }],
     } } };
     await expect(apiClient.post('/fixture', {}, { adapter: () => Promise.reject(error) })).rejects.toBe(error);
-    expect(getParsedApiError(error).message).toBe('请检查渠道的 API Key、模型和运行参数后重试。');
+    expect(getParsedApiError(error).message).toBe('請檢查渠道的 API Key、模型和運行參數後重试。');
     expect(getParsedApiError(error).rawMessage).not.toContain('private-key-value');
   });
 });

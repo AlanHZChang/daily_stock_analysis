@@ -204,7 +204,7 @@ def screen(
     _emit_progress(
         progress_callback,
         42,
-        f"快照篩選完成，保留 {after_filter_count} 条候选",
+        f"快照篩選完成，保留 {after_filter_count} 條候選",
     )
 
     if df.empty:

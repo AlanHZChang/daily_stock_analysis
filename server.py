@@ -1,22 +1,22 @@
 # -*- coding: utf-8 -*-
 """
 ===================================
-Daily Stock Analysis - FastAPI 后端服务入口
+Daily Stock Analysis - FastAPI 後端服務入口
 ===================================
 
-职责：
-1. 提供 RESTful API 服务
+職責：
+1. 提供 RESTful API 服務
 2. 配置 CORS 跨域支持
-3. 健康检查接口
-4. 托管前端静态文件（生产模式）
+3. 健康檢查接口
+4. 託管前端靜態文件（生產模式）
 
-启动方式：
+啟動方式：
     uvicorn server:app --reload --host 0.0.0.0 --port 8000
-    （启用 GUARD_ENABLED 时请加 --no-proxy-headers，或让 FORWARDED_ALLOW_IPS 与 GUARD_TRUSTED_PROXIES 一致）
+    （啟用 GUARD_ENABLED 時請加 --no-proxy-headers，或讓 FORWARDED_ALLOW_IPS 與 GUARD_TRUSTED_PROXIES 一致）
 
     或使用 main.py:
-    python main.py --serve-only      # 仅启动 API 服务
-    python main.py --serve           # API 服务 + 执行分析
+    python main.py --serve-only      # 僅啟動 API 服務
+    python main.py --serve           # API 服務 + 執行分析
 """
 
 import logging
@@ -24,7 +24,7 @@ import logging
 from src.config import setup_env, get_config
 from src.logging_config import setup_logging
 
-# 初始化环境变量与日志
+# 初始化環境變量與日誌
 setup_env()
 
 config = get_config()
@@ -37,10 +37,10 @@ setup_logging(
     extra_quiet_loggers=['uvicorn', 'fastapi'],
 )
 
-# 从 api.app 导入应用实例
+# 從 api.app 導入應用實例
 from api.app import app  # noqa: E402
 
-# 导出 app 供 uvicorn 使用
+# 導出 app 供 uvicorn 使用
 __all__ = ['app']
 
 

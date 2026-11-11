@@ -118,7 +118,7 @@ describe('DataCenterPage', () => {
   it('renders the canonical overview without requesting or exposing configuration values', async () => {
     render(<MemoryRouter><DataCenterPage /></MemoryRouter>);
 
-    expect(await screen.findByRole('heading', { name: '数据中心' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: '數據中心' })).toBeInTheDocument();
     expect(getOverview).toHaveBeenCalledTimes(1);
     expect(screen.getByText('AkShare')).toBeInTheDocument();
     expect(screen.getByText('screening.snapshot')).toBeInTheDocument();
@@ -148,9 +148,9 @@ describe('DataCenterPage', () => {
 
     render(<MemoryRouter><DataCenterPage /></MemoryRouter>);
 
-    expect(await screen.findByText('数据概览加载失败')).toBeInTheDocument();
+    expect(await screen.findByText('數據概覽加載失敗')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: '重试' }));
-    expect(await screen.findByText('暂无能力数据')).toBeInTheDocument();
+    expect(await screen.findByText('暫無能力數據')).toBeInTheDocument();
     await waitFor(() => expect(getOverview).toHaveBeenCalledTimes(2));
   });
 

@@ -364,7 +364,7 @@ def extract_stock_codes_from_image(
     """
     mime_type = (mime_type or "image/jpeg").strip().lower().split(";")[0].strip()
     if mime_type not in ALLOWED_MIME:
-        raise ValueError(f"不支持的圖片類型: {mime_type}。允许: {list(ALLOWED_MIME)}")
+        raise ValueError(f"不支持的圖片類型: {mime_type}。允許: {list(ALLOWED_MIME)}")
 
     if not image_bytes:
         raise ValueError("圖片內容為空")

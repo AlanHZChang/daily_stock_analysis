@@ -127,7 +127,7 @@ def determine_market_and_type(code: str) -> tuple:
             # Four digits: likely a US symbol or special market code.
             return 'US', 'stock'
 
-    # 字母代码，美股或其他
+    # 字母代碼，美股或其他
     return 'US', 'stock'
 
 
@@ -142,7 +142,7 @@ def market_to_suffix(market: str) -> str:
         Market suffix
     """
     suffix_map = {
-        'CN': 'SH',  # 简化处理，默认上海
+        'CN': 'SH',  # 簡化處理，默認上海
         'HK': 'HK',
         'US': 'US',
         'INDEX': 'SH',
@@ -194,7 +194,7 @@ def generate_aliases(name: str) -> List[str]:
     """
     aliases = []
 
-    # 常见简称映射
+    # 常見簡稱映射
     alias_map = {
         '贵州茅台': ['茅台'],
         '中国平安': ['平安'],
@@ -256,63 +256,63 @@ def compress_index(index: List[Dict[str, Any]]) -> List[List]:
 
 def main():
     """Main function"""
-    # 解析命令行参数
+    # 解析命令行參數
     parser = argparse.ArgumentParser(
-        description='生成股票自动补全索引文件',
+        description='生成股票自動補全索引文件',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 示例:
-  python3 scripts/generate_stock_index.py              # 默认：生成索引文件
-  python3 scripts/generate_stock_index.py --test       # 测试模式：只读取不写入
-  python3 scripts/generate_stock_index.py --test -v    # 测试模式 + 显示详细数据
+  python3 scripts/generate_stock_index.py              # 默認：生成索引文件
+  python3 scripts/generate_stock_index.py --test       # 測試模式：只讀取不寫入
+  python3 scripts/generate_stock_index.py --test -v    # 測試模式 + 顯示詳細數據
         """
     )
     parser.add_argument(
         '--test', '-t',
         action='store_true',
-        help='测试模式：只读取和验证数据，不写入文件'
+        help='測試模式：只讀取和驗證數據，不寫入文件'
     )
     parser.add_argument(
         '--verbose', '-v',
         action='store_true',
-        help='详细模式：显示前10条数据预览'
+        help='詳細模式：顯示前10條數據預覽'
     )
     args = parser.parse_args()
 
-    print("开始生成股票索引...")
+    print("開始生成股票索引...")
 
-    # 生成索引（MVP：使用现有映射）
+    # 生成索引（MVP：使用現有映射）
     index = generate_stock_index_from_map()
-    print(f"共生成 {len(index)} 条索引")
+    print(f"共生成 {len(index)} 條索引")
 
-    # 按市场统计
+    # 按市場統計
     market_stats = {}
     for item in index:
         market = item['market']
         market_stats[market] = market_stats.get(market, 0) + 1
-    print(f"市场分布：{market_stats}")
+    print(f"市場分佈：{market_stats}")
 
-    # 压缩格式（减少文件大小）
+    # 壓縮格式（減少文件大小）
     compressed = compress_index(index)
 
-    # 测试模式：不写入文件
+    # 測試模式：不寫入文件
     if args.test:
-        print("\n[测试模式] 不会写入文件")
-        print(f"预计文件大小：{len(json.dumps(compressed, ensure_ascii=False, separators=(',', ':'))) / 1024:.2f} KB")
+        print("\n[測試模式] 不會寫入文件")
+        print(f"預計文件大小：{len(json.dumps(compressed, ensure_ascii=False, separators=(',', ':'))) / 1024:.2f} KB")
 
         if args.verbose:
-            print("\n前10条数据预览：")
+            print("\n前10條數據預覽：")
             for i, item in enumerate(index[:10]):
                 print(f"  {i + 1}. {item['canonicalCode']} - {item['nameZh']} ({item['market']})")
 
-        print("\n✓ 测试通过，数据格式正确")
+        print("\n✓ 測試通過，數據格式正確")
         return 0
 
-    # 输出路径
+    # 輸出路徑
     output_path = Path(__file__).parent.parent / "apps" / "dsa-web" / "public" / "stocks.index.json"
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # 写入文件
+    # 寫入文件
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write('[\n')
         for i, item in enumerate(compressed):
@@ -327,10 +327,10 @@ def main():
     print(f"索引已生成：{output_path}")
     print(f"文件大小：{file_size / 1024:.2f} KB")
 
-    # 验证文件可读
+    # 驗證文件可讀
     with open(output_path, 'r', encoding='utf-8') as f:
         test_data = json.load(f)
-        print(f"验证通过：{len(test_data)} 条记录")
+        print(f"驗證通過：{len(test_data)} 條記錄")
 
     return 0
 

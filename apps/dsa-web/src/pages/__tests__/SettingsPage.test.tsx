@@ -155,8 +155,8 @@ vi.mock('../../utils/constants', async () => {
 vi.mock('../../components/settings', async () => {
   const { LLMChannelEditor: RealLLMChannelEditor } = await vi.importActual<typeof import('../../components/settings/LLMChannelEditor')>('../../components/settings/LLMChannelEditor');
   return ({
-  AuthSettingsCard: () => <div>认证与登录保护</div>,
-  ChangePasswordCard: () => <div>修改密码</div>,
+  AuthSettingsCard: () => <div>認證與登錄保護</div>,
+  ChangePasswordCard: () => <div>修改密碼</div>,
   IntelligentImport: ({ onMerged }: { onMerged: (value: string) => void }) => (
     <button type="button" onClick={() => onMerged('SZ000001,SZ000002')}>
       merge stock list
@@ -346,8 +346,8 @@ function createDesktopRuntime(overrides: Record<string, unknown> = {}) {
 }
 
 const baseCategories = [
-  { category: 'system', title: 'System', description: '系统设置', displayOrder: 1, fields: [] },
-  { category: 'base', title: 'Base', description: '基础配置', displayOrder: 2, fields: [] },
+  { category: 'system', title: 'System', description: '系統設置', displayOrder: 1, fields: [] },
+  { category: 'base', title: 'Base', description: '基礎配置', displayOrder: 2, fields: [] },
   { category: 'ai_model', title: 'AI', description: '模型配置', displayOrder: 3, fields: [] },
   { category: 'notification', title: 'Notification', description: '通知配置', displayOrder: 4, fields: [] },
   { category: 'agent', title: 'Agent', description: 'Agent 配置', displayOrder: 5, fields: [] },
@@ -613,11 +613,11 @@ describe('SettingsPage', () => {
       checks: [
         {
           key: 'stock_list',
-          title: '自选股',
+          title: '自選股',
           category: 'base',
           required: true,
           status: 'configured',
-          message: '已配置自选股。',
+          message: '已配置自選股。',
           nextStep: null,
         },
         {
@@ -635,7 +635,7 @@ describe('SettingsPage', () => {
           category: 'notification',
           required: false,
           status: 'optional',
-          message: '通知可选。',
+          message: '通知可選。',
           nextStep: null,
         },
       ],
@@ -675,7 +675,7 @@ describe('SettingsPage', () => {
       status: 'up-to-date',
       currentVersion: '3.12.0',
       latestVersion: '3.12.0',
-      message: '当前桌面端已是最新版本。',
+      message: '當前桌面端已是最新版本。',
     });
     desktopInstallDownloadedUpdate.mockResolvedValue(true);
     desktopOpenReleasePage.mockResolvedValue(true);
@@ -703,9 +703,9 @@ describe('SettingsPage', () => {
   it('renders category navigation and auth settings modules', async () => {
     renderSettingsPage();
 
-    expect(await screen.findByRole('heading', { name: '系统设置' })).toBeInTheDocument();
-    expect(screen.getByText('认证与登录保护')).toBeInTheDocument();
-    expect(screen.getByText('修改密码')).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: '系統設置' })).toBeInTheDocument();
+    expect(screen.getByText('認證與登錄保護')).toBeInTheDocument();
+    expect(screen.getByText('修改密碼')).toBeInTheDocument();
     expect(load).toHaveBeenCalled();
   });
 
@@ -715,12 +715,12 @@ describe('SettingsPage', () => {
     renderSettingsPage();
 
     expect(await screen.findByTestId('first-run-setup-card')).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: '首次启动配置检查' })).toBeInTheDocument();
-    expect(screen.getByText('自选股')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: '首次啟動配置檢查' })).toBeInTheDocument();
+    expect(screen.getByText('自選股')).toBeInTheDocument();
     expect(screen.getAllByText('已配置')).toHaveLength(2);
 
     fireEvent.click(screen.getByRole('button', { name: '配置模型' }));
-    fireEvent.click(screen.getByRole('button', { name: '维护自选股' }));
+    fireEvent.click(screen.getByRole('button', { name: '維護自選股' }));
     fireEvent.click(screen.getByRole('button', { name: '配置通知' }));
 
     expect(setActiveCategory).toHaveBeenNthCalledWith(1, 'ai_model');
@@ -735,7 +735,7 @@ describe('SettingsPage', () => {
     renderSettingsPage();
 
     expect(await screen.findByTestId('first-run-setup-card')).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: '维护自选股' }));
+    fireEvent.click(screen.getByRole('button', { name: '維護自選股' }));
 
     expect(scrollIntoView).toHaveBeenCalled();
     expect(document.activeElement).toBe(document.getElementById('setting-STOCK_LIST'));
@@ -765,11 +765,11 @@ describe('SettingsPage', () => {
 
     renderSettingsPage();
 
-    expect(await screen.findByText('正在检查首次启动配置')).toBeInTheDocument();
-    expect(screen.getByText('正在读取配置状态，完成后会显示缺失项和试跑入口。')).toBeInTheDocument();
-    expect(screen.queryByText('基础配置已满足最小可用分析')).not.toBeInTheDocument();
-    expect(screen.queryByText('还有基础配置需要处理')).not.toBeInTheDocument();
-    expect(screen.queryByText('所有必需项已就绪，可运行一次简短分析验证链路。')).not.toBeInTheDocument();
+    expect(await screen.findByText('正在檢查首次啟動配置')).toBeInTheDocument();
+    expect(screen.getByText('正在讀取配置状态，完成後會顯示缺失項和試跑入口。')).toBeInTheDocument();
+    expect(screen.queryByText('基礎配置已滿足最小可用分析')).not.toBeInTheDocument();
+    expect(screen.queryByText('還有基礎配置需要處理')).not.toBeInTheDocument();
+    expect(screen.queryByText('所有必需項已就緒，可運行一次簡短分析驗證鏈路。')).not.toBeInTheDocument();
   });
 
   it('keeps first-run setup summary neutral when setup status fails', async () => {
@@ -778,11 +778,11 @@ describe('SettingsPage', () => {
 
     renderSettingsPage();
 
-    expect(await screen.findByText('暂无法判断配置状态')).toBeInTheDocument();
-    expect(screen.getByText('配置状态读取失败。可先检查或修改设置项，稍后刷新检查结果。')).toBeInTheDocument();
-    expect(screen.queryByText('基础配置已满足最小可用分析')).not.toBeInTheDocument();
-    expect(screen.queryByText('还有基础配置需要处理')).not.toBeInTheDocument();
-    expect(screen.queryByText('所有必需项已就绪，可运行一次简短分析验证链路。')).not.toBeInTheDocument();
+    expect(await screen.findByText('暫無法判斷配置状态')).toBeInTheDocument();
+    expect(screen.getByText('配置状态讀取失敗。可先檢查或修改設置項，稍後刷新檢查結果。')).toBeInTheDocument();
+    expect(screen.queryByText('基礎配置已滿足最小可用分析')).not.toBeInTheDocument();
+    expect(screen.queryByText('還有基礎配置需要處理')).not.toBeInTheDocument();
+    expect(screen.queryByText('所有必需項已就緒，可運行一次簡短分析驗證鏈路。')).not.toBeInTheDocument();
   });
 
   it('keeps the latest first-run setup status when refresh responses resolve out of order', async () => {
@@ -818,7 +818,7 @@ describe('SettingsPage', () => {
           required: true,
           status: 'needs_action',
           message: '过期的配置状态。',
-          nextStep: '这条旧响应不应覆盖最新状态。',
+          nextStep: '這條舊響應不應覆蓋最新状态。',
         },
       ],
     };
@@ -850,7 +850,7 @@ describe('SettingsPage', () => {
 
     expect(await screen.findByText('初始状态')).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole('button', { name: '刷新检查' }));
+    fireEvent.click(screen.getByRole('button', { name: '刷新檢查' }));
     fireEvent.click(screen.getByRole('button', { name: 'merge stock list' }));
 
     await waitFor(() => expect(getSetupStatus).toHaveBeenCalledTimes(3));
@@ -870,7 +870,7 @@ describe('SettingsPage', () => {
 
     await waitFor(() => expect(screen.getByText('最新状态')).toBeInTheDocument());
     expect(screen.queryByText('过期状态')).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '简短试跑' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: '簡短試跑' })).toBeEnabled();
   });
 
   it('runs a brief setup smoke analysis with the first watchlist stock', async () => {
@@ -878,8 +878,8 @@ describe('SettingsPage', () => {
 
     renderSettingsPage();
 
-    await screen.findByText('基础配置已满足最小可用分析');
-    fireEvent.click(screen.getByRole('button', { name: '简短试跑' }));
+    await screen.findByText('基礎配置已滿足最小可用分析');
+    fireEvent.click(screen.getByRole('button', { name: '簡短試跑' }));
 
     await waitFor(() => expect(analyzeAsync).toHaveBeenCalledWith({
       stockCode: 'SH600000',
@@ -906,7 +906,7 @@ describe('SettingsPage', () => {
           category: 'ai_model',
           required: true,
           status: 'configured',
-          message: '已启用 Claude Code CLI 本地生成 Backend（experimental/limited）。',
+          message: '已啟用 Claude Code CLI 本地生成 Backend（experimental/limited）。',
           nextStep: null,
         },
         {
@@ -915,12 +915,12 @@ describe('SettingsPage', () => {
           category: 'agent',
           required: true,
           status: 'needs_action',
-          message: 'Agent 工具调用需要 LiteLLM 模型配置；local CLI 主生成方式不会被自动继承。',
-          nextStep: '如需使用 Ask-Stock Agent，请配置 LiteLLM 模型。',
+          message: 'Agent 工具调用需要 LiteLLM 模型配置；local CLI 主生成方式不會被自動繼承。',
+          nextStep: '如需使用 Ask-Stock Agent，請配置 LiteLLM 模型。',
         },
         {
           key: 'stock_list',
-          title: '自选股',
+          title: '自選股',
           category: 'base',
           required: true,
           status: 'configured',
@@ -932,10 +932,10 @@ describe('SettingsPage', () => {
 
     renderSettingsPage();
 
-    await screen.findByText('还缺少 1 项：Agent 渠道');
-    expect(screen.getByRole('button', { name: '简短试跑' })).toBeEnabled();
+    await screen.findByText('還缺少 1 項：Agent 渠道');
+    expect(screen.getByRole('button', { name: '簡短試跑' })).toBeEnabled();
 
-    fireEvent.click(screen.getByRole('button', { name: '简短试跑' }));
+    fireEvent.click(screen.getByRole('button', { name: '簡短試跑' }));
 
     await waitFor(() => expect(analyzeAsync).toHaveBeenCalledWith({
       stockCode: 'SH600000',
@@ -960,8 +960,8 @@ describe('SettingsPage', () => {
           category: 'ai_model',
           required: true,
           status: 'needs_action',
-          message: '还没有配置模型渠道。',
-          nextStep: '请先配置模型渠道。',
+          message: '還沒有配置模型渠道。',
+          nextStep: '請先配置模型渠道。',
         },
       ],
     });
@@ -969,15 +969,15 @@ describe('SettingsPage', () => {
 
     renderSettingsPage();
 
-    expect(await screen.findByText('还有基础配置需要处理')).toBeInTheDocument();
-    expect(screen.getByText('还缺少 1 项：模型渠道')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '简短试跑' })).toBeDisabled();
+    expect(await screen.findByText('還有基礎配置需要處理')).toBeInTheDocument();
+    expect(screen.getByText('還缺少 1 項：模型渠道')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '簡短試跑' })).toBeDisabled();
 
-    fireEvent.click(screen.getByRole('button', { name: '暂时隐藏' }));
-    expect(screen.getByText('首次启动配置检查已隐藏')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: '暫時隱藏' }));
+    expect(screen.getByText('首次啟動配置檢查已隱藏')).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole('button', { name: '展开检查' }));
-    expect(screen.getByText('首次启动配置检查')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: '展開檢查' }));
+    expect(screen.getByText('首次啟動配置檢查')).toBeInTheDocument();
   });
 
   it('renders web build info in system settings', async () => {
@@ -1042,9 +1042,9 @@ describe('SettingsPage', () => {
     await waitFor(() => {
       expect(desktopGetUpdateState).toHaveBeenCalledTimes(1);
     });
-    expect(screen.getByRole('button', { name: '检查更新' })).toBeInTheDocument();
-    expect(screen.queryByText('检查更新失败')).not.toBeInTheDocument();
-    expect(screen.queryByText('发现新版本')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '檢查更新' })).toBeInTheDocument();
+    expect(screen.queryByText('檢查更新失敗')).not.toBeInTheDocument();
+    expect(screen.queryByText('發現新版本')).not.toBeInTheDocument();
   });
 
   it('uses an explicit development label instead of presenting a build ID as the version', () => {
@@ -1075,7 +1075,7 @@ describe('SettingsPage', () => {
     renderSettingsPage();
 
     expect(await screen.findByRole('heading', { name: '版本信息' })).toBeInTheDocument();
-    expect(screen.getByText(/当前构建未提供发布版本/)).toBeInTheDocument();
+    expect(screen.getByText(/當前構建未提供發佈版本/)).toBeInTheDocument();
     expect(screen.getByText('development')).toBeInTheDocument();
     expect(screen.getByText('abc123def456')).toBeInTheDocument();
   });
@@ -1164,7 +1164,7 @@ describe('SettingsPage', () => {
     expect(screen.getByText('AGENT_ORCHESTRATOR_TIMEOUT_S')).toBeInTheDocument();
     expect(screen.getByText('AGENT_DEEP_RESEARCH_BUDGET')).toBeInTheDocument();
     expect(screen.getByText('AGENT_EVENT_MONITOR_ENABLED')).toBeInTheDocument();
-    expect(settingsPanelErrorBoundary).toHaveBeenCalledWith('Agent 设置');
+    expect(settingsPanelErrorBoundary).toHaveBeenCalledWith('Agent 設置');
   });
 
   it('keeps retired settings visible for correction without an architecture workaround', () => {
@@ -1203,7 +1203,7 @@ describe('SettingsPage', () => {
       'AGENT_BACKEND=codex_app_server|AGENT_ARCH=multi',
     );
 
-    expect(screen.queryByRole('button', { name: '切换为单 Agent' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: '切換為單 Agent' })).not.toBeInTheDocument();
     expect(save).not.toHaveBeenCalled();
   });
 
@@ -1228,9 +1228,9 @@ describe('SettingsPage', () => {
               isRequired: false,
               isEditable: true,
               options: [
-                { label: '成本优先', value: 'cost' },
-                { label: '均衡推荐', value: 'balanced' },
-                { label: '长上下文原文优先', value: 'long_context_raw_first' },
+                { label: '成本優先', value: 'cost' },
+                { label: '均衡推薦', value: 'balanced' },
+                { label: '長上下文原文優先', value: 'long_context_raw_first' },
               ],
               validation: {
                 enum: ['cost', 'balanced', 'long_context_raw_first'],
@@ -1254,7 +1254,7 @@ describe('SettingsPage', () => {
               options: [],
               validation: { min: 1000 },
               displayOrder: 73,
-              description: '估算历史 token 超过该值时触发摘要；留空则跟随当前上下文压缩策略 profile 默认值。',
+              description: '估算曆史 token 超過該值時觸發摘要；留空則跟随當前上下文壓縮策略 profile 默認值。',
             },
           },
           {
@@ -1273,7 +1273,7 @@ describe('SettingsPage', () => {
               options: [],
               validation: { min: 1 },
               displayOrder: 74,
-              description: '压缩时最近 N 个用户轮次及其后的回复保持原文；留空则跟随当前上下文压缩策略 profile 默认值。',
+              description: '壓縮時最近 N 個用戶輪次及其後的回覆保持原文；留空則跟随當前上下文壓縮策略 profile 默認值。',
             },
           },
         ],
@@ -1283,11 +1283,11 @@ describe('SettingsPage', () => {
     renderSettingsPage();
 
     expect(screen.getByText('AGENT_CONTEXT_COMPRESSION_PROFILE')).toBeInTheDocument();
-    expect(screen.getByText('成本优先')).toBeInTheDocument();
-    expect(screen.getByText('均衡推荐')).toBeInTheDocument();
-    expect(screen.getByText('长上下文原文优先')).toBeInTheDocument();
-    expect(screen.getByText(/估算历史 token 超过该值时触发摘要/)).toHaveTextContent('留空则跟随当前上下文压缩策略 profile 默认值');
-    expect(screen.getByText(/压缩时最近 N 个用户轮次及其后的回复保持原文/)).toHaveTextContent('留空则跟随当前上下文压缩策略 profile 默认值');
+    expect(screen.getByText('成本優先')).toBeInTheDocument();
+    expect(screen.getByText('均衡推薦')).toBeInTheDocument();
+    expect(screen.getByText('長上下文原文優先')).toBeInTheDocument();
+    expect(screen.getByText(/估算曆史 token 超過該值時觸發摘要/)).toHaveTextContent('留空則跟随當前上下文壓縮策略 profile 默認值');
+    expect(screen.getByText(/壓縮時最近 N 個用戶輪次及其後的回覆保持原文/)).toHaveTextContent('留空則跟随當前上下文壓縮策略 profile 默認值');
   });
 
   it('reset button semantic: discards local changes without network request', () => {
@@ -1418,7 +1418,7 @@ describe('SettingsPage', () => {
 
     const { container } = renderSettingsPage();
 
-    const promptCacheSummary = screen.getByText('Provider Prompt Cache 高级设置').closest('summary');
+    const promptCacheSummary = screen.getByText('Provider Prompt Cache 高級設置').closest('summary');
     const promptCacheDetails = promptCacheSummary?.closest('details');
     const telemetryField = screen.getByTestId('settings-field-LLM_PROMPT_CACHE_TELEMETRY_ENABLED');
     const hintsField = screen.getByTestId('settings-field-LLM_PROMPT_CACHE_HINTS_ENABLED');
@@ -1538,7 +1538,7 @@ describe('SettingsPage', () => {
 
     renderSettingsPage();
 
-    fireEvent.click(screen.getByRole('button', { name: '开启选股' }));
+    fireEvent.click(screen.getByRole('button', { name: '開啟選股' }));
 
     await waitFor(() => expect(screeningEnable).toHaveBeenCalledTimes(1));
     expect(updateSystemConfig).not.toHaveBeenCalled();
@@ -1577,8 +1577,8 @@ describe('SettingsPage', () => {
 
     renderSettingsPage();
 
-    expect(screen.getByRole('button', { name: '开启选股' })).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: '查看配置项' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '開啟選股' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: '查看配置項' })).not.toBeInTheDocument();
     expect(screen.queryByTestId('settings-field-SCREENING_ENABLED')).not.toBeInTheDocument();
   });
 
@@ -1615,8 +1615,8 @@ describe('SettingsPage', () => {
     }));
 
     const { rerenderSettingsPage } = renderSettingsPage();
-    expect(await screen.findByRole('heading', { name: '首次启动配置检查' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: '选股' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: '首次啟動配置檢查' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: '選股' })).toBeInTheDocument();
 
     useSystemConfigMock.mockReturnValue(buildSystemConfigState({
       activeCategory: 'ai_model',
@@ -1626,8 +1626,8 @@ describe('SettingsPage', () => {
       },
     }));
     rerenderSettingsPage();
-    expect(screen.queryByRole('heading', { name: '首次启动配置检查' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('heading', { name: '选股' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: '首次啟動配置檢查' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: '選股' })).not.toBeInTheDocument();
 
     useSystemConfigMock.mockReturnValue(buildSystemConfigState({
       activeCategory: 'data_source',
@@ -1637,8 +1637,8 @@ describe('SettingsPage', () => {
       },
     }));
     rerenderSettingsPage();
-    expect(screen.queryByRole('heading', { name: '选股' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('heading', { name: '首次启动配置检查' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: '選股' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: '首次啟動配置檢查' })).not.toBeInTheDocument();
   });
 
   it('maps schedule settings to the scheduler card instead of generic raw fields', async () => {
@@ -2332,12 +2332,12 @@ describe('SettingsPage', () => {
 
     renderSettingsPage();
 
-    expect(await screen.findByText('未启用')).toBeInTheDocument();
+    expect(await screen.findByText('未啟用')).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: '保存配置 (1)' }));
 
     await waitFor(() => expect(getSchedulerStatus).toHaveBeenCalledTimes(2));
-    expect(await screen.findByText('已启用')).toBeInTheDocument();
+    expect(await screen.findByText('已啟用')).toBeInTheDocument();
   });
 
   it('refreshes Screening state when the enable flow fails', async () => {
@@ -2373,7 +2373,7 @@ describe('SettingsPage', () => {
 
     renderSettingsPage();
 
-    fireEvent.click(screen.getByRole('button', { name: '开启选股' }));
+    fireEvent.click(screen.getByRole('button', { name: '開啟選股' }));
 
     await waitFor(() => expect(screeningEnable).toHaveBeenCalledTimes(1));
     expect(updateSystemConfig).not.toHaveBeenCalled();
@@ -2522,7 +2522,7 @@ describe('SettingsPage', () => {
     expect(screen.getByText('通知测试面板:WECHAT_WEBHOOK_URL')).toBeInTheDocument();
     expect(screen.getByText('WECHAT_WEBHOOK_URL')).toBeInTheDocument();
     expect(settingsPanelErrorBoundary).toHaveBeenCalledWith('通知测试');
-    expect(settingsPanelErrorBoundary).toHaveBeenCalledWith('通知设置');
+    expect(settingsPanelErrorBoundary).toHaveBeenCalledWith('通知設置');
   });
 
   it('uses browser and backend logs in settings panel diagnostic hints outside desktop runtime', () => {
@@ -2530,7 +2530,7 @@ describe('SettingsPage', () => {
 
     renderSettingsPage();
 
-    expect(screen.getAllByText(/浏览器开发者工具控制台与后端日志/)).toHaveLength(2);
+    expect(screen.getAllByText(/瀏覽器開發者工具控制檯與後端日誌/)).toHaveLength(2);
     expect(screen.queryByText('desktop.log')).not.toBeInTheDocument();
   });
 
@@ -2541,15 +2541,15 @@ describe('SettingsPage', () => {
     renderSettingsPage();
 
     expect(screen.getAllByText('desktop.log')).toHaveLength(2);
-    expect(screen.queryByText(/浏览器开发者工具控制台与后端日志/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/瀏覽器開發者工具控制檯與後端日誌/)).not.toBeInTheDocument();
   });
 
   it('renders env backup actions outside desktop runtime', () => {
     renderSettingsPage();
 
-    expect(screen.getByRole('heading', { name: '配置备份' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '导出 .env' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '导入 .env' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: '配置備份' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '導出 .env' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '導入 .env' })).toBeInTheDocument();
     expect(screen.getByText(/Docker 部署中/)).toHaveTextContent('ENV_FILE');
   });
 
@@ -2562,9 +2562,9 @@ describe('SettingsPage', () => {
 
     renderSettingsPage();
 
-    expect(screen.getByText(/当前 Web 端未开启管理员鉴权/)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '导出 .env' })).toBeDisabled();
-    expect(screen.getByRole('button', { name: '导入 .env' })).toBeDisabled();
+    expect(screen.getByText(/當前 Web 端未開啟管理員鑑權/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '導出 .env' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: '導入 .env' })).toBeDisabled();
   });
 
   it('uses live auth state for env backup availability instead of loaded config items', () => {
@@ -2585,9 +2585,9 @@ describe('SettingsPage', () => {
 
     renderSettingsPage();
 
-    expect(screen.queryByText(/当前 Web 端未开启管理员鉴权/)).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '导出 .env' })).not.toBeDisabled();
-    expect(screen.getByRole('button', { name: '导入 .env' })).not.toBeDisabled();
+    expect(screen.queryByText(/當前 Web 端未開啟管理員鑑權/)).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '導出 .env' })).not.toBeDisabled();
+    expect(screen.getByRole('button', { name: '導入 .env' })).not.toBeDisabled();
   });
 
   it('exports saved env from config backup actions', async () => {
@@ -2597,7 +2597,7 @@ describe('SettingsPage', () => {
 
     vi.clearAllMocks();
 
-    fireEvent.click(screen.getByRole('button', { name: '导出 .env' }));
+    fireEvent.click(screen.getByRole('button', { name: '導出 .env' }));
 
     await waitFor(() => expect(exportEnv).toHaveBeenCalledTimes(1));
     expect(mockedAnchorClick).toHaveBeenCalledTimes(1);
@@ -2612,9 +2612,9 @@ describe('SettingsPage', () => {
 
     vi.clearAllMocks();
 
-    fireEvent.click(screen.getByRole('button', { name: '导入 .env' }));
+    fireEvent.click(screen.getByRole('button', { name: '導入 .env' }));
 
-    expect(await screen.findByText('导入会覆盖当前草稿')).toBeInTheDocument();
+    expect(await screen.findByText('導入會覆蓋當前草稿')).toBeInTheDocument();
     expect(importEnv).not.toHaveBeenCalled();
   });
 
@@ -2718,7 +2718,7 @@ describe('SettingsPage', () => {
     const { container } = renderSettingsPage();
 
     await waitFor(() => expect(getSchedulerStatus).toHaveBeenCalledTimes(1));
-    expect(await screen.findByText('未启用')).toBeInTheDocument();
+    expect(await screen.findByText('未啟用')).toBeInTheDocument();
 
     vi.clearAllMocks();
 
@@ -2734,7 +2734,7 @@ describe('SettingsPage', () => {
     await waitFor(() => expect(importEnv).toHaveBeenCalledTimes(1));
     await waitFor(() => expect(load).toHaveBeenCalledTimes(1));
     await waitFor(() => expect(getSchedulerStatus).toHaveBeenCalledTimes(1));
-    expect(await screen.findByText('已启用')).toBeInTheDocument();
+    expect(await screen.findByText('已啟用')).toBeInTheDocument();
   });
 
   it('shows an error when env import succeeds but reload fails', async () => {
@@ -2757,9 +2757,9 @@ describe('SettingsPage', () => {
 
     await waitFor(() => expect(importEnv).toHaveBeenCalledTimes(1));
     await waitFor(() => expect(load).toHaveBeenCalledTimes(1));
-    expect(screen.getByText('配置已导入但刷新失败')).toBeInTheDocument();
-    expect(screen.getByText('备份已导入，但重新加载配置失败，请手动重载页面。')).toBeInTheDocument();
-    expect(screen.queryByText('已导入 .env 备份并重新加载配置。')).not.toBeInTheDocument();
+    expect(screen.getByText('配置已導入但刷新失敗')).toBeInTheDocument();
+    expect(screen.getByText('備份已導入，但重新加載配置失敗，請手動重載頁面。')).toBeInTheDocument();
+    expect(screen.queryByText('已導入 .env 備份並重新加載配置。')).not.toBeInTheDocument();
   });
 
   it('renders desktop update notice when a newer release is available', async () => {
@@ -2768,14 +2768,14 @@ describe('SettingsPage', () => {
       currentVersion: '3.12.0',
       latestVersion: '3.13.0',
       releaseUrl: 'https://github.com/ZhuLinsen/daily_stock_analysis/releases/tag/v3.13.0',
-      message: '发现新版本 3.13.0，可前往 GitHub Releases 下载更新。',
+      message: '發現新版本 3.13.0，可前往 GitHub Releases 下載更新。',
     });
     (window as { dsaDesktop?: unknown }).dsaDesktop = createDesktopRuntime();
 
     renderSettingsPage();
 
-    expect(await screen.findByText(/发现新版本:当前 3\.12\.0，最新 3\.13\.0/)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '前往下载' })).toBeInTheDocument();
+    expect(await screen.findByText(/發現新版本:當前 3\.12\.0，最新 3\.13\.0/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '前往下載' })).toBeInTheDocument();
   });
 
   it('checks desktop updates on demand and renders the latest-version state', async () => {
@@ -2783,10 +2783,10 @@ describe('SettingsPage', () => {
 
     renderSettingsPage();
 
-    fireEvent.click(await screen.findByRole('button', { name: '检查更新' }));
+    fireEvent.click(await screen.findByRole('button', { name: '檢查更新' }));
 
     await waitFor(() => expect(desktopCheckForUpdates).toHaveBeenCalledTimes(1));
-    expect(await screen.findByText('已是最新版本:当前桌面端已是最新版本。')).toBeInTheDocument();
+    expect(await screen.findByText('已是最新版本:當前桌面端已是最新版本。')).toBeInTheDocument();
   });
 
   it('opens GitHub release page from desktop update notice', async () => {
@@ -2795,13 +2795,13 @@ describe('SettingsPage', () => {
       currentVersion: '3.12.0',
       latestVersion: '3.13.0',
       releaseUrl: 'https://github.com/ZhuLinsen/daily_stock_analysis/releases/tag/v3.13.0',
-      message: '发现新版本 3.13.0，可前往 GitHub Releases 下载更新。',
+      message: '發現新版本 3.13.0，可前往 GitHub Releases 下載更新。',
     });
     (window as { dsaDesktop?: unknown }).dsaDesktop = createDesktopRuntime();
 
     renderSettingsPage();
 
-    fireEvent.click(await screen.findByRole('button', { name: '前往下载' }));
+    fireEvent.click(await screen.findByRole('button', { name: '前往下載' }));
 
     await waitFor(() => {
       expect(desktopOpenReleasePage).toHaveBeenCalledWith(
@@ -2817,16 +2817,16 @@ describe('SettingsPage', () => {
       currentVersion: '3.12.0',
       latestVersion: '3.13.0',
       releaseUrl: 'https://github.com/ZhuLinsen/daily_stock_analysis/releases/tag/v3.13.0',
-      message: '新版本 3.13.0 已下载，可重启应用完成安装。',
+      message: '新版本 3.13.0 已下載，可重啟應用完成安裝。',
       downloadPercent: 100,
     });
     (window as { dsaDesktop?: unknown }).dsaDesktop = createDesktopRuntime();
 
     renderSettingsPage();
 
-    expect(await screen.findByText('更新已下载:新版本 3.13.0 已下载，可重启应用完成安装。')).toBeInTheDocument();
+    expect(await screen.findByText('更新已下載:新版本 3.13.0 已下載，可重啟應用完成安裝。')).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole('button', { name: '重启安装' }));
+    fireEvent.click(screen.getByRole('button', { name: '重啟安裝' }));
 
     await waitFor(() => expect(desktopInstallDownloadedUpdate).toHaveBeenCalledTimes(1));
   });
@@ -2839,7 +2839,7 @@ describe('SettingsPage', () => {
 
     fireEvent.click(await screen.findByRole('button', { name: '桌面端更新' }));
     fireEvent.click(
-      within(screen.getByRole('dialog', { name: '桌面端更新' })).getByRole('button', { name: '检查更新' }),
+      within(screen.getByRole('dialog', { name: '桌面端更新' })).getByRole('button', { name: '檢查更新' }),
     );
 
     await waitFor(() => expect(desktopCheckForUpdates).toHaveBeenCalledTimes(1));
@@ -2847,10 +2847,10 @@ describe('SettingsPage', () => {
     const settingsCard = await waitFor(() => {
       const card = document.querySelector('#desktop-version-info');
       expect(card).not.toBeNull();
-      expect(within(card as HTMLElement).getByRole('button', { name: '检查中...' })).toBeDisabled();
+      expect(within(card as HTMLElement).getByRole('button', { name: '檢查中...' })).toBeDisabled();
       return card as HTMLElement;
     });
-    const settingsButton = within(settingsCard).getByRole('button', { name: '检查中...' });
+    const settingsButton = within(settingsCard).getByRole('button', { name: '檢查中...' });
 
     fireEvent.click(settingsButton);
     expect(desktopCheckForUpdates).toHaveBeenCalledTimes(1);
@@ -2859,7 +2859,7 @@ describe('SettingsPage', () => {
       status: 'up-to-date',
       currentVersion: '3.12.0',
       latestVersion: '3.12.0',
-      message: '当前桌面端已是最新版本。',
+      message: '當前桌面端已是最新版本。',
     });
   });
 
@@ -2874,21 +2874,21 @@ describe('SettingsPage', () => {
       expect(card).not.toBeNull();
       return card as HTMLElement;
     });
-    fireEvent.click(within(settingsCard).getByRole('button', { name: '检查更新' }));
+    fireEvent.click(within(settingsCard).getByRole('button', { name: '檢查更新' }));
 
     await waitFor(() => expect(desktopCheckForUpdates).toHaveBeenCalledTimes(1));
-    expect(within(settingsCard).getByRole('button', { name: '检查中...' })).toBeDisabled();
+    expect(within(settingsCard).getByRole('button', { name: '檢查中...' })).toBeDisabled();
 
     fireEvent.click(screen.getByRole('button', { name: '桌面端更新' }));
-    expect(screen.queryByRole('button', { name: '检查更新' })).not.toBeInTheDocument();
-    fireEvent.click(within(settingsCard).getByRole('button', { name: '检查中...' }));
+    expect(screen.queryByRole('button', { name: '檢查更新' })).not.toBeInTheDocument();
+    fireEvent.click(within(settingsCard).getByRole('button', { name: '檢查中...' }));
     expect(desktopCheckForUpdates).toHaveBeenCalledTimes(1);
 
     await pendingCheck.finish({
       status: 'up-to-date',
       currentVersion: '3.12.0',
       latestVersion: '3.12.0',
-      message: '当前桌面端已是最新版本。',
+      message: '當前桌面端已是最新版本。',
     });
   });
 
@@ -2900,7 +2900,7 @@ describe('SettingsPage', () => {
 
     fireEvent.click(await screen.findByRole('button', { name: '桌面端更新' }));
     fireEvent.click(
-      within(screen.getByRole('dialog', { name: '桌面端更新' })).getByRole('button', { name: '检查更新' }),
+      within(screen.getByRole('dialog', { name: '桌面端更新' })).getByRole('button', { name: '檢查更新' }),
     );
     await waitFor(() => expect(desktopCheckForUpdates).toHaveBeenCalledTimes(1));
 
@@ -2911,14 +2911,14 @@ describe('SettingsPage', () => {
       expect(card).not.toBeNull();
       return card as HTMLElement;
     });
-    expect(within(settingsCard).getByRole('button', { name: '检查中...' })).toBeDisabled();
+    expect(within(settingsCard).getByRole('button', { name: '檢查中...' })).toBeDisabled();
     expect(desktopCheckForUpdates).toHaveBeenCalledTimes(1);
 
     await pendingCheck.finish({
       status: 'up-to-date',
       currentVersion: '3.12.0',
       latestVersion: '3.12.0',
-      message: '当前桌面端已是最新版本。',
+      message: '當前桌面端已是最新版本。',
     });
   });
   describe('unsaved changes navigation guard (issue #1948 point 4)', () => {
@@ -2956,23 +2956,23 @@ describe('SettingsPage', () => {
       useSystemConfigMock.mockReturnValue(buildSystemConfigState({ activeCategory: 'ai_model', hasDirty: false }));
       const page = renderSettingsPage();
       fireEvent.click(await screen.findByRole('button', { name: /primary/i }));
-      fireEvent.change(await screen.findByLabelText('渠道名称'), { target: { value: 'UNSAVED_NAME' } });
+      fireEvent.change(await screen.findByLabelText('渠道名稱'), { target: { value: 'UNSAVED_NAME' } });
       await waitFor(() => expect(beforeUnloadListeners.length).toBe(1));
       useSystemConfigMock.mockReturnValue(buildSystemConfigState({ activeCategory: 'base', hasDirty: false }));
       page.rerenderSettingsPage();
-      await waitFor(() => expect(screen.getByLabelText('渠道名称')).not.toBeVisible());
+      await waitFor(() => expect(screen.getByLabelText('渠道名稱')).not.toBeVisible());
       expect(beforeUnloadListeners.length).toBe(1);
       act(() => { void page.router.navigate('/chat'); });
       fireEvent.click(await screen.findByRole('button', { name: '取消' }));
       expect(page.router.state.location.pathname).toBe('/settings');
       useSystemConfigMock.mockReturnValue(buildSystemConfigState({ activeCategory: 'ai_model', hasDirty: false }));
       page.rerenderSettingsPage();
-      expect(await screen.findByLabelText('渠道名称')).toHaveValue('unsaved_name');
-      expect(screen.getByLabelText('渠道名称')).toBeVisible();
+      expect(await screen.findByLabelText('渠道名稱')).toHaveValue('unsaved_name');
+      expect(screen.getByLabelText('渠道名稱')).toBeVisible();
       fireEvent.click(screen.getByRole('button', { name: '重置' }));
       await waitFor(() => expect(beforeUnloadListeners.length).toBe(0));
       fireEvent.click(await screen.findByRole('button', { name: /primary/i }));
-      expect(await screen.findByLabelText('渠道名称')).toHaveValue('primary');
+      expect(await screen.findByLabelText('渠道名稱')).toHaveValue('primary');
     });
 
     it('waits for a hidden real LLM save and refresh before allowing reset, import, or departure', async () => {
@@ -2997,15 +2997,15 @@ describe('SettingsPage', () => {
       page.rerenderSettingsPage();
       expect(screen.getByLabelText('Base URL')).not.toBeVisible();
       expect(screen.getByLabelText('Base URL')).toHaveValue('https://draft.example.com/v1');
-      expect(screen.getByRole('button', { name: '导入 .env' })).toBeDisabled();
-      fireEvent.click(screen.getByRole('button', { name: '导入 .env' }));
-      expect(screen.queryByText('导入会覆盖当前草稿')).not.toBeInTheDocument();
+      expect(screen.getByRole('button', { name: '導入 .env' })).toBeDisabled();
+      fireEvent.click(screen.getByRole('button', { name: '導入 .env' }));
+      expect(screen.queryByText('導入會覆蓋當前草稿')).not.toBeInTheDocument();
       expect(importEnv).not.toHaveBeenCalled();
 
       act(() => { void page.router.navigate('/chat'); });
-      expect(await screen.findByText('配置正在保存。已发出的保存请求不会被取消，请等待保存完成后再离开。')).toBeInTheDocument();
+      expect(await screen.findByText('配置正在保存。已發出的保存請求不會被取消，請等待保存完成後再離開。')).toBeInTheDocument();
       expect(screen.getByRole('button', { name: '保存中...' })).toBeDisabled();
-      expect(screen.queryByRole('button', { name: '放弃并离开' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: '放棄並離開' })).not.toBeInTheDocument();
       fireEvent.click(screen.getByRole('button', { name: '取消' }));
       expect(page.router.state.location.pathname).toBe('/settings');
 
@@ -3018,20 +3018,20 @@ describe('SettingsPage', () => {
         itemsByCategory: { ...configState.itemsByCategory, ai_model: savedItems },
       });
       page.rerenderSettingsPage();
-      await waitFor(() => expect(screen.getByText('当前没有未保存的改动')).not.toBeVisible());
+      await waitFor(() => expect(screen.getByText('當前沒有未保存的改動')).not.toBeVisible());
       expect(screen.getByRole('button', { name: '重置' })).toBeDisabled();
-      expect(screen.getByRole('button', { name: '导入 .env' })).toBeDisabled();
+      expect(screen.getByRole('button', { name: '導入 .env' })).toBeDisabled();
       expect(beforeUnloadListeners).toHaveLength(1);
       act(() => { void page.router.navigate('/chat'); });
       expect(await screen.findByRole('button', { name: '保存中...' })).toBeDisabled();
 
       await act(async () => pendingRefresh.resolve());
-      expect(await screen.findByText('配置已保存，可以继续离开此页面。')).toBeInTheDocument();
+      expect(await screen.findByText('配置已保存，可以繼續離開此頁面。')).toBeInTheDocument();
       expect(screen.getByRole('button', { name: '重置' })).toBeEnabled();
-      expect(screen.getByRole('button', { name: '导入 .env' })).toBeEnabled();
+      expect(screen.getByRole('button', { name: '導入 .env' })).toBeEnabled();
       expect(beforeUnloadListeners).toHaveLength(0);
-      expect(screen.queryByText('当前没有未保存的改动')).not.toBeInTheDocument();
-      fireEvent.click(screen.getByRole('button', { name: '确定' }));
+      expect(screen.queryByText('當前沒有未保存的改動')).not.toBeInTheDocument();
+      fireEvent.click(screen.getByRole('button', { name: '確定' }));
       await waitFor(() => expect(page.router.state.location.pathname).toBe('/chat'));
       expect(updateSystemConfig).toHaveBeenCalledTimes(1);
     });
@@ -3042,15 +3042,15 @@ describe('SettingsPage', () => {
       useSystemConfigMock.mockReturnValue(configState);
       const page = renderSettingsPage();
       fireEvent.click(await screen.findByRole('button', { name: /primary/i }));
-      fireEvent.change(await screen.findByLabelText('渠道名称'), { target: { value: '' } });
+      fireEvent.change(await screen.findByLabelText('渠道名稱'), { target: { value: '' } });
       await waitFor(() => expect(beforeUnloadListeners).toHaveLength(1));
       expect(screen.getByTestId('generation-backend-status-items')).toBeEmptyDOMElement();
 
       useSystemConfigMock.mockReturnValue({ ...configState, activeCategory: 'system' });
       page.rerenderSettingsPage();
-      expect(screen.getByLabelText('渠道名称')).not.toBeVisible();
-      fireEvent.click(screen.getByRole('button', { name: '导入 .env' }));
-      expect(await screen.findByText('导入会覆盖当前草稿')).toBeInTheDocument();
+      expect(screen.getByLabelText('渠道名稱')).not.toBeVisible();
+      fireEvent.click(screen.getByRole('button', { name: '導入 .env' }));
+      expect(await screen.findByText('導入會覆蓋當前草稿')).toBeInTheDocument();
       fireEvent.click(screen.getByRole('button', { name: '取消' }));
       expect(importEnv).not.toHaveBeenCalled();
       expect(resetDraft).not.toHaveBeenCalled();
@@ -3058,8 +3058,8 @@ describe('SettingsPage', () => {
 
       useSystemConfigMock.mockReturnValue(configState);
       page.rerenderSettingsPage();
-      expect(screen.getByLabelText('渠道名称')).toBeVisible();
-      expect(screen.getByLabelText('渠道名称')).toHaveValue('');
+      expect(screen.getByLabelText('渠道名稱')).toBeVisible();
+      expect(screen.getByLabelText('渠道名稱')).toHaveValue('');
     });
 
     it.each(['reloaded', 'reload-failed', 'import-failed'] as const)(
@@ -3083,15 +3083,15 @@ describe('SettingsPage', () => {
         useSystemConfigMock.mockReturnValue(configState);
         const page = renderSettingsPage();
         fireEvent.click(await screen.findByRole('button', { name: /primary/i }));
-        fireEvent.change(await screen.findByLabelText('渠道名称'), { target: { value: '' } });
+        fireEvent.change(await screen.findByLabelText('渠道名稱'), { target: { value: '' } });
         useSystemConfigMock.mockReturnValue({ ...configState, activeCategory: 'system' });
         page.rerenderSettingsPage();
         await waitFor(() => expect(screen.getByTestId('scheduler-enabled-checkbox')).toBeChecked());
         fireEvent.click(screen.getByTestId('scheduler-enabled-checkbox'));
         await waitFor(() => expect(screen.getByTestId('scheduler-enabled-checkbox')).not.toBeChecked());
-        fireEvent.click(screen.getByRole('button', { name: '导入 .env' }));
-        expect(await screen.findByText('导入会覆盖当前草稿')).toBeInTheDocument();
-        fireEvent.click(screen.getByRole('button', { name: '继续导入' }));
+        fireEvent.click(screen.getByRole('button', { name: '導入 .env' }));
+        expect(await screen.findByText('導入會覆蓋當前草稿')).toBeInTheDocument();
+        fireEvent.click(screen.getByRole('button', { name: '繼續導入' }));
         const fileInput = page.container.querySelector('input[type="file"]') as HTMLInputElement;
         load.mockResolvedValueOnce(outcome !== 'reload-failed');
         fireEvent.change(fileInput, {
@@ -3099,7 +3099,7 @@ describe('SettingsPage', () => {
         });
         await waitFor(() => expect(importEnv).toHaveBeenCalledTimes(1));
         expect(resetDraft).not.toHaveBeenCalled();
-        expect(screen.getByLabelText('渠道名称')).toHaveValue('');
+        expect(screen.getByLabelText('渠道名稱')).toHaveValue('');
         expect(screen.getByRole('button', { name: '重置' })).toBeDisabled();
 
         if (outcome === 'import-failed') {
@@ -3115,15 +3115,15 @@ describe('SettingsPage', () => {
           expect(screen.getByTestId('scheduler-enabled-checkbox')).toBeChecked();
           expect(screen.getByRole('button', { name: /保存配置/ })).toBeDisabled();
           if (outcome === 'reload-failed') {
-            expect(screen.getByText('配置已导入但刷新失败')).toBeInTheDocument();
+            expect(screen.getByText('配置已導入但刷新失敗')).toBeInTheDocument();
           }
         }
         useSystemConfigMock.mockReturnValue(configState);
         page.rerenderSettingsPage();
-        if (!screen.queryByLabelText('渠道名称')) {
+        if (!screen.queryByLabelText('渠道名稱')) {
           fireEvent.click(await screen.findByRole('button', { name: /primary/i }));
         }
-        expect(await screen.findByLabelText('渠道名称')).toHaveValue(outcome === 'import-failed' ? '' : 'primary');
+        expect(await screen.findByLabelText('渠道名稱')).toHaveValue(outcome === 'import-failed' ? '' : 'primary');
         if (outcome !== 'import-failed') {
           act(() => { void page.router.navigate('/chat'); });
           await waitFor(() => expect(page.router.state.location.pathname).toBe('/chat'));
@@ -3164,7 +3164,7 @@ describe('SettingsPage', () => {
       const { router } = renderSettingsPage();
       fireEvent.click(await screen.findByRole('button', { name: 'edit incomplete llm draft' }));
       act(() => { void router.navigate('/chat?draft=1#target'); });
-      fireEvent.click(await screen.findByRole('button', { name: '放弃并离开' }));
+      fireEvent.click(await screen.findByRole('button', { name: '放棄並離開' }));
       await waitFor(() => expect(router.state.location.pathname).toBe('/chat'));
       expect(router.state.location.search).toBe('?draft=1');
       expect(router.state.location.hash).toBe('#target');
@@ -3262,7 +3262,7 @@ describe('SettingsPage', () => {
       });
 
       await waitFor(() => {
-        expect(screen.getByText('当前页面还有未保存的修改。刷新页面、关闭标签页或离开该页面会丢弃这些本地草稿。要继续吗？')).toBeInTheDocument();
+        expect(screen.getByText('當前頁面還有未保存的修改。刷新頁面、關閉標籤頁或離開該頁面會丟棄這些本地草稿。要繼續嗎？')).toBeInTheDocument();
       });
       // Blocker cancelled the navigation: still on /settings, and the stub
       // chat page has NOT mounted.
@@ -3271,9 +3271,9 @@ describe('SettingsPage', () => {
       fireEvent.click(screen.getByRole('button', { name: '取消' }));
       expect(router.state.location.pathname).toBe('/settings');
       expect(resetDraft).not.toHaveBeenCalled();
-      expect(screen.queryByRole('button', { name: '放弃并离开' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: '放棄並離開' })).not.toBeInTheDocument();
       act(() => { void router.navigate('/chat'); });
-      expect(await screen.findByRole('button', { name: '放弃并离开' })).toBeInTheDocument();
+      expect(await screen.findByRole('button', { name: '放棄並離開' })).toBeInTheDocument();
     });
 
     it('discards the draft and proceeds to the target route on confirm', async () => {
@@ -3288,12 +3288,12 @@ describe('SettingsPage', () => {
       });
 
       await waitFor(() => {
-        expect(screen.getByRole('button', { name: '放弃并离开' })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: '放棄並離開' })).toBeInTheDocument();
       });
 
       // Confirm → resetDraft flips dirty to false, then proceed() replays the
       // pending navigation to /chat.
-      fireEvent.click(screen.getByRole('button', { name: '放弃并离开' }));
+      fireEvent.click(screen.getByRole('button', { name: '放棄並離開' }));
 
       await waitFor(() => {
         expect(resetDraft).toHaveBeenCalledTimes(1);
@@ -3319,7 +3319,7 @@ describe('SettingsPage', () => {
         expect(router.state.location.pathname).toBe('/chat');
       });
       // No dialog ever shown.
-      expect(screen.queryByText('当前页面还有未保存的修改。刷新页面、关闭标签页或离开该页面会丢弃这些本地草稿。要继续吗？')).not.toBeInTheDocument();
+      expect(screen.queryByText('當前頁面還有未保存的修改。刷新頁面、關閉標籤頁或離開該頁面會丟棄這些本地草稿。要繼續嗎？')).not.toBeInTheDocument();
     });
 
     it('prompts when the user triggers browser-style back navigation away from /settings', async () => {
@@ -3337,7 +3337,7 @@ describe('SettingsPage', () => {
       });
 
       await waitFor(() => {
-        expect(screen.getByText('当前页面还有未保存的修改。刷新页面、关闭标签页或离开该页面会丢弃这些本地草稿。要继续吗？')).toBeInTheDocument();
+        expect(screen.getByText('當前頁面還有未保存的修改。刷新頁面、關閉標籤頁或離開該頁面會丟棄這些本地草稿。要繼續嗎？')).toBeInTheDocument();
       });
       // Cancelled: still on /settings, history entry not popped.
       expect(router.state.location.pathname).toBe('/settings');
@@ -3361,12 +3361,12 @@ describe('SettingsPage', () => {
       await waitFor(() => {
         expect(router.state.location.pathname).toBe('/chat');
       });
-      expect(screen.queryByText('当前页面还有未保存的修改。刷新页面、关闭标签页或离开该页面会丢弃这些本地草稿。要继续吗？')).not.toBeInTheDocument();
+      expect(screen.queryByText('當前頁面還有未保存的修改。刷新頁面、關閉標籤頁或離開該頁面會丟棄這些本地草稿。要繼續嗎？')).not.toBeInTheDocument();
     });
 
     it('clears the in-app guard once dirty drops to zero (after save success)', async () => {
       // Same shape as the reset-button variant, but the contract point 5 also
-      // explicitly calls out "保存成功后必须立即解除两类 guard". Save success
+      // explicitly calls out "保存成功後必須立即解除兩類 guard". Save success
       // is the same observable from the hook's perspective: hasDirty flips
       // false. We model that here by switching the mock return value.
       useSystemConfigMock.mockReturnValue(buildSystemConfigState({ hasDirty: true, dirtyCount: 1 }));
@@ -3384,7 +3384,7 @@ describe('SettingsPage', () => {
       await waitFor(() => {
         expect(router.state.location.pathname).toBe('/chat');
       });
-      expect(screen.queryByText('当前页面还有未保存的修改。刷新页面、关闭标签页或离开该页面会丢弃这些本地草稿。要继续吗？')).not.toBeInTheDocument();
+      expect(screen.queryByText('當前頁面還有未保存的修改。刷新頁面、關閉標籤頁或離開該頁面會丟棄這些本地草稿。要繼續嗎？')).not.toBeInTheDocument();
     });
   });
 });

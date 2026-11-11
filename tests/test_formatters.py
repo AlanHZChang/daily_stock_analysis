@@ -108,13 +108,13 @@ class TestChunkContentByMaxWords(unittest.TestCase):
         self.assertEqual("".join(r.replace(TRUNCATION_SUFFIX, "") for r in result), "🎯ab")
         
     def test_chunk_raises_when_max_words_below_min_in_recursion(self):
-        # Safe guard测试，避免无限循环，抛出错误
+        # Safe guard測試，避免無限循環，拋出錯誤
         with self.assertRaises(ValueError) as ctx:
             chunk_content_by_max_words("\n---\n###\n**\n##\n\n", MIN_MAX_WORDS, special_char_len=2)
         self.assertIn(str(MIN_MAX_WORDS), str(ctx.exception))
 
     def test_chunk_by_max_words_raises_when_max_words_below_min(self):
-        # Safe guard测试，避免无限循环，抛出错误
+        # Safe guard測試，避免無限循環，拋出錯誤
         with self.assertRaises(ValueError) as ctx:
             _chunk_by_max_words("🎯ab", 2, special_char_len=2)
         self.assertIn(str(MIN_MAX_WORDS), str(ctx.exception))
@@ -211,7 +211,7 @@ class TestChunkContentByMaxBytes(unittest.TestCase):
 
     def test_slice_at_max_bytes_returns_truncated_and_remaining_parts(self):
         chunk, remaining = slice_at_max_bytes("测试ABC", 7)
-        self.assertEqual(chunk, "测试A")
+        self.assertEqual(chunk, "測試A")
         self.assertEqual(remaining, "BC")
 
 
@@ -369,8 +369,8 @@ class TestNotificationMarkdownFormatters(unittest.TestCase):
         self.assertIn("• MA5：1292.85", result)
         self.assertIn("• 支撑位：1302.77", result)
         self.assertIn("• 白酒Ⅲ", result)
-        self.assertNotIn("价格指标：MA5", result)
-        self.assertNotIn("类型：N/A", result)
+        self.assertNotIn("價格指标：MA5", result)
+        self.assertNotIn("類型：N/A", result)
 
     def test_markdown_tables_to_key_value_rows_preserves_empty_cells(self):
         text = (
@@ -403,7 +403,7 @@ class TestNotificationMarkdownFormatters(unittest.TestCase):
 
         fenced = self._first_fenced_code_body(result)
         self.assertIn("| --- |", fenced)
-        self.assertIn("| 示例 | 不应转换 |", fenced)
+        self.assertIn("| 示例 | 不應轉換 |", fenced)
         self.assertIn("• 600519：买入", result)
         self.assertNotIn("@@DSA_FENCED_CODE_BLOCK_", result)
 
@@ -412,10 +412,10 @@ class TestNotificationMarkdownFormatters(unittest.TestCase):
 
         result = format_feishu_markdown(text)
 
-        self.assertIn("**日报**", result)
+        self.assertIn("**日報**", result)
         self.assertIn("💬 风险提示", result)
-        self.assertIn("• 股票：600519 | 信号：强势", result)
-        self.assertIn("• 关注量能", result)
+        self.assertIn("• 股票：600519 | 信號：強勢", result)
+        self.assertIn("• 關注量能", result)
 
     def test_feishu_formatter_preserves_empty_table_cells(self):
         text = (
@@ -435,8 +435,8 @@ class TestNotificationMarkdownFormatters(unittest.TestCase):
 
         result = format_telegram_markdown(text)
 
-        self.assertIn("*日报*", result)
-        self.assertIn("- 600519：强势", result)
+        self.assertIn("*日報*", result)
+        self.assertIn("- 600519：強勢", result)
         self.assertIn("[详情](https://example.com/report)", result)
 
     def test_telegram_formatter_escapes_non_link_metacharacters(self):
@@ -450,8 +450,8 @@ class TestNotificationMarkdownFormatters(unittest.TestCase):
 
         result = format_telegram_markdown(text)
 
-        self.assertIn("*\\[P4\\] 日报*", result)
-        self.assertIn("- 600519：\\[P4\\] 强势 \\(观察\\)", result)
+        self.assertIn("*\\[P4\\] 日報*", result)
+        self.assertIn("- 600519：\\[P4\\] 強勢 \\(观察\\)", result)
         self.assertIn("[详情](https://example.com/report)", result)
 
     def test_slack_formatter_uses_mrkdwn_links_and_tables(self):
@@ -459,8 +459,8 @@ class TestNotificationMarkdownFormatters(unittest.TestCase):
 
         result = format_slack_mrkdwn(text)
 
-        self.assertIn("*日报*", result)
-        self.assertIn("• 600519：强势", result)
+        self.assertIn("*日報*", result)
+        self.assertIn("• 600519：強勢", result)
         self.assertIn("<https://example.com/report|详情>", result)
 
     def test_wechat_formatter_keeps_markdown_but_converts_tables(self):
@@ -468,8 +468,8 @@ class TestNotificationMarkdownFormatters(unittest.TestCase):
 
         result = format_wechat_markdown(text)
 
-        self.assertIn("## 日报", result)
-        self.assertIn("• 600519：强势", result)
+        self.assertIn("## 日報", result)
+        self.assertIn("• 600519：強勢", result)
         self.assertNotIn("| --- |", result)
 
     def test_platform_formatters_do_not_rewrite_fenced_code_blocks(self):
@@ -496,8 +496,8 @@ class TestNotificationMarkdownFormatters(unittest.TestCase):
                 result = formatter(text)
                 fenced = self._first_fenced_code_body(result)
                 self.assertIn("| --- |", fenced)
-                self.assertIn("| 示例 | 不应转换 |", fenced)
+                self.assertIn("| 示例 | 不應轉換 |", fenced)
                 self.assertIn("# not heading", fenced)
                 self.assertIn("[详情](https://example.com/raw)", fenced)
-                self.assertIn("600519：强势", result)
+                self.assertIn("600519：強勢", result)
                 self.assertNotIn("@@DSA_FENCED_CODE_BLOCK_", result)

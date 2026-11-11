@@ -251,7 +251,7 @@ const appendDerivedEdge = (
     const label = transitionKind === 'fallback'
       ? '降级'
       : transitionKind === 'retry'
-        ? '重试'
+        ? '重試'
         : '调用';
     const message = metadataString(displayEvent.metadata, 'fallbackFrom', 'fallback_from', 'fallbackTo', 'fallback_to');
     return appendEdge(edges, previousNode.id, nodeId, transitionKind, node.status, label, message);

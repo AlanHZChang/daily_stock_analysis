@@ -71,7 +71,7 @@ class TestIsHkMarketAcceptsFourDigitBareCodes:
     """``_is_hk_market`` must accept 4-digit bare numeric codes as HK."""
 
     def test_four_digit_bare_hk(self) -> None:
-        # 长和 0001 / 中国移动 0941 — issue #2091 core examples
+        # 長和 0001 / 中國移動 0941 — issue #2091 core examples
         assert _is_hk_market("0001") is True
         assert _is_hk_market("0941") is True
 
@@ -84,7 +84,7 @@ class TestIsHkMarketAcceptsFourDigitBareCodes:
         assert _is_hk_market("02513") is True
 
     def test_six_digit_a_share_not_hk(self) -> None:
-        # A股 / BSE 6 位数字仍必须判为非港股
+        # A股 / BSE 6 位數字仍必須判為非港股
         assert _is_hk_market("600519") is False
         assert _is_hk_market("000001") is False
         assert _is_hk_market("300750") is False
@@ -237,7 +237,7 @@ class TestAkshareFetcherIsHkCodeContract:
     def test_four_digit_bare_hk_accepted(self) -> None:
         from data_provider.akshare_fetcher import _is_hk_code
 
-        # 长和 0001 / 中国移动 0941 — issue #2091 core 4-digit examples
+        # 長和 0001 / 中國移動 0941 — issue #2091 core 4-digit examples
         assert _is_hk_code("0001") is True
         assert _is_hk_code("0941") is True
 
@@ -250,7 +250,7 @@ class TestAkshareFetcherIsHkCodeContract:
     def test_six_digit_bare_remains_cn(self) -> None:
         from data_provider.akshare_fetcher import _is_hk_code
 
-        # 6 位裸数字是 A 股 / BSE，绝不能被 akshare 误判为港股
+        # 6 位裸數字是 A 股 / BSE，絕不能被 akshare 誤判為港股
         assert _is_hk_code("600519") is False
         assert _is_hk_code("000001") is False
 

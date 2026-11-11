@@ -214,7 +214,7 @@ class MarketReviewLocalizationTestCase(unittest.TestCase):
             )
 
         self.assertIn("## 今日大盘", result)
-        self.assertIn("### 板块主线", result)
+        self.assertIn("### 板块主線", result)
         self.assertIn("| 1 | AI算力 | +3.25% |", result)
         self.assertIn("| 1 | 煤炭 | -1.12% |", result)
         notifier.send.assert_not_called()
@@ -603,7 +603,7 @@ class MarketReviewLocalizationTestCase(unittest.TestCase):
             wrapper_title="🎯 大盘复盘",
         )
 
-        self.assertIn("### 板块主线", markdown)
+        self.assertIn("### 板块主線", markdown)
         self.assertIn("#### 领涨板块 Top 5", markdown)
         self.assertIn("| 1 | AI算力 | +3.25% |", markdown)
         self.assertIn("#### 领跌板块 Top 5", markdown)
@@ -630,7 +630,7 @@ class MarketReviewLocalizationTestCase(unittest.TestCase):
         )
 
         self.assertEqual(markdown.count("#### 行业板块领涨 Top 5"), 1)
-        self.assertNotIn("### 板块主线", markdown)
+        self.assertNotIn("### 板块主線", markdown)
         self.assertNotIn("#### 领涨板块 Top 5", markdown)
         self.assertNotIn("#### 领跌板块 Top 5", markdown)
 
@@ -665,12 +665,12 @@ class MarketReviewLocalizationTestCase(unittest.TestCase):
             }
         )
 
-        self.assertIn("### A 股大盘 / 板块主线", markdown)
+        self.assertIn("### A 股大盘 / 板块主線", markdown)
         self.assertIn("| 1 | AI算力 | +3.25% |", markdown)
-        self.assertIn("### 港股大盘 / 板块主线", markdown)
+        self.assertIn("### 港股大盘 / 板块主線", markdown)
         self.assertIn("| 1 | 科技 | +2.18% |", markdown)
-        self.assertIn("### 美股大盘 / 板块主线", markdown)
-        self.assertIn("| 1 | 半导体 | +1.86% |", markdown)
+        self.assertIn("### 美股大盘 / 板块主線", markdown)
+        self.assertIn("| 1 | 半導體 | +1.86% |", markdown)
         self.assertLess(markdown.index("### A 股大盘 / 板块主线"), markdown.index("## 港股大盘"))
         self.assertLess(markdown.index("### 港股大盘 / 板块主线"), markdown.index("## 美股大盘"))
 
@@ -721,7 +721,7 @@ class MarketReviewLocalizationTestCase(unittest.TestCase):
         self.assertEqual(markdown.count("#### 行业板块领涨 Top 5"), 1)
         self.assertEqual(markdown.count(f"### {duplicate_title} / 板块主线"), 2)
         self.assertIn("| 1 | 科技 | +2.18% |", markdown)
-        self.assertIn("| 1 | 半导体 | +1.86% |", markdown)
+        self.assertIn("| 1 | 半導體 | +1.86% |", markdown)
 
     def test_render_market_review_payload_markdown_preserves_segment_boundaries_after_fallback(self) -> None:
         markdown = market_review_module._render_market_review_payload_markdown(
@@ -811,7 +811,7 @@ class MarketReviewLocalizationTestCase(unittest.TestCase):
                     self.assertEqual(row.code, market_review_module.MARKET_REVIEW_HISTORY_CODE)
                     self.assertEqual(row.name, "大盘复盘")
                     self.assertEqual(row.report_type, market_review_module.MARKET_REVIEW_REPORT_TYPE)
-                    self.assertEqual(row.news_content, "## 今日大盘\n\n复盘正文")
+                    self.assertEqual(row.news_content, "## 今日大盘\n\n覆盤正文")
                     self.assertIn("# 🎯 大盘复盘", row.raw_result)
                     self.assertIn('"market_light_snapshots"', row.context_snapshot)
                     self.assertIn('"market_review_payload"', row.context_snapshot)
@@ -858,7 +858,7 @@ class MarketReviewLocalizationTestCase(unittest.TestCase):
                         trigger_source="api",
                     )
 
-                self.assertEqual(result, "## 今日大盘\n\n复盘正文")
+                self.assertEqual(result, "## 今日大盘\n\n覆盤正文")
                 db = DatabaseManager.get_instance()
                 with db.get_session() as session:
                     row = session.query(AnalysisHistory).filter(
@@ -905,7 +905,7 @@ class MarketReviewLocalizationTestCase(unittest.TestCase):
                         trigger_source="cli",
                     )
 
-                self.assertEqual(result, "## 今日大盘\n\n复盘正文")
+                self.assertEqual(result, "## 今日大盘\n\n覆盤正文")
                 db = DatabaseManager.get_instance()
                 with db.get_session() as session:
                     rows = session.query(AnalysisHistory).all()

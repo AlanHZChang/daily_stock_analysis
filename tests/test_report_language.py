@@ -111,7 +111,7 @@ class KoreanReportLanguageTestCase(unittest.TestCase):
         self.assertEqual(ko_labels["risk_alerts_label"], "리스크 경보")
 
     def test_data_sources_label_is_localized(self) -> None:
-        self.assertEqual(get_report_labels("zh")["data_sources_label"], "数据来源")
+        self.assertEqual(get_report_labels("zh")["data_sources_label"], "數據來源")
         self.assertEqual(get_report_labels("en")["data_sources_label"], "Data Sources")
         self.assertEqual(get_report_labels("ko")["data_sources_label"], "데이터 출처")
 

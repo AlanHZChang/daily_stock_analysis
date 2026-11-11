@@ -305,7 +305,7 @@ class AnalysisApiContractTestCase(unittest.TestCase):
         self.assertTrue(callable(args[0]))
         self.assertEqual(kwargs["stock_code"], "market_review")
         self.assertEqual(kwargs["stock_name"], "大盘复盘")
-        self.assertEqual(kwargs["message"], "大盘复盘任务已提交")
+        self.assertEqual(kwargs["message"], "大盘复盘任務已提交")
         self.assertEqual(kwargs["region"], "cn")
 
     def test_trigger_market_review_accepts_request_level_report_language(self) -> None:
@@ -745,7 +745,7 @@ class AnalysisApiContractTestCase(unittest.TestCase):
             status = get_analysis_status("market-task-1")
 
         self.assertEqual(status.status, "completed")
-        self.assertEqual(status.market_review_report, "市场复盘报告示例文本")
+        self.assertEqual(status.market_review_report, "市场复盘報告示例文本")
         self.assertEqual(status.market_review_payload["kind"], "market_review")
         self.assertEqual(status.market_review_payload["region"], "cn,us")
         self.assertEqual(status.region, "cn,us")
@@ -1256,7 +1256,7 @@ class AnalysisApiContractTestCase(unittest.TestCase):
         self.assertIsNotNone(task_info)
         self.assertEqual(task_info.status, TaskStatus.FAILED)
         self.assertEqual(task_info.error, "runtime init failed")
-        self.assertEqual(task_info.message, "任务失败: runtime init failed")
+        self.assertEqual(task_info.message, "任務失敗: runtime init failed")
         release_market_review_lock.assert_called_once()
 
     def test_get_analysis_status_completed_db_snapshot_preserves_zero_change_pct(self) -> None:
@@ -1335,7 +1335,7 @@ class AnalysisApiContractTestCase(unittest.TestCase):
             result = get_analysis_status("market-task-1")
 
         self.assertEqual(result.status, "completed")
-        self.assertEqual(result.market_review_report, "# 🎯 大盘复盘\n\n复盘正文")
+        self.assertEqual(result.market_review_report, "# 🎯 大盘复盘\n\n覆盤正文")
         self.assertEqual(result.region, "jp,kr")
         self.assertEqual(result.market_review_payload["region"], "jp,kr")
         self.assertIsNone(result.result)
@@ -1768,7 +1768,7 @@ class AnalysisApiContractTestCase(unittest.TestCase):
         self.assertEqual(news_component["status"], "unknown")
         self.assertEqual(
             result["report"]["details"]["empty_news_disclosure"],
-            "⚠️ 未配置搜索渠道，本次分析未纳入新闻面证据。",
+            "⚠️ 未配置搜索渠道，本次分析未納入新闻面證據。",
         )
 
     def test_build_analysis_response_includes_market_phase_summary_from_result_snapshot(self) -> None:
@@ -2954,7 +2954,7 @@ class AnalysisApiContractTestCase(unittest.TestCase):
         self.assertEqual(ctx.exception.status_code, 400)
         self.assertEqual(
             ctx.exception.detail["message"],
-            "股票代码不能为空或仅包含空白字符",
+            "股票代碼不能為空或僅包含空白字符",
         )
 
     def test_trigger_analysis_rejects_obviously_invalid_mixed_input_before_resolution(self) -> None:
@@ -4334,8 +4334,8 @@ class AnalysisApiContractTestCase(unittest.TestCase):
         }
         with patch("api.v1.endpoints.analysis.get_task_queue", return_value=queue):
             response = get_task_list(status=None, limit=20)
-        # 走真实 JSON 序列化再读取，证明 GET /tasks 响应层面降级为 null，
-        # 而非仅依赖 Pydantic 对象属性。
+        # 走真實 JSON 序列化再讀取，證明 GET /tasks 響應層面降級為 null，
+        # 而非僅依賴 Pydantic 對象屬性。
         payload = json.loads(response.model_dump_json())
         return payload["tasks"][0]["asset_type"]
 
@@ -4614,7 +4614,7 @@ class BatchTaskQueueContractTestCase(unittest.TestCase):
 
         self.assertIsNotNone(updated)
         self.assertEqual(updated.progress, 62)
-        self.assertEqual(updated.message, "LLM 正在生成分析结果")
+        self.assertEqual(updated.message, "LLM 正在生成分析結果")
         self.assertEqual(events, [("task_progress", updated.to_dict())])
 
     def _executor_stub_queue(self) -> AnalysisTaskQueue:

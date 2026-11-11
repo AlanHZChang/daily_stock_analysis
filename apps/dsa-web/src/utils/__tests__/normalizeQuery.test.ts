@@ -57,7 +57,7 @@ describe('normalizeQuery', () => {
   describe('isChineseChar - Chinese character detection', () => {
     test('identifies Chinese characters', () => {
       expect(isChineseChar('茅')).toBe(true);
-      expect(isChineseChar('台')).toBe(true);
+      expect(isChineseChar('臺')).toBe(true);
       expect(isChineseChar('股')).toBe(true);
     });
 

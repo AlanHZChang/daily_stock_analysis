@@ -180,7 +180,7 @@ describe('useDashboardLifecycle', () => {
       ...createTask(),
       status: 'processing' as const,
       progress: 72,
-      message: 'LLM 正在生成分析结果',
+      message: 'LLM 正在生成分析結果',
     };
 
     act(() => {

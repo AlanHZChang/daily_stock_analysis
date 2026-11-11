@@ -5,7 +5,7 @@ import { SidebarNav } from '../SidebarNav';
 
 const mockLogout = vi.fn().mockResolvedValue(undefined);
 const mockThemeToggle = vi.fn(({ collapsed }: { collapsed?: boolean }) => (
-  <button type="button">{collapsed ? '切换主题(折叠)' : '切换主题'}</button>
+  <button type="button">{collapsed ? '切換主题(摺疊)' : '切換主题'}</button>
 ));
 
 const completionBadgeState = { value: true };
@@ -30,7 +30,7 @@ describe('SidebarNav', () => {
   it('keeps screening directly after chat without requiring configuration', () => {
     render(<MemoryRouter initialEntries={['/']}><SidebarNav /></MemoryRouter>);
 
-    expect(screen.getByRole('link', { name: '选股' })).toHaveAttribute('href', '/screening');
+    expect(screen.getByRole('link', { name: '選股' })).toHaveAttribute('href', '/screening');
     const hrefs = screen.getAllByRole('link').map((link) => link.getAttribute('href'));
     expect(hrefs.slice(0, 5)).toEqual(['/', '/chat', '/screening', '/portfolio', '/decision-signals']);
   });
@@ -45,7 +45,7 @@ describe('SidebarNav', () => {
     );
 
     expect(screen.getByTestId('chat-completion-badge')).toBeInTheDocument();
-    expect(screen.getByLabelText('问股有新消息')).toBeInTheDocument();
+    expect(screen.getByLabelText('問股有新消息')).toBeInTheDocument();
 
     completionBadgeState.value = false;
     rerender(
@@ -67,7 +67,7 @@ describe('SidebarNav', () => {
     expect(mockThemeToggle).toHaveBeenCalledWith(
       expect.objectContaining({ variant: 'nav', collapsed: true }),
     );
-    expect(screen.getByRole('button', { name: '切换主题(折叠)' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '切換主题(摺疊)' })).toBeInTheDocument();
   });
 
   it('renders the alerts navigation item and marks it active', () => {
@@ -89,7 +89,7 @@ describe('SidebarNav', () => {
       </MemoryRouter>,
     );
 
-    const signalsLink = screen.getByRole('link', { name: 'AI 建议' });
+    const signalsLink = screen.getByRole('link', { name: 'AI 建議' });
     expect(signalsLink).toHaveAttribute('href', '/decision-signals');
     expect(signalsLink).toHaveClass('font-medium');
   });
@@ -101,7 +101,7 @@ describe('SidebarNav', () => {
       </MemoryRouter>,
     );
 
-    const link = screen.getByRole('link', { name: '数据中心' });
+    const link = screen.getByRole('link', { name: '數據中心' });
     expect(link).toHaveAttribute('href', '/data');
     expect(link).toHaveClass('font-medium');
   });
@@ -109,11 +109,11 @@ describe('SidebarNav', () => {
   it('keeps rail controls outside the scrollable navigation links', () => {
     render(<MemoryRouter><SidebarNav variant="rail" /></MemoryRouter>);
 
-    const nav = screen.getByRole('navigation', { name: '主导航' });
+    const nav = screen.getByRole('navigation', { name: '主導航' });
     expect(nav).toHaveClass('min-h-0', 'overflow-y-auto');
     expect(nav).not.toContainElement(screen.getByRole('button', { name: '退出' }));
-    expect(nav).not.toContainElement(screen.getByRole('button', { name: '切换主题' }));
-    expect(screen.getByRole('link', { name: '设置' })).toHaveClass('shrink-0');
+    expect(nav).not.toContainElement(screen.getByRole('button', { name: '切換主题' }));
+    expect(screen.getByRole('link', { name: '設置' })).toHaveClass('shrink-0');
   });
 
   it.each(['/settings?category=system', '/settings/'])(
@@ -121,12 +121,12 @@ describe('SidebarNav', () => {
       mockLogout.mockClear();
       render(<MemoryRouter initialEntries={[path]}><SidebarNav /></MemoryRouter>);
       fireEvent.click(screen.getByRole('button', { name: '退出' }));
-      expect(await screen.findByText(/退出会丢弃本页未保存的设置/)).toBeInTheDocument();
-      expect(screen.getByText(/已发出的保存请求不会因退出而撤销/)).toBeInTheDocument();
+      expect(await screen.findByText(/退出會丟棄本頁未保存的設置/)).toBeInTheDocument();
+      expect(screen.getByText(/已發出的保存請求不會因退出而撤銷/)).toBeInTheDocument();
       fireEvent.click(screen.getByRole('button', { name: '取消' }));
       expect(mockLogout).not.toHaveBeenCalled();
       fireEvent.click(screen.getByRole('button', { name: '退出' }));
-      fireEvent.click(screen.getByRole('button', { name: '确认退出' }));
+      fireEvent.click(screen.getByRole('button', { name: '確認退出' }));
       expect(mockLogout).toHaveBeenCalledTimes(1);
     },
   );
@@ -140,8 +140,8 @@ describe('SidebarNav', () => {
 
     fireEvent.click(screen.getByRole('button', { name: '退出' }));
 
-    expect(await screen.findByRole('heading', { name: '退出登录' })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: '确认退出' }));
+    expect(await screen.findByRole('heading', { name: '退出登錄' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: '確認退出' }));
     expect(mockLogout).toHaveBeenCalled();
   });
 });

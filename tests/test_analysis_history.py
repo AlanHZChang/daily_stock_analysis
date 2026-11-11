@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 """
 ===================================
-A股自选股智能分析系统 - 分析历史存储单元测试
+A股自選股智能分析系統 - 分析歷史存儲單元測試
 ===================================
 
-职责：
-1. 验证分析历史保存逻辑
-2. 验证上下文快照保存开关
+職責：
+1. 驗證分析歷史保存邏輯
+2. 驗證上下文快照保存開關
 """
 
 import json
@@ -170,8 +170,8 @@ class TestHistoryIndexCanonicalCandidates(unittest.TestCase):
             self.assertNotIn("399001", candidates)
 
     def test_multi_alias_sh300_index_candidates_include_uppercase_alias_forms(self):
-        """sqlite `IN` 大小写敏感：`sz399300` 的旧 uppercase 持久化形态
-        `SZ399300` 必须进入候选集，否则旧记录查不到。"""
+        """sqlite `IN` 大小寫敏感：`sz399300` 的舊 uppercase 持久化形態
+        `SZ399300` 必須進入候選集，否則舊記錄查不到。"""
         expected = {
             "sh000300",
             "SH000300",
@@ -299,10 +299,10 @@ def _market_phase_summary() -> dict:
 
 
 class AnalysisHistoryTestCase(unittest.TestCase):
-    """分析历史存储测试"""
+    """分析歷史存儲測試"""
 
     def setUp(self) -> None:
-        """为每个用例初始化独立数据库"""
+        """為每個用例初始化獨立數據庫"""
         auth._auth_enabled = False
         self._temp_dir = tempfile.TemporaryDirectory()
         self._db_path = os.path.join(self._temp_dir.name, "test_analysis_history.db")
@@ -325,7 +325,7 @@ class AnalysisHistoryTestCase(unittest.TestCase):
         self.db = DatabaseManager.get_instance()
 
     def tearDown(self) -> None:
-        """清理资源"""
+        """清理資源"""
         Config._instance = None
         DatabaseManager.reset_instance()
         for key, value in self._original_env.items():
@@ -418,7 +418,7 @@ class AnalysisHistoryTestCase(unittest.TestCase):
             self.assertIsNotNone(session.query(AnalysisHistory).filter(AnalysisHistory.id == record_id).first())
 
     def _build_result(self) -> AnalysisResult:
-        """构造分析结果"""
+        """構造分析結果"""
         return AnalysisResult(
             code="600519",
             name="贵州茅台",
@@ -429,7 +429,7 @@ class AnalysisHistoryTestCase(unittest.TestCase):
         )
 
     def _save_history(self, query_id: str) -> int:
-        """保存一条测试历史记录并返回主键 ID。"""
+        """保存一條測試歷史記錄並返回主鍵 ID。"""
         result = self._build_result()
         saved = self.db.save_analysis_history(
             result=result,
@@ -449,7 +449,7 @@ class AnalysisHistoryTestCase(unittest.TestCase):
             return row.id
 
     def test_save_analysis_history_with_snapshot(self) -> None:
-        """保存历史记录并写入上下文快照"""
+        """保存歷史記錄並寫入上下文快照"""
         result = self._build_result()
         result.dashboard = {
             "battle_plan": {
@@ -622,7 +622,7 @@ class AnalysisHistoryTestCase(unittest.TestCase):
         self.assertEqual(stock_bar.items[0].analysis_count, 2)
 
     def test_save_analysis_history_persists_sniper_columns_via_shared_parser(self) -> None:
-        """迁出 sniper parser 后历史狙击点位列仍按原规则保存。"""
+        """遷出 sniper parser 後歷史狙擊點位列仍按原規則保存。"""
         result = self._build_result()
         result.dashboard = {
             "battle_plan": {
@@ -658,7 +658,7 @@ class AnalysisHistoryTestCase(unittest.TestCase):
             self.assertEqual(row.take_profit, 150.0)
 
     def test_get_latest_analysis_history_id_filters_by_report_type_and_latest_record(self) -> None:
-        """按 query/code/report_type 返回最新真实历史主键。"""
+        """按 query/code/report_type 返回最新真實歷史主鍵。"""
         for report_type in ("simple", "full", "simple"):
             saved = self.db.save_analysis_history(
                 result=self._build_result(),
@@ -686,12 +686,12 @@ class AnalysisHistoryTestCase(unittest.TestCase):
         self.assertGreater(simple_id, full_id)
 
     def test_get_latest_analysis_history_id_requires_report_type(self) -> None:
-        """report_type 是必传参数，避免误取同 query/code 的其他报告。"""
+        """report_type 是必傳參數，避免誤取同 query/code 的其他報告。"""
         with self.assertRaises(TypeError):
             self.db.get_latest_analysis_history_id(query_id="query", code="600519")
 
     def test_save_analysis_history_without_snapshot(self) -> None:
-        """关闭快照保存时不写入 context_snapshot"""
+        """關閉快照保存時不寫入 context_snapshot"""
         result = self._build_result()
 
         saved = self.db.save_analysis_history(
@@ -736,7 +736,7 @@ class AnalysisHistoryTestCase(unittest.TestCase):
             self.assertEqual(payload.get("model_used"), "gemini/gemini-2.0-flash")
 
     def test_update_analysis_history_diagnostics_preserves_snapshot_fields(self) -> None:
-        """通知发送后补写 diagnostics 时，不应覆盖已有上下文字段。"""
+        """通知發送後補寫 diagnostics 時，不應覆蓋已有上下文字段。"""
         saved = self.db.save_analysis_history(
             result=self._build_result(),
             query_id="query_diag_patch",
@@ -841,7 +841,7 @@ class AnalysisHistoryTestCase(unittest.TestCase):
         item = payload["items"][0]
         self.assertEqual(item["stock_code"], "600519")
         self.assertEqual(item["trend_prediction"], "看多")
-        self.assertEqual(item["analysis_summary"], "基本面稳健，短期震荡")
+        self.assertEqual(item["analysis_summary"], "基本面穩健，短期震盪")
         self.assertEqual(item["operation_advice"], "持有")
         self.assertEqual(item["action"], "buy")
         self.assertEqual(item["action_label"], "买入")
@@ -1264,7 +1264,7 @@ class AnalysisHistoryTestCase(unittest.TestCase):
         self.assertEqual({item["stock_code"] for item in from_plain["items"]}, expected)
 
     def test_history_detail_preserves_zero_change_pct(self) -> None:
-        """change_pct=0.0（平盘）应原样返回，而不是被当成缺失值丢失。
+        """change_pct=0.0（平盤）應原樣返回，而不是被當成缺失值丟失。
 
         Regression for issue #1084: history endpoint used `or` chains that
         treated 0.0 as falsy and silently dropped the daily change.
@@ -1300,7 +1300,7 @@ class AnalysisHistoryTestCase(unittest.TestCase):
         self.assertEqual(report.meta.change_pct, 0.0)
 
     def test_history_detail_falls_back_to_realtime_quote_raw_change_pct(self) -> None:
-        """缺少 enhanced_context.realtime.change_pct 时，应回退到 realtime_quote_raw。
+        """缺少 enhanced_context.realtime.change_pct 時，應回退到 realtime_quote_raw。
 
         Regression for issue #1084: previously the realtime_quote_raw fallback
         was only consulted when current_price was missing, so reports with
@@ -1501,7 +1501,7 @@ class AnalysisHistoryTestCase(unittest.TestCase):
         service = HistoryService(self.db)
         detail = service.get_history_detail_by_id(record_id)
         self.assertIsNotNone(detail)
-        self.assertEqual(detail.get("ideal_buy"), "理想买入点：125.5元")
+        self.assertEqual(detail.get("ideal_buy"), "理想买入點：125.5元")
         self.assertEqual(detail.get("secondary_buy"), "120-121 元分批")
         self.assertEqual(detail.get("stop_loss"), "跌破 110 元止损")
         self.assertEqual(detail.get("take_profit"), "目标位：150.0元")
@@ -1992,7 +1992,7 @@ class AnalysisHistoryTestCase(unittest.TestCase):
         self.assertIn("Stock Analysis Report", markdown)
         self.assertIn("Core Conclusion", markdown)
         self.assertIn("Unnamed Stock (AAPL)", markdown)
-        self.assertNotIn("核心结论", markdown)
+        self.assertNotIn("核心結論", markdown)
 
     def test_history_markdown_signal_metadata_uses_explicit_avoid_action(self) -> None:
         result = AnalysisResult(
@@ -2066,7 +2066,7 @@ class AnalysisHistoryTestCase(unittest.TestCase):
         markdown = service._generate_single_stock_markdown(result, record)
 
         self.assertIn("多策略综合", markdown)
-        self.assertIn("另有 3 个策略解析失败", markdown)
+        self.assertIn("另有 3 個策略解析失敗", markdown)
 
     def test_history_markdown_returns_persisted_market_review_report(self) -> None:
         """Market review history should return the saved Markdown without rebuilding a stock report."""
@@ -2101,7 +2101,7 @@ class AnalysisHistoryTestCase(unittest.TestCase):
 
         markdown = HistoryService(self.db).get_markdown_report(str(record_id))
 
-        self.assertEqual(markdown, "# 🎯 大盘复盘\n\n## 今日大盘\n\n复盘正文")
+        self.assertEqual(markdown, "# 🎯 大盘复盘\n\n## 今日大盘\n\n覆盤正文")
 
     def test_history_markdown_collapses_unavailable_chip_structure(self) -> None:
         result = AnalysisResult(
@@ -2145,7 +2145,7 @@ class AnalysisHistoryTestCase(unittest.TestCase):
         markdown = HistoryService(self.db).get_markdown_report(str(record_id))
 
         self.assertIsNotNone(markdown)
-        self.assertIn("**筹码**: 筹码分布未启用或数据源暂不可用，未纳入筹码判断。", markdown)
+        self.assertIn("**筹码**: 筹码分佈未啟用或數據源暫不可用，未納入筹码判斷。", markdown)
         self.assertEqual(markdown.count("数据缺失，无法判断"), 0)
 
     def test_history_detail_returns_persisted_market_review_report(self) -> None:
@@ -2204,7 +2204,7 @@ class AnalysisHistoryTestCase(unittest.TestCase):
 
         summary = service._market_review_summary("  ", markdown)
 
-        self.assertEqual(summary, "🎯 大盘复盘 今日观点 成交活跃，关注 科技板块。 指标 数值 涨跌 +1%")
+        self.assertEqual(summary, "🎯 大盘复盘 今日觀點 成交活躍，關注 科技板块。 指标 數值 漲跌 +1%")
         self.assertNotIn("dsa-market-region", summary)
         self.assertNotIn("internal", summary)
 
@@ -2317,7 +2317,7 @@ class AnalysisHistoryTestCase(unittest.TestCase):
         self.assertNotIn("🚨Safe", markdown)
 
     def test_delete_analysis_history_records_also_cleans_backtests_and_decision_signals(self) -> None:
-        """删除历史记录时应一并清理关联回测结果和决策信号。"""
+        """刪除歷史記錄時應一併清理關聯回測結果和決策信號。"""
         record_id = self._save_history("query_delete_001")
         linked_signal_id = None
 
@@ -2412,7 +2412,7 @@ class AnalysisHistoryTestCase(unittest.TestCase):
             )
 
     def test_delete_analysis_history_records_keeps_signals_for_nonexistent_history_id(self) -> None:
-        """不存在的历史 ID 不应触发弱关联 DecisionSignal 清理。"""
+        """不存在的歷史 ID 不應觸發弱關聯 DecisionSignal 清理。"""
         missing_id = 987654321
 
         with self.db.session_scope() as session:
@@ -2444,7 +2444,7 @@ class AnalysisHistoryTestCase(unittest.TestCase):
             )
 
     def test_delete_analysis_history_records_keeps_manual_signal_with_same_report_id(self) -> None:
-        """source_report_id 是弱引用，真实 history 删除不应误删 manual/pre-report 信号。"""
+        """source_report_id 是弱引用，真實 history 刪除不應誤刪 manual/pre-report 信號。"""
         record_id = self._save_history("query_delete_manual_collision")
 
         with self.db.session_scope() as session:
@@ -2497,7 +2497,7 @@ class AnalysisHistoryTestCase(unittest.TestCase):
             )
 
     def test_delete_analysis_history_records_cleans_only_existing_ids_in_mixed_batch(self) -> None:
-        """混合存在/不存在 ID 时，只清理实际存在历史记录的关联数据。"""
+        """混合存在/不存在 ID 時，只清理實際存在歷史記錄的關聯數據。"""
         record_id = self._save_history("query_delete_mixed")
         missing_id = record_id + 987654
 
@@ -2590,7 +2590,7 @@ class AnalysisHistoryTestCase(unittest.TestCase):
             self.assertIsNotNone(session.query(AnalysisHistory).filter(AnalysisHistory.id == record_id_2).first())
 
     def test_empty_news_state_round_trips_through_history_markdown(self) -> None:
-        """持久化、重建和历史 Markdown 必须保留三态披露。"""
+        """持久化、重建和歷史 Markdown 必須保留三態披露。"""
         no_channel = "⚠️ 未配置搜索渠道，本次分析未纳入新闻面证据。"
         zero_hit = "⚠️ 本次未获取到可用的新闻面数据，以下结论未纳入新闻维度证据。"
         service = HistoryService(self.db)
@@ -2643,7 +2643,7 @@ class AnalysisHistoryTestCase(unittest.TestCase):
                     self.assertEqual(report.details.empty_news_disclosure, expected)
 
     def test_legacy_history_without_news_count_stays_silent(self) -> None:
-        """旧记录缺少计数字段时状态未知，不能倒推为未配置渠道。"""
+        """舊記錄缺少計數字段時狀態未知，不能倒推為未配置渠道。"""
         no_channel = "⚠️ 未配置搜索渠道，本次分析未纳入新闻面证据。"
         zero_hit = "⚠️ 本次未获取到可用的新闻面数据，以下结论未纳入新闻维度证据。"
         record_id = self.db.save_analysis_history(
@@ -2679,7 +2679,7 @@ class AnalysisHistoryTestCase(unittest.TestCase):
             self.assertIsNone(report.details.empty_news_disclosure)
 
     # ------------------------------------------------------------------
-    # PR #2312: 指数 canonical 历史隔离（并入本类，避免子类重复继承放大测试）
+    # PR #2312: 指數 canonical 歷史隔離（併入本類，避免子類重複繼承放大測試）
     # ------------------------------------------------------------------
     def _save_result_with_code(self, code: str, query_id: str) -> int:
         result = self._build_result()
@@ -2738,8 +2738,8 @@ class AnalysisHistoryTestCase(unittest.TestCase):
         self.assertEqual(stock_listing["total"], 0)
 
     def test_sz_index_history_filter_and_delete_isolate_from_same_code_stock(self):
-        """I/O matrix INDEX_HISTORY 的 SZ 侧真实 SQL 路径：``sz399001``
-        lowercase canonical 筛选、删除与计数均命中自身记录，不并入裸
+        """I/O matrix INDEX_HISTORY 的 SZ 側真實 SQL 路徑：``sz399001``
+        lowercase canonical 篩選、刪除與計數均命中自身記錄，不併入裸
         ``399001`` 股票。"""
         self._save_result_with_code("sz399001", "query_sz_index")
         self._save_result_with_code("399001", "query_sz_stock")
@@ -2774,7 +2774,7 @@ class AnalysisHistoryTestCase(unittest.TestCase):
             )
 
     def test_history_detail_displays_parser_canonical_for_legacy_index_record(self):
-        """报告详情 meta 对旧 uppercase/alias 指数记录输出 parser canonical。"""
+        """報告詳情 meta 對舊 uppercase/alias 指數記錄輸出 parser canonical。"""
         if get_history_detail is None:
             self.skipTest("fastapi is not installed in this test environment")
 
@@ -2791,9 +2791,9 @@ class AnalysisHistoryTestCase(unittest.TestCase):
         self.assertEqual(report.meta.asset_type, "index")
 
     def test_history_list_displays_parser_canonical_for_legacy_index_records(self):
-        """已登记指数旧记录（uppercase legacy / 显式 alias）的 API
-        ``stock_code`` 输出 parser canonical（``sz399300``/``000300.CSI`` ->
-        ``sh000300``），前端只做大小写折叠即可，无需前缀/后缀正则猜 canonical。"""
+        """已登記指數舊記錄（uppercase legacy / 顯式 alias）的 API
+        ``stock_code`` 輸出 parser canonical（``sz399300``/``000300.CSI`` ->
+        ``sh000300``），前端只做大小寫摺疊即可，無需前綴/後綴正則猜 canonical。"""
         self._save_result_with_code("SZ399300", "query_sz399300_upper")
         self._save_result_with_code("000300.CSI", "query_000300_csi")
 
@@ -2803,9 +2803,9 @@ class AnalysisHistoryTestCase(unittest.TestCase):
         self.assertEqual(by_query["query_000300_csi"]["stock_code"], "sh000300")
 
     def test_sh300_uppercase_alias_filter_delete_and_stock_bar_count_real_sql(self):
-        """sqlite ``IN`` 大小写敏感回归：``SZ399300``/``sz399300``/
-        ``000300.CSI``/``sh000300`` 任一查询都命中全部显式形态旧记录（含
-        uppercase alias 持久化记录），并与裸 ``000300`` 股票隔离。"""
+        """sqlite ``IN`` 大小寫敏感迴歸：``SZ399300``/``sz399300``/
+        ``000300.CSI``/``sh000300`` 任一查詢都命中全部顯式形態舊記錄（含
+        uppercase alias 持久化記錄），並與裸 ``000300`` 股票隔離。"""
         self._save_result_with_code("sh000300", "query_canonical")
         self._save_result_with_code("SZ399300", "query_uppercase_alias")
         self._save_result_with_code("000300.CSI", "query_dotted_alias")
@@ -2913,8 +2913,8 @@ class AnalysisHistoryTestCase(unittest.TestCase):
         self.assertEqual(stock_item.analysis_count, 1)
 
     def test_stock_bar_exposes_sz_index_canonical_row_with_independent_count(self):
-        """``sz399001`` 在 stock-bar 以 canonical 单行展示，``analysis_count``
-        只计自身记录，不与裸 ``399001`` 股票合并。"""
+        """``sz399001`` 在 stock-bar 以 canonical 單行展示，``analysis_count``
+        只計自身記錄，不與裸 ``399001`` 股票合併。"""
         if get_stock_bar is None:
             self.skipTest("fastapi is not installed in this test environment")
 

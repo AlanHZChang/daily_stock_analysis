@@ -185,8 +185,8 @@ class TestAskCommandMultiStock(unittest.TestCase):
                     text = command._build_portfolio_section(SimpleNamespace(), ["600519", "000858"], results)
 
         self.assertIn("## 组合视角", text)
-        self.assertIn("组合偏消费集中", text)
-        self.assertIn("建议仓位", text)
+        self.assertIn("組合偏消費集中", text)
+        self.assertIn("建议倉位", text)
 
     def test_build_portfolio_section_returns_quickly_on_timeout(self):
         command = AskCommand()
@@ -315,7 +315,7 @@ class TestAskCommandMultiStock(unittest.TestCase):
 
         text = AskCommand._format_stock_result("600519", dashboard, "raw content")
 
-        self.assertIn("**关键点位**", text)
+        self.assertIn("**關鍵點位**", text)
         self.assertIn("ideal_buy=10.0", text)
         self.assertIn("secondary_buy=9.8", text)
         self.assertIn("stop_loss=9.5", text)

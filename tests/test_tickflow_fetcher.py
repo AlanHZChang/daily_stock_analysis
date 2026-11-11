@@ -390,7 +390,7 @@ class TestTickFlowFetcher(unittest.TestCase):
         top, bottom = fetcher.get_sector_rankings(1)
         cached_top, cached_bottom = fetcher.get_sector_rankings(1)
 
-        self.assertEqual(top[0]["name"], "轻工制造")
+        self.assertEqual(top[0]["name"], "輕工制造")
         self.assertAlmostEqual(top[0]["change_pct"], 3.0)
         self.assertEqual(top[0]["constituent_count"], 2)
         self.assertEqual(bottom[0]["name"], "银行")
