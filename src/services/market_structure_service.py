@@ -154,7 +154,7 @@ class MarketStructureService:
             risk_tags.append(
                 MarketStructureRiskTag(
                     code="theme_data_partial",
-                    message="市场题材数据不完整，题材强弱仅作降级参考",
+                    message="市場題材數據不完整，題材強弱僅作降級參考",
                 )
             )
         if related_boards and not primary_theme_has_market_match:
@@ -162,7 +162,7 @@ class MarketStructureService:
             risk_tags.append(
                 MarketStructureRiskTag(
                     code="stock_theme_evidence_partial",
-                    message="个股板块未匹配到市场题材榜单，个股位置按降级证据处理",
+                    message="個股板塊未匹配到市場題材榜單，個股位置按降級證據處理",
                 )
             )
         if not related_boards:
@@ -170,7 +170,7 @@ class MarketStructureService:
             risk_tags.append(
                 MarketStructureRiskTag(
                     code="board_membership_missing",
-                    message="缺少个股所属板块证据，无法判断题材位置",
+                    message="缺少個股所屬板塊證據，無法判斷題材位置",
                 )
             )
 

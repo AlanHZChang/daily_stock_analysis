@@ -53,7 +53,7 @@ Requirements:
                 return prompt + "\nAlways answer in English.\n"
             if report_language == "ko":
                 return prompt + "\n항상 한국어로 답변하세요.\n"
-            return prompt + "\n默认使用中文回答。\n"
+            return prompt + "\n默認使用中文回答。\n"
 
         skills = ""
         if self.skill_instructions:
@@ -150,10 +150,10 @@ should sum to 100; all-zero means no effective signal and must not be faked.
 """
         return prompt + """
 
-## 输出语言
-- 所有 JSON 键名保持不变。
-- `decision_type` 必须保持为 `buy|hold|sell`。
-- 所有面向用户的人类可读文本值必须使用中文。
+## 輸出語言
+- 所有 JSON 鍵名保持不變。
+- `decision_type` 必須保持為 `buy|hold|sell`。
+- 所有面向用戶的人類可讀文本值必須使用中文。
 """
 
     def build_user_message(self, ctx: AgentContext) -> str:
@@ -173,9 +173,9 @@ should sum to 100; all-zero means no effective signal and must not be faked.
             ]
 
         # Feed prior opinions — Orchestrator已在 _partition_skill_opinions 中完成
-        # skill 观点的分拣，ctx.opinions 中不再含 invalid skill opinion；
-        # invalid skill 观点存于 ctx.meta["invalid_opinions"]。
-        # DecisionAgent 直接消费，不再二次过滤。
+        # skill 觀點的分揀，ctx.opinions 中不再含 invalid skill opinion；
+        # invalid skill 觀點存於 ctx.meta["invalid_opinions"]。
+        # DecisionAgent 直接消費，不再二次過濾。
         if ctx.opinions:
             parts.append("## Agent Opinions (Evidence Chain)")
             for op in ctx.opinions:
@@ -194,10 +194,10 @@ should sum to 100; all-zero means no effective signal and must not be faked.
         invalid_opinions = ctx.meta.get("invalid_opinions") or []
         if invalid_opinions:
             reason_labels = {
-                "skill_timeout": "执行超时",
-                "skill_error": "执行异常或未产出结构化观点",
+                "skill_timeout": "執行超時",
+                "skill_error": "執行異常或未產出結構化觀點",
                 "missing_signal": "signal 缺失",
-                "unrecognized_signal": "signal 无法识别",
+                "unrecognized_signal": "signal 無法識別",
             }
             reason_counts = {}
             for item in invalid_opinions:
@@ -211,9 +211,9 @@ should sum to 100; all-zero means no effective signal and must not be faked.
             )
             parts.append("## Invalid Skill Opinions (Diagnostics only — not in evidence chain)")
             parts.append(
-                f"共 {len(invalid_opinions)} 个 skill 观点未进入证据链"
-                f"（{reason_summary or '原因未分类'}）；"
-                f"仅供你在 data_limitations 中标注，不得作为决策依据。"
+                f"共 {len(invalid_opinions)} 個 skill 觀點未進入證據鏈"
+                f"（{reason_summary or '原因未分類'}）；"
+                f"僅供你在 data_limitations 中標註，不得作為決策依據。"
             )
             parts.append("")
 

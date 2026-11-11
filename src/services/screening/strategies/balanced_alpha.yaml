@@ -3,7 +3,7 @@
 # 均衡多因子策略
 name: balanced_alpha
 display_name: 均衡多因子
-description: 综合估值、资金、动量、稳定性的通用候选发现策略
+description: 綜合估值、資金、動量、穩定性的通用候選發現策略
 version: "1.1"
 category: framework
 tags: [multi_factor, balanced, llm_friendly]
@@ -67,8 +67,8 @@ screening:
     volume_spike_ratio: 5.5
     hot_money_penalty: 2.2
   ranking_hints: |
-    优先关注：
-    1. 多个维度都不差的候选，而不是单一指标极端突出
-    2. LLM 需要比较候选的风格差异，避免最终名单过度集中在同一逻辑
-    3. 对估值、资金、趋势、风险之间的冲突给出清楚解释
+    優先關注：
+    1. 多個維度都不差的候選，而不是單一指標極端突出
+    2. LLM 需要比較候選的風格差異，避免最終名單過度集中在同一邏輯
+    3. 對估值、資金、趨勢、風險之間的衝突給出清楚解釋
   max_output: 5

@@ -147,7 +147,7 @@ def screen(
     snapshot_filters = without_daily_filters(screening.hard_filters) if daily_needed else screening.hard_filters
 
     # 2. Fetch snapshot
-    _emit_progress(progress_callback, 25, "正在读取全市场快照")
+    _emit_progress(progress_callback, 25, "正在讀取全市場快照")
     snapshot_df = fetch_snapshot_with_fallback(
         config.snapshot_source_priority,
         required_columns=_required_snapshot_columns(snapshot_filters),
@@ -204,7 +204,7 @@ def screen(
     _emit_progress(
         progress_callback,
         42,
-        f"快照筛选完成，保留 {after_filter_count} 条候选",
+        f"快照篩選完成，保留 {after_filter_count} 条候选",
     )
 
     if df.empty:
@@ -341,7 +341,7 @@ def screen(
 
     # 6.5. Host-provided candidate context, e.g. DSA realtime quote,
     # fundamentals, and news. This runs before LLM ranking so L2 can use it.
-    _emit_progress(progress_callback, 52, "正在补充候选行情与基本面")
+    _emit_progress(progress_callback, 52, "正在補充候選行情與基本面")
     degradation.extend(apply_dsa_provider_context(picks, context))
     llm_fallback_picks = [copy.deepcopy(pick) for pick in picks]
 
@@ -356,7 +356,7 @@ def screen(
     llm_attempted_models: list[str] = []
     llm_failure_reason = ""
     if use_llm and config.has_llm_config():
-        _emit_progress(progress_callback, 66, "正在执行 LLM 候选重排")
+        _emit_progress(progress_callback, 66, "正在執行 LLM 候選重排")
         candidate_context_rows: list[dict[str, object]] = []
         event_source_weights = _event_source_weights(screening.event_profile)
         should_collect_candidate_context = (
@@ -481,7 +481,7 @@ def screen(
 
     # 11. Optional L3 post-analysis, DSA is only one possible analyzer.
     if analyzer_names:
-        _emit_progress(progress_callback, 82, "正在执行最终评分与风险校验")
+        _emit_progress(progress_callback, 82, "正在執行最終評分與風險校驗")
         # The local scorecard covers the complete shortlist. Remote analyzers
         # retain their configured operational cap; the variant stage below
         # admits only candidates that completed every configured analyzer.
@@ -527,7 +527,7 @@ def screen(
         analyzer_names=analyzer_names,
     )
     picks = selection_variant.picks
-    _emit_progress(progress_callback, 88, "选股核心流程完成")
+    _emit_progress(progress_callback, 88, "選股核心流程完成")
 
     return ScreenResult(
         strategy=strategy,

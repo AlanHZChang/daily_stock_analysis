@@ -1,19 +1,19 @@
 # -*- coding: utf-8 -*-
-"""新闻检索未执行或零命中时的报告披露文案。
+"""新聞檢索未執行或零命中時的報告披露文案。
 
-单一事实来源：字符串拼接渲染器（src/notification.py）与模板渲染链路
-（src/services/report_renderer.py + templates/*.j2）共用本模块，避免
-同一份分析结果在部分渠道披露、在另一些渠道沉默。
+單一事實來源：字符串拼接渲染器（src/notification.py）與模板渲染鏈路
+（src/services/report_renderer.py + templates/*.j2）共用本模塊，避免
+同一份分析結果在部分渠道披露、在另一些渠道沉默。
 
-披露断言的是「本次结论有没有用到新闻面证据」，因此第一依据是分析实际收到的消息面
-证据（news_context）是否非空，而不是搜索命中了几条。news_context 可能来自实时检索、
-社交情绪或本地已落库的资讯池，后两者同样进入模型输入却不产生搜索命中；只看计数会把
-这类分析误报成「未纳入新闻面证据」（review OR-COR-2e4b9d61）。
+披露斷言的是「本次結論有沒有用到新聞面證據」，因此第一依據是分析實際收到的消息面
+證據（news_context）是否非空，而不是搜索命中了幾條。news_context 可能來自實時檢索、
+社交情緒或本地已落庫的資訊池，後兩者同樣進入模型輸入卻不產生搜索命中；只看計數會把
+這類分析誤報成「未納入新聞面證據」（review OR-COR-2e4b9d61）。
 
-news_result_count 因此退居第二位，只用来解释「确实没有证据」时的原因：
-    None  未执行检索（未配置搜索渠道）
-    0     执行了检索但零命中（限流、全部失败等）
-    > 0   实时检索有命中（此时证据必然存在）
+news_result_count 因此退居第二位，只用來解釋「確實沒有證據」時的原因：
+    None  未執行檢索（未配置搜索渠道）
+    0     執行了檢索但零命中（限流、全部失敗等）
+    > 0   實時檢索有命中（此時證據必然存在）
 """
 
 from __future__ import annotations
@@ -23,12 +23,12 @@ from typing import Any, Optional, Tuple
 
 from src.report_language import SUPPORTED_REPORT_LANGUAGES
 
-_ZH_NOT_CONFIGURED = "⚠️ 未配置搜索渠道，本次分析未纳入新闻面证据。"
+_ZH_NOT_CONFIGURED = "⚠️ 未配置搜索渠道，本次分析未納入新聞面證據。"
 _EN_NOT_CONFIGURED = (
     "⚠️ No news search channel is configured; "
     "this analysis does not incorporate news-based evidence."
 )
-_ZH_ZERO_RESULTS = "⚠️ 本次未获取到可用的新闻面数据，以下结论未纳入新闻维度证据。"
+_ZH_ZERO_RESULTS = "⚠️ 本次未獲取到可用的新聞面數據，以下結論未納入新聞維度證據。"
 _EN_ZERO_RESULTS = (
     "⚠️ No news data could be retrieved for this run; "
     "the conclusions below do not incorporate news-based evidence."
@@ -58,11 +58,11 @@ def persisted_news_result_state(
     raw_result: Any,
     context_snapshot: Any = None,
 ) -> Tuple[Optional[int], bool]:
-    """从持久化载荷恢复计数及其可信度。
+    """從持久化載荷恢復計數及其可信度。
 
-    新记录的 raw_result 明确保存三态值；旧记录可在 context_snapshot 中留下
-    0 / >0 计数。两处都没有字段时只能判定为 legacy unknown，不能把缺字段
-    当成明确的 None。
+    新記錄的 raw_result 明確保存三態值；舊記錄可在 context_snapshot 中留下
+    0 / >0 計數。兩處都沒有字段時只能判定為 legacy unknown，不能把缺字段
+    當成明確的 None。
     """
     if isinstance(raw_result, Mapping):
         if raw_result.get("news_result_count_known") is False:
@@ -77,17 +77,17 @@ def persisted_news_result_state(
 
 
 def news_evidence_present(*sources: Any) -> bool:
-    """本次分析是否真的收到了消息面证据。任一来源为真即为真。
+    """本次分析是否真的收到了消息面證據。任一來源為真即為真。
 
-    每个来源要么是真实条数（int），要么是**已排除占位文本**的内容字符串。
-    实时检索、社交情绪、本地资讯池各算一路，pipeline 两条路径都用本函数，
-    不要在别处另写判断。
+    每個來源要麼是真實條數（int），要麼是**已排除佔位文本**的內容字符串。
+    實時檢索、社交情緒、本地資訊池各算一路，pipeline 兩條路徑都用本函數，
+    不要在別處另寫判斷。
 
-    **不要把 pipeline 拼好的整段 news_context 传进来。**
-    `src/search_service.py` 的 `format_intel_report()` 在零命中时仍会输出
-    `【XX 情报搜索结果】` 标题和每个维度的「未找到相关信息」占位文本，整段永远
-    非空；用它判定会把「搜了但一条没拿到」翻成「有证据」，恰好吞掉本模块要补的
-    披露（review OR-COR-8f4c2d1b）。判定必须按来源逐个登记，不能闻字符串。
+    **不要把 pipeline 拼好的整段 news_context 傳進來。**
+    `src/search_service.py` 的 `format_intel_report()` 在零命中時仍會輸出
+    `【XX 情報搜索結果】` 標題和每個維度的「未找到相關信息」佔位文本，整段永遠
+    非空；用它判定會把「搜了但一條沒拿到」翻成「有證據」，恰好吞掉本模塊要補的
+    披露（review OR-COR-8f4c2d1b）。判定必須按來源逐個登記，不能聞字符串。
     """
     for source in sources:
         if source is None or isinstance(source, bool):
@@ -117,7 +117,7 @@ def _disclosure_for_state(
 
     if not known:
         return None
-    # 证据存在就不提示，无论它来自哪一路来源；计数只解释「没有证据」的原因。
+    # 證據存在就不提示，無論它來自哪一路來源；計數只解釋「沒有證據」的原因。
     if evidence_present:
         return None
     if news_result_count is None:
@@ -128,12 +128,12 @@ def _disclosure_for_state(
 
 
 def empty_news_disclosure(result: Any, language: str = "zh") -> Optional[str]:
-    """未执行或零命中时返回对应提示；正常命中时返回 None。
+    """未執行或零命中時返回對應提示；正常命中時返回 None。
 
-    判定必须独立于模型是否产出了消息面文字：analyzer 的输出 schema 即使
-    在没有新闻时也会要求填 market_sentiment / hot_topics，若以这些字段
-    是否为空来决定，就会出现「展示模型生成的情绪判断、却隐瞒无新闻证据」
-    这一最糟的组合。
+    判定必須獨立於模型是否產出了消息面文字：analyzer 的輸出 schema 即使
+    在沒有新聞時也會要求填 market_sentiment / hot_topics，若以這些字段
+    是否為空來決定，就會出現「展示模型生成的情緒判斷、卻隱瞞無新聞證據」
+    這一最糟的組合。
     """
     if isinstance(result, Mapping):
         news_result_count, known = persisted_news_result_state(result)
@@ -155,7 +155,7 @@ def empty_news_disclosure_from_stored(
     context_snapshot: Any,
     language: str = "zh",
 ) -> Optional[str]:
-    """为历史/API 入口从持久化载荷生成披露；旧记录缺字段时保持静默。"""
+    """為歷史/API 入口從持久化載荷生成披露；舊記錄缺字段時保持靜默。"""
     news_result_count, known = persisted_news_result_state(raw_result, context_snapshot)
     return _disclosure_for_state(
         news_result_count,
@@ -166,10 +166,10 @@ def empty_news_disclosure_from_stored(
 
 
 def persisted_news_evidence_present(raw_result: Any, news_result_count: Optional[int]) -> bool:
-    """从持久化载荷恢复「本次分析是否用到新闻面证据」。
+    """從持久化載荷恢復「本次分析是否用到新聞面證據」。
 
-    本 PR 之前写入的记录没有该字段，此时退回按计数推断：>0 说明确有证据，
-    其余按无证据处理，与该记录当时的报告表现一致，不会追溯改变旧报告。
+    本 PR 之前寫入的記錄沒有該字段，此時退回按計數推斷：>0 說明確有證據，
+    其餘按無證據處理，與該記錄當時的報告表現一致，不會追溯改變舊報告。
     """
     if isinstance(raw_result, Mapping) and "news_evidence_present" in raw_result:
         return bool(raw_result.get("news_evidence_present"))

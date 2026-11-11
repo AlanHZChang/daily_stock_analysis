@@ -195,7 +195,7 @@ def make_portfolio_risk_payload(
     data: Dict[str, Any],
 ) -> RuntimeAlertPayload:
     effective_target = portfolio_effective_target(data["target"])
-    display_target = "全部账户" if data["target"] == "all" else f"账户 {data['target']}"
+    display_target = "全部賬戶" if data["target"] == "all" else f"賬戶 {data['target']}"
     rule = PortfolioRiskAlert(
         target_scope=data["target_scope"],
         target=data["target"],

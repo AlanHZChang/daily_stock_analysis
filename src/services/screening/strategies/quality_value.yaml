@@ -1,9 +1,9 @@
 # Derived from AlphaSift revision 9f522747caafd3c0b1ddb7e14d5cf44c8580b6cf.
 # Licensed under Apache-2.0 and modified for daily_stock_analysis.
-# 稳健价值策略
+# 穩健價值策略
 name: quality_value
-display_name: 稳健价值
-description: 估值合理、流动性充足、波动不过热，并要求有温和活跃度确认的稳健候选
+display_name: 穩健價值
+description: 估值合理、流動性充足、波動不過熱，並要求有溫和活躍度確認的穩健候選
 version: "1.1"
 category: value
 tags: [value, quality, stability, dynamic_signal]
@@ -13,7 +13,7 @@ style:
   execution_style: quality_value
   market_regime: [risk_off, range_bound]
   capital_profile: medium_liquidity
-  ui_badge: 稳健
+  ui_badge: 穩健
 
 screening:
   enabled: true
@@ -66,8 +66,8 @@ screening:
     value_quality_bonus: 2.8
     volume_spike_ratio: 4.0
   ranking_hints: |
-    优先关注：
-    1. 估值合理且不是依赖单日情绪推动的标的
-    2. 成交额足够、涨跌幅不过热，适合后续深度分析
-    3. 兼顾行业地位、现金流质量、分红或经营稳定性线索
+    優先關注：
+    1. 估值合理且不是依賴單日情緒推動的標的
+    2. 成交額足夠、漲跌幅不過熱，適合後續深度分析
+    3. 兼顧行業地位、現金流質量、分紅或經營穩定性線索
   max_output: 5

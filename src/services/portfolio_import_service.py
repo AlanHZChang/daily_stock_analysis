@@ -37,7 +37,7 @@ DEFAULT_PARSER_SPECS: Tuple[CsvParserSpec, ...] = (
     CsvParserSpec(
         broker="huatai",
         aliases=(),
-        display_name="华泰",
+        display_name="華泰",
         column_hints={
             "trade_date": ("成交日期", "成交时间", "发生日期", "日期"),
             "symbol": ("证券代码", "股票代码", "代码"),

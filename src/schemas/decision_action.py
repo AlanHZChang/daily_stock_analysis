@@ -37,7 +37,7 @@ _ACTION_LABELS: Dict[str, Dict[str, str]] = {
     "sell": {"zh": "卖出", "en": "Sell", "ko": "매도"},
     "watch": {"zh": "观望", "en": "Watch", "ko": "관망"},
     "avoid": {"zh": "回避", "en": "Avoid", "ko": "회피"},
-    "alert": {"zh": "预警", "en": "Alert", "ko": "경고"},
+    "alert": {"zh": "預警", "en": "Alert", "ko": "경고"},
 }
 
 _EXPLICIT_ALIASES: Dict[str, DecisionAction] = {

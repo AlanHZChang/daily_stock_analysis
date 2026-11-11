@@ -1,9 +1,9 @@
 # Derived from AlphaSift revision 9f522747caafd3c0b1ddb7e14d5cf44c8580b6cf.
 # Licensed under Apache-2.0 and modified for daily_stock_analysis.
-# 资金热度策略
+# 資金熱度策略
 name: capital_heat
-display_name: 资金热度
-description: 资金活跃、量价同步但未极端过热的短线候选
+display_name: 資金熱度
+description: 資金活躍、量價同步但未極端過熱的短線候選
 version: "1.1"
 category: momentum
 tags: [momentum, capital_flow, short_term]
@@ -14,7 +14,7 @@ style:
   execution_style: momentum
   market_regime: [risk_on, high_liquidity]
   capital_profile: high_liquidity
-  ui_badge: 资金
+  ui_badge: 資金
 
 screening:
   enabled: true
@@ -66,8 +66,8 @@ screening:
     hot_money_activity_min: 95.0
     hot_money_penalty: 1.5
   ranking_hints: |
-    优先关注：
-    1. 资金热度和价格表现同步，而不是单纯尾盘异动
-    2. 涨幅尚未透支，量比和换手率处在可持续区间
-    3. 板块或主题有扩散迹象，避免孤立脉冲
+    優先關注：
+    1. 資金熱度和價格表現同步，而不是單純尾盤異動
+    2. 漲幅尚未透支，量比和換手率處在可持續區間
+    3. 板塊或主題有擴散跡象，避免孤立脈衝
   max_output: 5

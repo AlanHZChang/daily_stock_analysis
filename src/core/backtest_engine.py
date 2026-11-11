@@ -525,7 +525,7 @@ class BacktestEngine:
                     continue
 
             # For non-ASCII terms (Chinese), use substring matching to keep
-            # natural language phrasings like "建议买入" effective.
+            # natural language phrasings like "建議買入" effective.
             if re.search(r"[\u4e00-\u9fff]", keyword):
                 start = 0
                 while True:
@@ -552,7 +552,7 @@ class BacktestEngine:
         if any(stripped.endswith(neg) for neg in cls._NEGATION_PATTERNS):
             return True
 
-        # 限定“否定 + 动作动词”匹配，避免将“条件位否定”误伤核心建议意图。
+        # 限定“否定 + 動作動詞”匹配，避免將“條件位否定”誤傷核心建議意圖。
         lookback = stripped[-12:]
         for neg in cls._NEGATION_PATTERNS:
             if not neg:

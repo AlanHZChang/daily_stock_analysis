@@ -35,7 +35,7 @@ from src.core.etf_rotation import (
 logger = logging.getLogger(__name__)
 
 RECENT_TRADES_LIMIT = 10
-CASH_LABEL = "现金"
+CASH_LABEL = "現金"
 # History starting this long after the requested start is flagged as truncated.
 TRUNCATED_HISTORY_TOLERANCE_DAYS = 30
 # ETF daily limits are 10%/20%; larger moves are almost always split/adjustment artifacts.
@@ -87,7 +87,7 @@ def _close_series(code: str, df: Optional[pd.DataFrame], end_day: date) -> pd.Se
     closes = closes[~closes.index.duplicated(keep="last")].sort_index()
     kept = closes.loc[: pd.Timestamp(end_day)]
     if len(kept) < len(closes):
-        logger.info("[ETF轮动] %s 丢弃 %s 之后的 %d 根未收盘 K 线", code, end_day, len(closes) - len(kept))
+        logger.info("[ETF輪動] %s 丟棄 %s 之後的 %d 根未收盤 K 線", code, end_day, len(closes) - len(kept))
     if not kept.notna().any():
         raise ValueError("no valid close prices")
     return kept
@@ -145,10 +145,10 @@ def load_closes(
             series[code] = close_series
         except Exception as exc:  # fetch errors and malformed frames alike
             failed[code] = str(exc) or type(exc).__name__
-            logger.warning("[ETF轮动] %s 日线不可用: %s", code, failed[code])
+            logger.warning("[ETF輪動] %s 日線不可用: %s", code, failed[code])
             continue
         sources[code] = source
-        logger.info("[ETF轮动] %s 获取 %d 条日线 (来源: %s)", code, len(series[code]), source)
+        logger.info("[ETF輪動] %s 獲取 %d 條日線 (來源: %s)", code, len(series[code]), source)
 
     frame = pd.DataFrame(series).sort_index() if series else pd.DataFrame()
     if not frame.empty:
@@ -166,7 +166,7 @@ def load_closes(
 def data_quality_warnings(loaded: LoadedPrices) -> List[str]:
     """Surface data issues that silently distort a backtest."""
     warnings: List[str] = [
-        f"{code} 数据获取失败，已从本次计算中剔除（{reason[:60]}）"
+        f"{code} 數據獲取失敗，已從本次計算中剔除（{reason[:60]}）"
         for code, reason in loaded.failed.items()
     ]
     limit = pd.Timestamp(loaded.requested_start) + pd.Timedelta(days=TRUNCATED_HISTORY_TOLERANCE_DAYS)
@@ -178,25 +178,25 @@ def data_quality_warnings(loaded: LoadedPrices) -> List[str]:
         longest_gap = int(missing.groupby((~missing).cumsum()).sum().max())
         if longest_gap:
             warnings.append(
-                f"{code} 上市后行情缺失，最长连续 {longest_gap} 根；缺报价日不成交，"
-                "持仓按最后报价估值，恢复报价时计入完整损益"
+                f"{code} 上市後行情缺失，最長連續 {longest_gap} 根；缺報價日不成交，"
+                "持倉按最後報價估值，恢復報價時計入完整損益"
             )
             if longest_gap > MAX_FORWARD_FILL_DAYS:
-                warnings.append(f"{code} 行情缺口超过 {MAX_FORWARD_FILL_DAYS} 根，动量信号在缺口期间不可用")
+                warnings.append(f"{code} 行情缺口超過 {MAX_FORWARD_FILL_DAYS} 根，動量信號在缺口期間不可用")
         if series.index[0] > limit:
             warnings.append(
-                f"{code} 历史起点为 {series.index[0]:%Y-%m-%d}（请求 {loaded.requested_start:%Y-%m-%d}），"
-                "可能是上市较晚，或回退数据源只返回了部分历史，回测区间会相应缩短"
+                f"{code} 歷史起點為 {series.index[0]:%Y-%m-%d}（請求 {loaded.requested_start:%Y-%m-%d}），"
+                "可能是上市較晚，或回退數據源只返回了部分歷史，回測區間會相應縮短"
             )
         moves = series.pct_change(fill_method=None)
         jumps = moves[moves.abs() > SUSPICIOUS_DAILY_MOVE]
         if not jumps.empty:
             listed = "、".join(f"{d:%Y-%m-%d} {v * 100:+.0f}%" for d, v in jumps.head(MAX_LISTED_JUMPS).items())
-            warnings.append(f"{code} 存在异常单日涨跌（{listed}），疑似拆分或复权缺失，回测结果可能失真")
+            warnings.append(f"{code} 存在異常單日漲跌（{listed}），疑似拆分或復權缺失，回測結果可能失真")
     distinct = sorted(set(loaded.sources.values()))
     if len(distinct) > 1:
         detail = "、".join(f"{code}:{src}" for code, src in loaded.sources.items())
-        warnings.append(f"数据来自多个数据源（{detail}），复权口径可能不一致")
+        warnings.append(f"數據來自多個數據源（{detail}），復權口徑可能不一致")
     return warnings
 
 
@@ -206,7 +206,7 @@ def _resolve_names(fetcher_manager, codes: Sequence[str]) -> Dict[str, str]:
         try:
             name = fetcher_manager.get_stock_name(code, allow_realtime=False)
         except Exception as exc:
-            logger.debug("[ETF轮动] %s 名称获取失败: %s", code, exc)
+            logger.debug("[ETF輪動] %s 名稱獲取失敗: %s", code, exc)
             name = None
         names[code] = name or code
     return names
@@ -238,11 +238,11 @@ def _weights_text(weights: Dict[str, float], names: Dict[str, str]) -> str:
 
 def _signal_conclusion(changed: bool, rebalance_day: Optional[bool], rebalance: str) -> str:
     if rebalance_day:
-        return "**需要调仓**，下一交易日收盘按目标持仓执行" if changed else "维持不变"
+        return "**需要調倉**，下一交易日收盤按目標持倉執行" if changed else "維持不變"
     period = "本周" if rebalance == "weekly" else "本月"
-    outlook = "届时需要调仓" if changed else "届时维持不变"
-    reason = "今天不是调仓日" if rebalance_day is False else "交易日历不可用，无法确认今天是否为调仓日"
-    return f"{reason}，目标持仓仅供参考，正式信号以{period}最后一个交易日收盘为准；按当前排名{outlook}"
+    outlook = "屆時需要調倉" if changed else "屆時維持不變"
+    reason = "今天不是調倉日" if rebalance_day is False else "交易日曆不可用，無法確認今天是否為調倉日"
+    return f"{reason}，目標持倉僅供參考，正式信號以{period}最後一個交易日收盤為準；按當前排名{outlook}"
 
 
 def _render_signal(
@@ -254,11 +254,11 @@ def _render_signal(
     names: Dict[str, str],
 ) -> List[str]:
     lines = [
-        f"## 最新信号（基于 {as_of:%Y-%m-%d} 收盘）",
+        f"## 最新信號（基於 {as_of:%Y-%m-%d} 收盤）",
         "",
-        f"- 当前规则持仓：{_weights_text(current, names)}",
-        f"- 最新收盘目标：{_weights_text(target, names)}",
-        f"- 结论：{conclusion}",
+        f"- 當前規則持倉：{_weights_text(current, names)}",
+        f"- 最新收盤目標：{_weights_text(target, names)}",
+        f"- 結論：{conclusion}",
         "",
         "| 排名 | 标的 | 动量 | 是否合格 |",
         "| --- | --- | --- | --- |",
@@ -282,13 +282,13 @@ def _render_metrics(result: BacktestResult) -> List[str]:
         ("Calmar", "calmar", _num),
     ]
     lines = [
-        f"## 回测表现（{start:%Y-%m-%d} ~ {end:%Y-%m-%d}，已扣交易成本）",
+        f"## 回測表現（{start:%Y-%m-%d} ~ {end:%Y-%m-%d}，已扣交易成本）",
         "",
         "| 指标 | 轮动策略 | 风险池等权持有 |",
         "| --- | --- | --- |",
     ]
     lines += [f"| {title} | {fmt(strat[key])} | {fmt(bench[key])} |" for title, key, fmt in rows]
-    lines.append(f"| 调仓次数 | {len(result.trades)} | - |")
+    lines.append(f"| 調倉次數 | {len(result.trades)} | - |")
     return lines
 
 
@@ -312,7 +312,7 @@ def _render_sweep(rows, current_lookback: int) -> List[str]:
         "| --- | --- | --- | --- |",
     ]
     for lookback, m in rows:
-        mark = " ⬅ 当前" if lookback == current_lookback else ""
+        mark = " ⬅ 當前" if lookback == current_lookback else ""
         lines.append(f"| {lookback}{mark} | {_pct(m['cagr'])} | {_pct(m['max_drawdown'])} | {_num(m['sharpe'])} |")
     lines += ["", "> 相邻窗口的表现应当接近；如果只有个别窗口表现好，说明结果大概率是过拟合。"]
     return lines
@@ -331,15 +331,15 @@ def _render_trades(result: BacktestResult, names: Dict[str, str]) -> List[str]:
 
 
 def _render_rules(params: RotationParams, safe_asset: Optional[str], names: Dict[str, str]) -> List[str]:
-    period = "每周最后一个交易日" if params.rebalance == "weekly" else "每月最后一个交易日"
+    period = "每週最後一個交易日" if params.rebalance == "weekly" else "每月最後一個交易日"
     defensive = _label(safe_asset, names) if safe_asset else CASH_LABEL
     return [
         "## 规则说明",
         "",
-        f"- {period}收盘计算 {params.lookback_days} 日动量，下一交易日收盘执行",
-        f"- 持有动量最强且为正的前 {params.top_n} 只，每只 {100 / params.top_n:.0f}%；空出的仓位切到 {defensive}",
-        f"- 已持有标的在合格且落后幅度不超过 {params.switch_buffer_pct:g}% 时继续持有",
-        f"- 交易成本按单边 {params.cost_bps:g} bp 乘以换手率扣除",
+        f"- {period}收盤計算 {params.lookback_days} 日動量，下一交易日收盤執行",
+        f"- 持有動量最強且為正的前 {params.top_n} 只，每隻 {100 / params.top_n:.0f}%；空出的倉位切到 {defensive}",
+        f"- 已持有標的在合格且落後幅度不超過 {params.switch_buffer_pct:g}% 時繼續持有",
+        f"- 交易成本按單邊 {params.cost_bps:g} bp 乘以換手率扣除",
         "- 对比基准为风险池等权持有（日再平衡、不扣成本），与策略同从首次建仓日起算",
         "",
         "> 规则化的回测结果不代表未来收益，不构成投资建议。趋势策略在震荡市会反复止损，在急涨行情中会反应滞后。",
@@ -370,7 +370,7 @@ def build_report(
 
     notes = list(warnings)
     if safe_asset and not usable_safe:
-        notes.append(f"防守资产 {safe_asset} 不可用，防守仓位按现金（收益为 0）计算")
+        notes.append(f"防守資產 {safe_asset} 不可用，防守倉位按現金（收益為 0）計算")
     start, end = result.equity.index[0], result.equity.index[-1]
     has_backtest = (end - start).days / DAYS_PER_YEAR >= MIN_BACKTEST_YEARS
     if has_backtest:
@@ -378,11 +378,11 @@ def build_report(
     else:
         sweep = []
         notes.append(
-            f"可回测区间仅 {start:%Y-%m-%d} ~ {end:%Y-%m-%d}，不足 {MIN_BACKTEST_YEARS:g} 年，"
-            "已省略回测表现、分年度收益、参数平原检验和调仓记录，只给出最新信号"
+            f"可回測區間僅 {start:%Y-%m-%d} ~ {end:%Y-%m-%d}，不足 {MIN_BACKTEST_YEARS:g} 年，"
+            "已省略回測表現、分年度收益、參數平原檢驗和調倉記錄，只給出最新信號"
         )
 
-    lines = [f"# ETF 轮动信号 {as_of:%Y-%m-%d}", ""]
+    lines = [f"# ETF 輪動信號 {as_of:%Y-%m-%d}", ""]
     if notes:
         lines += ["## ⚠️ 数据告警", ""] + [f"- {note}" for note in notes] + [""]
     conclusion = _signal_conclusion(changed, rebalance_day, params.rebalance)
@@ -415,25 +415,25 @@ def _deliver(report: RotationReport, send_notification: bool, notifier) -> None:
 
             notifier = NotificationService()
     except Exception as exc:
-        logger.warning("[ETF轮动] 通知服务初始化失败，报告未保存也未推送: %s\n%s", exc, report.markdown)
+        logger.warning("[ETF輪動] 通知服務初始化失敗，報告未保存也未推送: %s\n%s", exc, report.markdown)
         return
 
     filename = f"etf_rotation_{report.as_of:%Y%m%d}.md"
     try:
         path = notifier.save_report_to_file(report.markdown, filename)
-        logger.info("[ETF轮动] 报告已保存: %s", path)
+        logger.info("[ETF輪動] 報告已保存: %s", path)
     except Exception as exc:
-        logger.warning("[ETF轮动] 报告保存失败: %s\n%s", exc, report.markdown)
+        logger.warning("[ETF輪動] 報告保存失敗: %s\n%s", exc, report.markdown)
 
     if not send_notification:
         return
     try:
         if not notifier.is_available():
-            logger.info("[ETF轮动] 未配置通知渠道，跳过推送")
+            logger.info("[ETF輪動] 未配置通知渠道，跳過推送")
         elif not notifier.send(report.markdown, route_type="report"):
-            logger.warning("[ETF轮动] 通知推送失败")
+            logger.warning("[ETF輪動] 通知推送失敗")
     except Exception as exc:
-        logger.warning("[ETF轮动] 通知推送异常: %s", exc)
+        logger.warning("[ETF輪動] 通知推送異常: %s", exc)
 
 
 def run_etf_rotation(
@@ -453,7 +453,7 @@ def run_etf_rotation(
 
     pool = [c for c in config.etf_rotation_pool if c]
     if not pool:
-        raise ValueError("ETF_ROTATION_POOL 为空，请至少配置一只 ETF")
+        raise ValueError("ETF_ROTATION_POOL 為空，請至少配置一隻 ETF")
     safe_asset = config.etf_rotation_safe_asset or None
     params = params_from_config(config)
 
@@ -471,12 +471,12 @@ def run_etf_rotation(
     loaded = load_closes(fetcher_manager, codes, config.etf_rotation_backtest_years, end=end_day)
     risk = [c for c in pool if c in loaded.closes.columns]
     if not risk:
-        raise RuntimeError(f"ETF 轮动池全部数据获取失败: {loaded.failed}")
+        raise RuntimeError(f"ETF 輪動池全部數據獲取失敗: {loaded.failed}")
 
     names = _resolve_names(fetcher_manager, codes)
     warnings = data_quality_warnings(loaded)
     for warning in warnings:
-        logger.warning("[ETF轮动] %s", warning)
+        logger.warning("[ETF輪動] %s", warning)
     report = replace(
         build_report(loaded.closes, risk, safe_asset, params, names, warnings, next_session=next_session),
         failed_codes=dict(loaded.failed),

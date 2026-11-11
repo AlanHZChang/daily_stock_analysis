@@ -224,26 +224,26 @@ def build_partial_timeout_report(
     lines = [
         "## 定时分析超时（部分完成）",
         "",
-        f"- 硬超时：`{timeout_seconds}` 秒",
+        f"- 硬超時：`{timeout_seconds}` 秒",
         f"- 已完成：`{len(completed)}` 只",
         f"- 未完成：`{len(list(pending_codes))}` 只",
         "",
     ]
     if completed:
-        lines.append("### 已落库结果")
+        lines.append("### 已落庫結果")
         for item in completed:
             name = item.name or "-"
             advice = item.operation_advice or "-"
             score = item.sentiment_score if item.sentiment_score is not None else "-"
-            lines.append(f"- `{item.code}` {name}｜建议：{advice}｜评分：{score}")
+            lines.append(f"- `{item.code}` {name}｜建議：{advice}｜評分：{score}")
         lines.append("")
     if pending_codes:
         lines.append("### 未完成")
         lines.append(", ".join(f"`{code}`" for code in pending_codes))
         lines.append("")
     lines.append(
-        "_本轮因 runtime scheduler 硬超时被终止；已完成个股结果已写入分析历史，"
-        "未完成部分可稍后手动重跑。_"
+        "_本輪因 runtime scheduler 硬超時被終止；已完成個股結果已寫入分析歷史，"
+        "未完成部分可稍後手動重跑。_"
     )
     return "\n".join(lines)
 

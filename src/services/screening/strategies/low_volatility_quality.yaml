@@ -1,9 +1,9 @@
 # Derived from AlphaSift revision 9f522747caafd3c0b1ddb7e14d5cf44c8580b6cf.
 # Licensed under Apache-2.0 and modified for daily_stock_analysis.
-# 低波动质量策略
+# 低波動質量策略
 name: low_volatility_quality
-display_name: 低波质量
-description: 偏防守的质量型候选，优先选择波动较低、回撤浅、估值不过热且数据质量可靠的股票
+display_name: 低波質量
+description: 偏防守的質量型候選，優先選擇波動較低、回撤淺、估值不過熱且數據質量可靠的股票
 version: "1.0"
 category: quality
 tags: [quality, defensive, low_volatility, daily_k]
@@ -13,7 +13,7 @@ style:
   execution_style: quality_defensive
   market_regime: [risk_off, range_bound, low_volatility]
   capital_profile: medium_liquidity
-  ui_badge: 质量
+  ui_badge: 質量
 
 screening:
   enabled: true
@@ -84,8 +84,8 @@ screening:
     volume_spike_ratio: 4.0
     volume_spike_penalty: 1.8
   ranking_hints: |
-    优先关注：
-    1. 20 日波动和 ATR 较低、最大回撤可控，适合防守型观察仓
-    2. 估值不过热，日 K 数据质量高，避免 stale/cache 或拉取失败样本
-    3. 主题热度可以加分，但不要让短线热度覆盖稳定性和估值约束
+    優先關注：
+    1. 20 日波動和 ATR 較低、最大回撤可控，適合防守型觀察倉
+    2. 估值不過熱，日 K 數據質量高，避免 stale/cache 或拉取失敗樣本
+    3. 主題熱度可以加分，但不要讓短線熱度覆蓋穩定性和估值約束
   max_output: 5

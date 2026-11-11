@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
-"""Agent 运行期实际消费的新闻证据计数。
+"""Agent 運行期實際消費的新聞證據計數。
 
-empty-news disclosure 必须反映「本次分析真正用到的新闻证据」。Agent 模式下情报
-由 Agent 自己调用搜索工具取得，因此计数只能来自这些工具的真实返回，不能用分析
-结束后补打的一次 `search_stock_news()` 代替：那次补查与 Agent 消费的证据无关，
-两个方向都会失真——Agent 明明用了新闻却因补查失败而被标成「未纳入新闻面证据」，
-或 Agent 没拿到新闻却因补查有结果而被错误地不提示。
+empty-news disclosure 必須反映「本次分析真正用到的新聞證據」。Agent 模式下情報
+由 Agent 自己調用搜索工具取得，因此計數只能來自這些工具的真實返回，不能用分析
+結束後補打的一次 `search_stock_news()` 代替：那次補查與 Agent 消費的證據無關，
+兩個方向都會失真——Agent 明明用了新聞卻因補查失敗而被標成「未納入新聞面證據」，
+或 Agent 沒拿到新聞卻因補查有結果而被錯誤地不提示。
 
-用法：pipeline 在 `executor.run()` 前后开启并读取作用域；搜索工具在返回结果时
-记录本次真正交给 Agent 的条数。工具在 ThreadPoolExecutor 中执行，
-`src/agent/runner.py` 通过 `contextvars.copy_context()` 提交任务，因此 ContextVar
-中的**可变**累加器在工作线程与父线程之间是同一个对象，工具线程里的累加对
-pipeline 可见。请勿把它换成保存不可变值的 ContextVar，那样父线程读不到。
+用法：pipeline 在 `executor.run()` 前後開啟並讀取作用域；搜索工具在返回結果時
+記錄本次真正交給 Agent 的條數。工具在 ThreadPoolExecutor 中執行，
+`src/agent/runner.py` 通過 `contextvars.copy_context()` 提交任務，因此 ContextVar
+中的**可變**累加器在工作線程與父線程之間是同一個對象，工具線程裡的累加對
+pipeline 可見。請勿把它換成保存不可變值的 ContextVar，那樣父線程讀不到。
 """
 
 from __future__ import annotations
@@ -25,14 +25,14 @@ logger = logging.getLogger(__name__)
 
 
 class NewsEvidenceAccumulator:
-    """线程安全地累计 Agent 本次分析实际消费的新闻条数。"""
+    """線程安全地累計 Agent 本次分析實際消費的新聞條數。"""
 
     def __init__(self) -> None:
         self._lock = threading.Lock()
         self._total = 0
 
     def record(self, count: int) -> None:
-        """记录一次搜索工具真实返回的条数；零命中也必须记录（记 0）。"""
+        """記錄一次搜索工具真實返回的條數；零命中也必須記錄（記 0）。"""
         try:
             value = int(count)
         except (TypeError, ValueError):
@@ -48,14 +48,14 @@ class NewsEvidenceAccumulator:
             return self._total
 
     def resolve(self, *, search_available: bool) -> Optional[int]:
-        """收敛成 `news_result_count` 的三态语义。
+        """收斂成 `news_result_count` 的三態語義。
 
-        - 搜索渠道不可用：`None`，即未执行检索，披露「未配置搜索渠道」。
-        - 渠道可用：从 `0` 起步，Agent 调用工具拿到多少算多少。
+        - 搜索渠道不可用：`None`，即未執行檢索，披露「未配置搜索渠道」。
+        - 渠道可用：從 `0` 起步，Agent 調用工具拿到多少算多少。
 
-        渠道可用但 Agent 一次都没搜的情况刻意归入 `0` 而不是 `None`：此时报告
-        确实没有新闻证据，但「未配置搜索渠道」是与事实相反的解释，而「未获取到
-        可用的新闻面数据」在这两种子情形下都成立。
+        渠道可用但 Agent 一次都沒搜的情況刻意歸入 `0` 而不是 `None`：此時報告
+        確實沒有新聞證據，但「未配置搜索渠道」是與事實相反的解釋，而「未獲取到
+        可用的新聞面數據」在這兩種子情形下都成立。
         """
         if not search_available:
             return None
@@ -69,7 +69,7 @@ _CURRENT_ACCUMULATOR: ContextVar[Optional[NewsEvidenceAccumulator]] = ContextVar
 
 
 def activate_news_evidence_scope() -> Token:
-    """开启一次 Agent 运行的证据作用域，返回重置令牌。"""
+    """開啟一次 Agent 運行的證據作用域，返回重置令牌。"""
     return _CURRENT_ACCUMULATOR.set(NewsEvidenceAccumulator())
 
 
@@ -82,15 +82,15 @@ def reset_news_evidence_scope(token: Optional[Token]) -> None:
         return
     try:
         _CURRENT_ACCUMULATOR.reset(token)
-    except Exception as exc:  # pragma: no cover - 防御性 fail-open
+    except Exception as exc:  # pragma: no cover - 防禦性 fail-open
         logger.warning("news evidence scope reset failed: %s", exc)
 
 
 def record_news_evidence(count: int) -> None:
-    """供 Agent 搜索工具调用。
+    """供 Agent 搜索工具調用。
 
-    没有活动作用域时静默忽略：非 Agent 路径自己直接维护计数，工具也可能在
-    Agent 分析之外被调用（例如报告页的后续资讯检索），那些都不应影响本次分析的
+    沒有活動作用域時靜默忽略：非 Agent 路徑自己直接維護計數，工具也可能在
+    Agent 分析之外被調用（例如報告頁的後續資訊檢索），那些都不應影響本次分析的
     披露判定。
     """
     accumulator = _CURRENT_ACCUMULATOR.get()

@@ -233,7 +233,7 @@ def fetch_stock_announcement_summary(code: str, *, limit: int = 3) -> str:
     start = (datetime.now() - timedelta(days=45)).strftime("%Y%m%d")
     df = ak.stock_zh_a_disclosure_report_cninfo(
         symbol=str(code).zfill(6),
-        market="沪深京",
+        market="滬深京",
         start_date=start,
         end_date=end,
     )
@@ -313,7 +313,7 @@ def classify_context_events(row: dict[str, object]) -> list[str]:
             tags.append(label)
     for label, keywords in _NEGATIVE_EVENT_KEYWORDS.items():
         if any(keyword in text for keyword in keywords):
-            tags.append(f"风险:{label}")
+            tags.append(f"風險:{label}")
     return _dedupe(tags)
 
 

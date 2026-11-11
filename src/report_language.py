@@ -317,7 +317,7 @@ _NO_DATA_BY_LANGUAGE = {
 }
 
 _CHIP_UNAVAILABLE_BY_LANGUAGE = {
-    "zh": "筹码分布未启用或数据源暂不可用，未纳入筹码判断。",
+    "zh": "籌碼分佈未啟用或數據源暫不可用，未納入籌碼判斷。",
     "en": "Chip distribution is disabled or temporarily unavailable; chip signals were not used.",
     "ko": "매물대가 비활성화되었거나 데이터 소스를 일시적으로 사용할 수 없어 매물대 신호를 반영하지 않았습니다.",
 }
@@ -354,38 +354,38 @@ _CHIP_UNAVAILABLE_REASON_KEYS = (
 )
 
 _GENERIC_STOCK_NAME_BY_LANGUAGE = {
-    "zh": "待确认股票",
+    "zh": "待確認股票",
     "en": "Unnamed Stock",
     "ko": "미확인 종목",
 }
 
 _REPORT_LABELS: Dict[str, Dict[str, str]] = {
     "zh": {
-        "dashboard_title": "决策仪表盘",
-        "brief_title": "决策简报",
+        "dashboard_title": "決策儀表盤",
+        "brief_title": "決策簡報",
         "analyzed_prefix": "共分析",
         "stock_unit": "只股票",
         "stock_unit_compact": "只",
         "buy_label": "买入",
         "watch_label": "观望",
         "sell_label": "卖出",
-        "summary_heading": "分析结果摘要",
-        "info_heading": "重要信息速览",
-        "sentiment_summary_label": "舆情情绪",
-        "earnings_outlook_label": "业绩预期",
+        "summary_heading": "分析結果摘要",
+        "info_heading": "重要信息速覽",
+        "sentiment_summary_label": "輿情情緒",
+        "earnings_outlook_label": "業績預期",
         "risk_alerts_label": "风险警报",
         "positive_catalysts_label": "利好催化",
-        "latest_news_label": "最新动态",
-        "core_conclusion_heading": "核心结论",
-        "one_sentence_label": "一句话决策",
-        "time_sensitivity_label": "时效性",
-        "default_time_sensitivity": "本周内",
-        "position_status_label": "持仓情况",
+        "latest_news_label": "最新動態",
+        "core_conclusion_heading": "核心結論",
+        "one_sentence_label": "一句話決策",
+        "time_sensitivity_label": "時效性",
+        "default_time_sensitivity": "本週內",
+        "position_status_label": "持倉情況",
         "action_advice_label": "操作建议",
-        "no_position_label": "空仓者",
-        "has_position_label": "持仓者",
-        "continue_holding": "继续持有",
-        "market_snapshot_heading": "当日行情",
+        "no_position_label": "空倉者",
+        "has_position_label": "持倉者",
+        "continue_holding": "繼續持有",
+        "market_snapshot_heading": "當日行情",
         "close_label": "收盘",
         "prev_close_label": "昨收",
         "open_label": "开盘",
@@ -396,59 +396,59 @@ _REPORT_LABELS: Dict[str, Dict[str, str]] = {
         "amplitude_label": "振幅",
         "volume_label": "成交量",
         "amount_label": "成交额",
-        "current_price_label": "当前价",
+        "current_price_label": "當前價",
         "volume_ratio_label": "量比",
         "turnover_rate_label": "换手率",
-        "source_label": "行情来源",
+        "source_label": "行情來源",
         "data_sources_label": "数据来源",
-        "data_perspective_heading": "数据透视",
-        "ma_alignment_label": "均线排列",
+        "data_perspective_heading": "數據透視",
+        "ma_alignment_label": "均線排列",
         "bullish_alignment_label": "多头排列",
         "yes_label": "是",
         "no_label": "否",
         "none_label": "无",
-        "trend_strength_label": "趋势强度",
-        "price_metrics_label": "价格指标",
+        "trend_strength_label": "趨勢強度",
+        "price_metrics_label": "價格指標",
         "ma5_label": "MA5",
         "ma10_label": "MA10",
         "ma20_label": "MA20",
-        "bias_ma5_label": "乖离率(MA5)",
-        "support_level_label": "支撑位",
-        "resistance_level_label": "压力位",
+        "bias_ma5_label": "乖離率(MA5)",
+        "support_level_label": "支撐位",
+        "resistance_level_label": "壓力位",
         "chip_label": "筹码",
-        "phase_decision_heading": "盘中决策护栏",
+        "phase_decision_heading": "盤中決策護欄",
         "action_window_label": "行动窗口",
-        "immediate_action_label": "当前动作",
+        "immediate_action_label": "當前動作",
         "watch_conditions_label": "观察条件",
         "next_check_time_label": "下次检查",
         "confidence_reason_label": "置信度理由",
-        "data_limitations_label": "数据限制",
-        "battle_plan_heading": "作战计划",
+        "data_limitations_label": "數據限制",
+        "battle_plan_heading": "作戰計劃",
         "ideal_buy_label": "理想买入点",
         "secondary_buy_label": "次优买入点",
         "stop_loss_label": "止损位",
         "take_profit_label": "目标位",
-        "suggested_position_label": "仓位建议",
-        "entry_plan_label": "建仓策略",
-        "risk_control_label": "风控策略",
-        "checklist_heading": "检查清单",
-        "failed_checks_heading": "检查未通过项",
-        "history_compare_heading": "历史信号对比",
+        "suggested_position_label": "倉位建議",
+        "entry_plan_label": "建倉策略",
+        "risk_control_label": "風控策略",
+        "checklist_heading": "檢查清單",
+        "failed_checks_heading": "檢查未通過項",
+        "history_compare_heading": "歷史信號對比",
         "time_label": "时间",
         "score_label": "评分",
         "advice_label": "建议",
         "trend_label": "趋势",
-        "generated_at_label": "报告生成时间",
-        "report_time_label": "生成时间",
-        "no_results": "无分析结果",
-        "report_title": "股票分析报告",
+        "generated_at_label": "報告生成時間",
+        "report_time_label": "生成時間",
+        "no_results": "無分析結果",
+        "report_title": "股票分析報告",
         "avg_score_label": "均分",
-        "action_points_heading": "操作点位",
-        "position_advice_heading": "持仓建议",
+        "action_points_heading": "操作點位",
+        "position_advice_heading": "持倉建議",
         "analysis_model_label": "分析模型",
-        "not_investment_advice": "AI生成，仅供参考，不构成投资建议",
-        "details_report_hint": "详细报告见",
-        "financial_summary_heading": "财务摘要",
+        "not_investment_advice": "AI生成，僅供參考，不構成投資建議",
+        "details_report_hint": "詳細報告見",
+        "financial_summary_heading": "財務摘要",
         "report_date_label": "报告期",
         "revenue_label": "营业收入",
         "net_profit_label": "归母净利润",
@@ -458,22 +458,22 @@ _REPORT_LABELS: Dict[str, Dict[str, str]] = {
         "net_profit_yoy_label": "净利同比",
         "gross_margin_label": "毛利率",
         "shareholder_return_heading": "股东回报",
-        "ttm_cash_dividend_label": "近12月每股现金分红(税前)",
-        "ttm_event_count_label": "近12月分红次数",
+        "ttm_cash_dividend_label": "近12月每股現金分紅(稅前)",
+        "ttm_event_count_label": "近12月分紅次數",
         "ttm_dividend_yield_label": "TTM 股息率",
         "latest_ex_dividend_label": "最近除息日",
-        "institutional_flow_heading": "三大法人动向",
-        "institutional_flow_note": "正数=净买超，负数=净卖超；单位为股。",
-        "inst_foreign_label": "外资",
+        "institutional_flow_heading": "三大法人動向",
+        "institutional_flow_note": "正數=淨買超，負數=淨賣超；單位為股。",
+        "inst_foreign_label": "外資",
         "inst_trust_label": "投信",
-        "inst_dealer_label": "自营商",
-        "inst_total_label": "三大法人合计",
-        "related_boards_heading": "关联板块",
+        "inst_dealer_label": "自營商",
+        "inst_total_label": "三大法人合計",
+        "related_boards_heading": "關聯板塊",
         "industry_boards_heading": "行业板块",
         "concept_boards_heading": "概念板块",
         "board_name_label": "板块",
         "board_type_label": "类型",
-        "board_status_label": "板块表现",
+        "board_status_label": "板塊表現",
         "board_change_pct_label": "板块涨跌幅",
         "leading_board_label": "领涨",
         "lagging_board_label": "领跌",
@@ -1085,22 +1085,22 @@ def localize_strategy_conflict_description(conflict_type: Any, language: Optiona
     key = str(conflict_type or "").strip()
     translations = {
         "directional_opposition": {
-            "zh": "策略方向出现对立：部分策略看多，部分策略看空，综合结论需要降低确定性。",
+            "zh": "策略方向出現對立：部分策略看多，部分策略看空，綜合結論需要降低確定性。",
             "en": "Strategy directions diverge: some strategies are bullish while others are bearish, so conviction should be reduced.",
             "ko": "전략 방향이 엇갈립니다. 일부 전략은 상승을, 일부 전략은 하락을 보며 확신도를 낮춰야 합니다.",
         },
         "wide_score_dispersion": {
-            "zh": "策略信号分数分布较宽，说明多策略对行情结构存在明显分歧。",
+            "zh": "策略信號分數分佈較寬，說明多策略對行情結構存在明顯分歧。",
             "en": "Strategy signal scores are widely dispersed, indicating meaningful disagreement on market structure.",
             "ko": "전략 신호 점수 분포가 넓어 시장 구조에 대한 전략 간 이견이 큽니다.",
         },
         "high_confidence_dissent": {
-            "zh": "存在高置信少数派策略与综合信号明显不一致，应保留反方观点。",
+            "zh": "存在高置信少數派策略與綜合信號明顯不一致，應保留反方觀點。",
             "en": "A high-confidence minority strategy materially disagrees with the final signal and should be kept as a dissenting view.",
             "ko": "높은 확신도의 소수 전략이 종합 신호와 크게 달라 반대 관점으로 보존해야 합니다.",
         },
         "adjustment_contradiction": {
-            "zh": "策略加减分方向相互矛盾，说明不同策略对同一标的的边际评分分歧较大。",
+            "zh": "策略加減分方向相互矛盾，說明不同策略對同一標的的邊際評分分歧較大。",
             "en": "Strategy score adjustments contradict each other, showing large disagreement in marginal scoring.",
             "ko": "전략별 점수 조정 방향이 서로 충돌해 동일 종목의 한계 평가 차이가 큽니다.",
         },
@@ -1187,9 +1187,9 @@ def localize_strategy_synthesis_summary(strategy_synthesis: Any, language: Optio
             base = f"{opinion_count}개 전략의 종합 판단: 종합 신호는 {final_signal}, 공감도는 {consensus_level}, 감지된 전략 충돌은 없습니다."
         return base
     if conflict_count:
-        base = f"来自 {opinion_count} 个策略的综合判断：综合信号为{final_signal}，共识度为{consensus_level}，冲突强度为{conflict_severity}。"
+        base = f"來自 {opinion_count} 個策略的綜合判斷：綜合信號為{final_signal}，共識度為{consensus_level}，衝突強度為{conflict_severity}。"
     else:
-        base = f"来自 {opinion_count} 个策略的综合判断：综合信号为{final_signal}，共识度为{consensus_level}，未检测到策略冲突。"
+        base = f"來自 {opinion_count} 個策略的綜合判斷：綜合信號為{final_signal}，共識度為{consensus_level}，未檢測到策略衝突。"
     return base
 
 
@@ -1331,11 +1331,11 @@ def get_sentiment_label(score: int, language: Optional[str]) -> str:
         return "매우 비관"
 
     if score >= 80:
-        return "极度乐观"
+        return "極度樂觀"
     if score >= 60:
         return "乐观"
     if score >= 40:
         return "中性"
     if score >= 20:
-        return "悲观"
-    return "极度悲观"
+        return "悲觀"
+    return "極度悲觀"

@@ -23,16 +23,16 @@ _CANDIDATE_CONTEXT_COLUMNS = {
     "quote": "行情估值",
     "summary": "摘要",
     "context": "上下文",
-    "context_summary": "压缩摘要",
+    "context_summary": "壓縮摘要",
     "text": "文本",
     "risk": "风险",
     "catalyst": "催化",
-    "source_count": "来源数",
-    "source_confidence": "来源置信度",
-    "source_weight_score": "来源权重分",
-    "event_tags": "事件标签",
-    "announcement_categories": "公告类别",
-    "negative_event_flags": "负面风险",
+    "source_count": "來源數",
+    "source_confidence": "來源置信度",
+    "source_weight_score": "來源權重分",
+    "event_tags": "事件標籤",
+    "announcement_categories": "公告類別",
+    "negative_event_flags": "負面風險",
 }
 
 
@@ -109,7 +109,7 @@ def build_llm_context(
     )
     if candidate_external_context:
         sections.append(_section(
-            "【候选外部线索】\n" + candidate_external_context,
+            "【候選外部線索】\n" + candidate_external_context,
             kind="candidate_external_context",
             priority=1,
             min_chars=320,
@@ -123,7 +123,7 @@ def build_llm_context(
     )
     if collected_candidate_context:
         sections.append(_section(
-            "【候选抓取线索】\n" + collected_candidate_context,
+            "【候選抓取線索】\n" + collected_candidate_context,
             kind="candidate_collected_context",
             priority=1,
             min_chars=360,
@@ -131,7 +131,7 @@ def build_llm_context(
             line_aware=True,
         ))
 
-    snapshot_context = summarize_snapshot_context(snapshot_df, title="全市场快照")
+    snapshot_context = summarize_snapshot_context(snapshot_df, title="全市場快照")
     if snapshot_context:
         sections.append(_section(
             snapshot_context,
@@ -142,7 +142,7 @@ def build_llm_context(
             line_aware=True,
         ))
 
-    candidate_context = summarize_snapshot_context(candidate_df, title="候选池快照")
+    candidate_context = summarize_snapshot_context(candidate_df, title="候選池快照")
     if candidate_context:
         sections.append(_section(
             candidate_context,
@@ -172,27 +172,27 @@ def summarize_snapshot_context(df: pd.DataFrame | None, *, title: str) -> str:
     if df is None or df.empty:
         return ""
 
-    lines = [f"【{title}】", f"样本数: {len(df)}"]
+    lines = [f"【{title}】", f"樣本數: {len(df)}"]
     if "change_pct" in df.columns:
         change = pd.to_numeric(df["change_pct"], errors="coerce").dropna()
         if not change.empty:
             positive_ratio = (change > 0).mean() * 100
             lines.append(
-                "涨跌分布: "
-                f"上涨占比 {positive_ratio:.1f}%, "
-                f"中位涨跌幅 {change.median():.2f}%, "
-                f"平均涨跌幅 {change.mean():.2f}%"
+                "漲跌分佈: "
+                f"上漲佔比 {positive_ratio:.1f}%, "
+                f"中位漲跌幅 {change.median():.2f}%, "
+                f"平均漲跌幅 {change.mean():.2f}%"
             )
-            lines.append("涨跌极值: " + _format_extremes(df, change, ascending=False))
+            lines.append("漲跌極值: " + _format_extremes(df, change, ascending=False))
     if "amount" in df.columns:
         amount = pd.to_numeric(df["amount"], errors="coerce").dropna()
         if not amount.empty:
-            lines.append(f"成交额中位数: {amount.median():.0f}")
+            lines.append(f"成交額中位數: {amount.median():.0f}")
     if "volume_ratio" in df.columns:
         volume_ratio = pd.to_numeric(df["volume_ratio"], errors="coerce").dropna()
         if not volume_ratio.empty:
             hot_ratio = (volume_ratio >= 2).mean() * 100
-            lines.append(f"量比>=2占比: {hot_ratio:.1f}%")
+            lines.append(f"量比>=2佔比: {hot_ratio:.1f}%")
     return "\n".join(lines)
 
 
@@ -232,25 +232,25 @@ def summarize_candidate_profile(df: pd.DataFrame | None) -> str:
             row = df.loc[idx]
             leaders.append(f"{label}:{row.get('code', '')}{row.get('name', '')}({series.loc[idx]:.1f})")
         if leaders:
-            lines.append("因子领先: " + "，".join(leaders[:8]))
+            lines.append("因子領先: " + "，".join(leaders[:8]))
 
     if "screen_score" in df.columns:
         screen_score = pd.to_numeric(df["screen_score"], errors="coerce").dropna()
         if not screen_score.empty:
             lines.append(
-                f"主评分分布: 最高{screen_score.max():.1f}，"
+                f"主評分分佈: 最高{screen_score.max():.1f}，"
                 f"中位{screen_score.median():.1f}，最低{screen_score.min():.1f}"
             )
 
     industry_summary = _summarize_label_distribution(df, "industry")
     if industry_summary:
-        lines.append("行业分布: " + industry_summary)
+        lines.append("行業分佈: " + industry_summary)
     concept_summary = _summarize_label_distribution(df, "concepts")
     if concept_summary:
-        lines.append("概念线索: " + concept_summary)
+        lines.append("概念線索: " + concept_summary)
     heat_summary = _summarize_board_heat(df)
     if heat_summary:
-        lines.append("板块/主题热度: " + heat_summary)
+        lines.append("板塊/主題熱度: " + heat_summary)
 
     return "\n".join(lines) if len(lines) > 1 else ""
 
@@ -295,11 +295,11 @@ def summarize_event_profile(event_profile: dict[str, object] | None) -> str:
         return ""
     lines = ["【策略事件偏好】"]
     field_labels = {
-        "preferred_event_tags": "偏好事件标签",
-        "avoided_event_tags": "规避事件标签",
-        "preferred_announcement_categories": "偏好公告类别",
-        "avoided_announcement_categories": "规避公告类别",
-        "notes": "事件备注",
+        "preferred_event_tags": "偏好事件標籤",
+        "avoided_event_tags": "規避事件標籤",
+        "preferred_announcement_categories": "偏好公告類別",
+        "avoided_announcement_categories": "規避公告類別",
+        "notes": "事件備註",
     }
     for field, label in field_labels.items():
         value = _format_profile_value(event_profile.get(field))
@@ -317,7 +317,7 @@ def summarize_event_profile(event_profile: dict[str, object] | None) -> str:
             except (TypeError, ValueError):
                 continue
         if items:
-            lines.append("来源权重: " + "，".join(items))
+            lines.append("來源權重: " + "，".join(items))
     return "\n".join(lines) if len(lines) > 1 else ""
 
 
@@ -491,7 +491,7 @@ def _join_bounded_context_sections(
     if len(combined) <= max_chars:
         return combined
 
-    marker_line = f"【上下文降级】{_CONTEXT_TRIM_MARKER} low-priority context trimmed."
+    marker_line = f"【上下文降級】{_CONTEXT_TRIM_MARKER} low-priority context trimmed."
     budget = max(int(max_chars) - len(marker_line) - 2, 0)
     if budget <= 0:
         return marker_line[:max_chars]
@@ -510,7 +510,7 @@ def _join_bounded_context_sections(
     if trimmed_kinds:
         trimmed_labels = ",".join(dict.fromkeys(trimmed_kinds))
         marker_line = (
-            f"【上下文降级】{_CONTEXT_TRIM_MARKER} "
+            f"【上下文降級】{_CONTEXT_TRIM_MARKER} "
             f"trimmed={trimmed_labels}"
         )
         result = _append_marker_within_limit(result, marker_line, max_chars=max_chars)

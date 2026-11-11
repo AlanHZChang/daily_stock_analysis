@@ -1,9 +1,9 @@
 # Derived from AlphaSift revision 9f522747caafd3c0b1ddb7e14d5cf44c8580b6cf.
 # Licensed under Apache-2.0 and modified for daily_stock_analysis.
-# 双低选股策略（低 PE + 低 PB）
+# 雙低選股策略（低 PE + 低 PB）
 name: dual_low
-display_name: 双低选股
-description: 偏稳健的低估值筛选策略，叠加当日活跃度与形态确认，避免长期只命中静态低估值票
+display_name: 雙低選股
+description: 偏穩健的低估值篩選策略，疊加當日活躍度與形態確認，避免長期只命中靜態低估值票
 version: "1.2"
 category: value
 tags: [value, defensive, low_valuation, dynamic_signal]
@@ -13,7 +13,7 @@ style:
   execution_style: mean_reversion
   market_regime: [risk_off, range_bound]
   capital_profile: medium_liquidity
-  ui_badge: 价值
+  ui_badge: 價值
 
 screening:
   enabled: true
@@ -69,8 +69,8 @@ screening:
     value_quality_bonus: 3.0
     volume_spike_ratio: 4.0
   ranking_hints: |
-    优先考虑：
-    1. 低 PE / 低 PB 仍是基础，但不要只因为便宜反复选择同一批银行、地产、周期股
-    2. 优先选择当日成交活跃度适中、没有追高或破位风险的低估值修复候选
-    3. 行业地位、现金流、分红稳定性和近期催化能解释估值修复逻辑
+    優先考慮：
+    1. 低 PE / 低 PB 仍是基礎，但不要只因為便宜反覆選擇同一批銀行、地產、週期股
+    2. 優先選擇當日成交活躍度適中、沒有追高或破位風險的低估值修復候選
+    3. 行業地位、現金流、分紅穩定性和近期催化能解釋估值修復邏輯
   max_output: 5

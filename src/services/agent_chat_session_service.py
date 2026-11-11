@@ -206,13 +206,13 @@ class AgentChatSessionService:
         confirm = False
         clarification = None
         if decision.kind == "clarify":
-            clarification = "请明确提供本次讨论的股票或指数代码，或确认是否切换。"
+            clarification = "請明確提供本次討論的股票或指數代碼，或確認是否切換。"
         elif decision.kind == "confirm":
             selected = decision.target.identity
             if decision.target.kind != "code" and (context or {}).get("stock_code"):
                 hint = _hint_identity(context, registry, lookup)
                 if hint != selected:
-                    clarification = "名称与报告对象不一致，请明确提供完整股票或指数代码。"
+                    clarification = "名稱與報告對象不一致，請明確提供完整股票或指數代碼。"
             if clarification is None:
                 active = _stock_record(selected, lookup, registry)
                 confirm = True

@@ -63,7 +63,7 @@ DSA_SCREENING_HOTSPOT_PREFETCH_DETAIL_COUNT = 8
 DSA_SCREENING_HOTSPOT_CALL_TIMEOUT_SECONDS = 8
 DSA_SCREENING_HOTSPOT_SEARCH_TIMEOUT_SECONDS = 12
 DSA_SCREENING_HOTSPOT_UNAVAILABLE_CODE = "eastmoney_hotspot_unavailable"
-DSA_SCREENING_HOTSPOT_UNAVAILABLE_MESSAGE = "热点源连接中断，暂无可用缓存。"
+DSA_SCREENING_HOTSPOT_UNAVAILABLE_MESSAGE = "熱點源連接中斷，暫無可用緩存。"
 DSA_SCREENING_HOTSPOT_CONNECTIVITY_ERROR_MARKERS = (
     "remote disconnected",
     "remote end closed connection",
@@ -458,9 +458,9 @@ def _summarize_hotspot_news_event_locally(*, topic: str, text: str) -> str:
     catalyst = _extract_hotspot_catalyst_phrase(cleaned)
     impacts = _extract_hotspot_impact_phrases(cleaned)
     if catalyst and impacts:
-        summary = f"{catalyst}，带动{impacts}发酵。"
+        summary = f"{catalyst}，帶動{impacts}發酵。"
     elif catalyst:
-        summary = f"{catalyst}，市场关注{topic}相关产业链机会。"
+        summary = f"{catalyst}，市場關注{topic}相關產業鏈機會。"
     else:
         summary = _first_meaningful_hotspot_sentence(cleaned)
     summary = _truncate_text(summary, DSA_SCREENING_HOTSPOT_EVENT_SUMMARY_MAX_CHARS).rstrip(".。…")
@@ -943,7 +943,7 @@ class ScreeningService:
                 status_code=404,
                 detail={
                     "error": "screening_run_not_found",
-                    "message": f"选股运行 {run_id} 不存在。",
+                    "message": f"選股運行 {run_id} 不存在。",
                 },
             )
         return {"enabled": True, **run}
@@ -960,7 +960,7 @@ class ScreeningService:
                 status_code=503,
                 detail={
                     "error": "screening_history_unavailable",
-                    "message": "DSA 数据库未注入，无法读取选股运行历史。",
+                    "message": "DSA 數據庫未注入，無法讀取選股運行歷史。",
                 },
             )
         return self.db_manager
@@ -1123,7 +1123,7 @@ class ScreeningService:
         if not topic_text:
             raise HTTPException(
                 status_code=400,
-                detail={"error": "screening_hotspot_topic_required", "message": "热点题材名称不能为空。"},
+                detail={"error": "screening_hotspot_topic_required", "message": "熱點題材名稱不能為空。"},
             )
         provider_name, provider_arg = _resolve_hotspot_provider(provider)
         if not isinstance(provider_arg, DsaEastMoneyHotspotProvider):
@@ -1242,14 +1242,14 @@ class ScreeningService:
         except (TypeError, KeyError) as exc:
             raise HTTPException(
                 status_code=422,
-                detail={"error": "screening_invalid_input", "message": f"Screening 参数非法：{exc}"},
+                detail={"error": "screening_invalid_input", "message": f"Screening 參數非法：{exc}"},
             ) from exc
         except HTTPException:
             raise
         except Exception as exc:
             raise HTTPException(
                 status_code=424,
-                detail={"error": "screening_screen_failed", "message": f"Screening 选股运行失败：{exc}"},
+                detail={"error": "screening_screen_failed", "message": f"Screening 選股運行失敗：{exc}"},
             ) from exc
 
         raw_data = _to_plain(raw)
@@ -1269,7 +1269,7 @@ class ScreeningService:
         _emit_screening_progress(
             progress_callback,
             92,
-            "正在补充入选股票的新闻与事件",
+            "正在補充入選股票的新聞與事件",
         )
         selected, dsa_enrichment = _enrich_candidates_with_dsa(selected, candidate_context_cache=candidate_context_cache)
         selected = [
@@ -1425,7 +1425,7 @@ def _hotspot_timeline_to_route(timeline: List[Any]) -> List[Dict[str, Any]]:
         return route
     return [{
         "title": "等待发酵",
-        "description": "暂未获取到明确催化事件，可继续观察涨跌幅、成交额和核心个股联动。",
+        "description": "暫未獲取到明確催化事件，可繼續觀察漲跌幅、成交額和核心個股聯動。",
         "source": "fallback",
     }]
 
@@ -1491,9 +1491,9 @@ def _build_screening_hotspot_summary_text(summary: Dict[str, Any], *, topic: str
     leaders = summary.get("leaders") if isinstance(summary.get("leaders"), list) else []
     parts = [display_topic]
     if heat is not None:
-        parts.append(f"热度 {heat:.1f}")
+        parts.append(f"熱度 {heat:.1f}")
     if stage:
-        parts.append(f"阶段 {stage}")
+        parts.append(f"階段 {stage}")
     if leaders:
         parts.append("核心股 " + "、".join(_env_text(item) for item in leaders[:3] if _env_text(item)))
     return "，".join(part for part in parts if part) + "。"
@@ -1513,7 +1513,7 @@ def _ensure_screening_available_for_use() -> None:
         return
     normalized_diagnostics = _include_screening_diagnostic_suffix(diagnostics)
     raise _screening_unavailable_exception(
-        "选股功能初始化失败，请检查策略文件、依赖和服务端日志。",
+        "選股功能初始化失敗，請檢查策略文件、依賴和服務端日誌。",
         diagnostics=normalized_diagnostics,
     )
 
@@ -1574,7 +1574,7 @@ def _call_screening_status() -> Dict[str, Any]:
     except Exception as exc:
         diagnostics = _log_unexpected_screening_exception("strategy_load", exc)
         raise _screening_unavailable_exception(
-            f"选股功能状态检查失败：{exc}",
+            f"選股功能狀態檢查失敗：{exc}",
             diagnostics=diagnostics,
         ) from exc
     return {
@@ -1621,7 +1621,7 @@ def _list_strategies() -> List[Dict[str, Any]]:
     if not isinstance(raw, list):
         raise HTTPException(
             status_code=424,
-            detail={"error": "screening_invalid_result", "message": "选股策略列表结构非法。"},
+            detail={"error": "screening_invalid_result", "message": "選股策略列表結構非法。"},
         )
 
     normalized: List[Dict[str, Any]] = []
@@ -1743,7 +1743,7 @@ def _ensure_supported_strategy(strategy: str) -> None:
     if strategy in ids:
         return
 
-    # 策略参数由选股引擎执行最终校验，这里保持透传以支持自定义策略。
+    # 策略參數由選股引擎執行最終校驗，這裡保持透傳以支持自定義策略。
 
 
 def _call_screening_screen(
@@ -1925,8 +1925,8 @@ def _resolve_screening_snapshot_source_priority(config: Config) -> str:
 def _build_screening_runtime_env(config: Config, *, max_results: Optional[int] = None) -> Dict[str, str]:
     # Bridge runtime only: only inject resolved DSA values for this request/process scope.
     # User .env/config is never rewritten here; unset channels/models are not silently migrated.
-    # 与 LiteLLM provider/model、openai-compatible `api_base` 与 headers 注入语义保持一致，
-    # 参见 https://docs.litellm.ai/docs/providers 与
+    # 與 LiteLLM provider/model、openai-compatible `api_base` 與 headers 注入語義保持一致，
+    # 參見 https://docs.litellm.ai/docs/providers 與
     # https://docs.litellm.ai/docs/proxy/configs#the-model_list-key
     env: Dict[str, str] = {}
 
@@ -2077,32 +2077,32 @@ class DsaEastMoneyHotspotProvider:
         "Ⅲ",
     )
     _CHANGE_EVENT_LABELS = {
-        4: "快速拉升",
+        4: "快速拉昇",
         8: "快速回落",
-        16: "大幅上涨",
+        16: "大幅上漲",
         32: "大幅下跌",
-        64: "有大笔买入",
-        128: "有大笔卖出",
-        8193: "火箭发射",
-        8194: "高台跳水",
-        8201: "大笔买入",
-        8202: "大笔卖出",
-        8203: "封涨停板",
-        8204: "打开涨停板",
-        8207: "有打开跌停板",
+        64: "有大筆買入",
+        128: "有大筆賣出",
+        8193: "火箭發射",
+        8194: "高臺跳水",
+        8201: "大筆買入",
+        8202: "大筆賣出",
+        8203: "封漲停板",
+        8204: "打開漲停板",
+        8207: "有打開跌停板",
         8208: "封跌停板",
         8209: "向上缺口",
         8210: "向下缺口",
         8211: "60日新高",
         8212: "60日新低",
-        8213: "60日大幅上涨",
+        8213: "60日大幅上漲",
         8214: "60日大幅下跌",
-        8215: "竞价上涨",
-        8216: "竞价下跌",
-        8217: "高开",
-        8218: "低开",
+        8215: "競價上漲",
+        8216: "競價下跌",
+        8217: "高開",
+        8218: "低開",
         8219: "放量",
-        8220: "缩量",
+        8220: "縮量",
         8221: "向上突破",
         8222: "向下破位",
     }
@@ -2408,7 +2408,7 @@ class DsaEastMoneyHotspotProvider:
         info = self._fetch_ths_info(topic)
         if info:
             route.append({
-                "title": "同花顺板块概况",
+                "title": "同花順板塊概況",
                 "description": "；".join(f"{key} {value}" for key, value in list(info.items())[:4]),
                 "source": "ths_info",
             })
@@ -2609,11 +2609,11 @@ class DsaEastMoneyHotspotProvider:
     def _derive_hotspot_stage(self, *, change_pct: Optional[float], event_count: int) -> str:
         positive_change = max(change_pct or 0.0, 0.0)
         if event_count >= 180 and positive_change >= 3.0:
-            return "加速发酵"
+            return "加速發酵"
         if event_count >= 90:
-            return "持续发酵"
+            return "持續發酵"
         if positive_change >= 5.0:
-            return "快速拉升"
+            return "快速拉昇"
         return "初次异动"
 
     def _hotspot_group(self, topic: str) -> str:
@@ -2649,16 +2649,16 @@ class DsaEastMoneyHotspotProvider:
 
     def _build_hotspot_summary(self, topic: str, summary: Dict[str, Any]) -> str:
         if not summary:
-            return f"{topic} 当前暂无可用的板块异动摘要。"
+            return f"{topic} 當前暫無可用的板塊異動摘要。"
         change_pct = _safe_float(summary.get("涨跌幅"))
         event_count = int(_safe_float(summary.get("板块异动总次数")) or 0)
         leader = _env_text(summary.get("板块异动最频繁个股及所属类型-股票名称"))
         action = _env_text(summary.get("板块异动最频繁个股及所属类型-买卖方向"))
-        parts = [f"{topic} 当前涨跌幅 {change_pct:.2f}%" if change_pct is not None else f"{topic} 当前有异动记录"]
+        parts = [f"{topic} 當前漲跌幅 {change_pct:.2f}%" if change_pct is not None else f"{topic} 當前有異動記錄"]
         if event_count:
-            parts.append(f"盘中异动 {event_count} 次")
+            parts.append(f"盤中異動 {event_count} 次")
         if leader:
-            parts.append(f"高频异动个股为 {leader}{f'（{action}）' if action else ''}")
+            parts.append(f"高頻異動個股為 {leader}{f'（{action}）' if action else ''}")
         return "，".join(parts) + "。"
 
     def _build_hotspot_route(self, topic: str, summary: Dict[str, Any]) -> List[Dict[str, Any]]:
@@ -2686,19 +2686,19 @@ class DsaEastMoneyHotspotProvider:
             event_date = self._extract_route_date(ths_event) or today
             put_daily_item(
                 date=event_date,
-                title="题材驱动",
+                title="題材驅動",
                 description=ths_event,
                 source="ths_summary",
             )
         if summary:
             change_events = self._parse_change_events(summary.get("板块具体异动类型列表及出现次数"))[:5]
-            event_text = "；".join(f"{item['label']}出现 {item['count']} 次" for item in change_events)
+            event_text = "；".join(f"{item['label']}出現 {item['count']} 次" for item in change_events)
             description = self._build_hotspot_summary(topic, summary)
             if event_text:
-                description = f"{description} 当日结构：{event_text}。"
+                description = f"{description} 當日結構：{event_text}。"
             put_daily_item(
                 date=today,
-                title="当日发酵",
+                title="當日發酵",
                 description=description,
                 source="eastmoney_board_change",
             )
@@ -2709,7 +2709,7 @@ class DsaEastMoneyHotspotProvider:
         if not route:
             route.append({
                 "title": "等待发酵",
-                "description": "暂未获取到明确催化事件，可继续观察涨跌幅、成交额和核心个股联动。",
+                "description": "暫未獲取到明確催化事件，可繼續觀察漲跌幅、成交額和核心個股聯動。",
                 "source": "fallback",
                 "date": today,
                 "published_at": today,
@@ -2999,8 +2999,8 @@ def _build_screening_context(
     include_news: bool = False,
     candidate_context_cache: Optional[Dict[str, Dict[str, Any]]] = None,
 ) -> Dict[str, Any]:
-    # context.llm.model/fallback/model_list 与 LiteLLM 路由语义保持一致，
-    # 参见 https://docs.litellm.ai/docs/proxy/configs#the-model_list-key
+    # context.llm.model/fallback/model_list 與 LiteLLM 路由語義保持一致，
+    # 參見 https://docs.litellm.ai/docs/proxy/configs#the-model_list-key
     channels = _normalize_dsa_llm_channels(config)
     litellm_model, fallback_models = _resolve_screening_llm_models(config)
     candidate_getter = (
@@ -3781,23 +3781,23 @@ def _build_dsa_analysis_summary(
     price = _first_non_empty(quote.get("price"), candidate.get("price"))
     change_pct = _first_non_empty(quote.get("change_pct"), candidate.get("change_pct"))
     if price is not None:
-        text = f"DSA行情：现价 {price}"
+        text = f"DSA行情：現價 {price}"
         if change_pct is not None:
-            text += f"，涨跌幅 {change_pct}%"
+            text += f"，漲跌幅 {change_pct}%"
         parts.append(text)
 
     coverage = fundamentals.get("coverage") if isinstance(fundamentals, dict) else {}
     if isinstance(coverage, dict) and coverage:
         available_blocks = [key for key, value in coverage.items() if str(value).lower() in {"available", "partial"}]
         if available_blocks:
-            parts.append(f"DSA基本面覆盖：{', '.join(available_blocks[:4])}")
+            parts.append(f"DSA基本面覆蓋：{', '.join(available_blocks[:4])}")
 
     news_results = news.get("results") if isinstance(news, dict) else []
     if isinstance(news_results, list) and news_results:
         titles = [str(item.get("title") or "").strip() for item in news_results if isinstance(item, dict)]
         titles = [title for title in titles if title]
         if titles:
-            parts.append(f"DSA新闻：{'；'.join(titles[:2])}")
+            parts.append(f"DSA新聞：{'；'.join(titles[:2])}")
 
     event_results = events.get("results") if isinstance(events, dict) else []
     if isinstance(event_results, list) and event_results:
@@ -3831,8 +3831,8 @@ def _ensure_supported_market(market: str) -> None:
             detail={
                 "error": "screening_invalid_market",
                 "message": (
-                    f"市场 {market} 不在选股功能支持范围内"
-                    f"（支持市场：{', '.join(map(str, normalized)) or '未知'}）。"
+                    f"市場 {market} 不在選股功能支持範圍內"
+                    f"（支持市場：{', '.join(map(str, normalized)) or '未知'}）。"
                 ),
             },
         )
@@ -4031,7 +4031,7 @@ def _attach_candidate_explanations(
         and math.isfinite(float(llm_score))
     ):
         add_selection(
-            "llm_ranking", "模型已参与排序（未提供入选理由）", "llm", "inferred",
+            "llm_ranking", "模型已參與排序（未提供入選理由）", "llm", "inferred",
         )
 
     factors = candidate.get("factor_scores")
@@ -4077,7 +4077,7 @@ def _attach_candidate_explanations(
             analyzer_name = str(analyzer).strip() or "unknown"
             add_selection(
                 "post_analysis_score_delta",
-                f"{analyzer_name} 后分析已完成，评分调整 {delta:+g}（未提供摘要）",
+                f"{analyzer_name} 後分析已完成，評分調整 {delta:+g}（未提供摘要）",
                 f"post_analyzer:{analyzer_name}",
                 _post_analysis_summary_quality(candidate, analyzer_name),
                 value=float(delta),
@@ -4087,7 +4087,7 @@ def _attach_candidate_explanations(
         why_selected.append(
             _explanation_item(
                 "selection_outcome",
-                "已进入当前选股候选结果",
+                "已進入當前選股候選結果",
                 source="screening",
                 quality="observed",
             )
@@ -4142,7 +4142,7 @@ def _attach_candidate_explanations(
             why_now.append(
                 _explanation_item(
                     "quote_change_pct",
-                    f"涨跌幅：{change_pct:+.2f}%",
+                    f"漲跌幅：{change_pct:+.2f}%",
                     source="realtime_quote",
                     quality="observed",
                     value=change_pct,
@@ -4154,7 +4154,7 @@ def _attach_candidate_explanations(
             why_now.append(
                 _explanation_item(
                     "quote_amount",
-                    f"成交额：{amount:.2f}",
+                    f"成交額：{amount:.2f}",
                     source="realtime_quote",
                     quality="observed",
                     value=amount,
@@ -4168,7 +4168,7 @@ def _attach_candidate_explanations(
             why_now.append(
                 _explanation_item(
                     "llm_catalyst",
-                    f"模型催化判断：{'、'.join(catalyst_text)}",
+                    f"模型催化判斷：{'、'.join(catalyst_text)}",
                     source="llm",
                     quality="inferred",
                 )
@@ -4178,7 +4178,7 @@ def _attach_candidate_explanations(
         why_now.append(
             _explanation_item(
                 "awaiting_evidence",
-                "暂无带来源的价格、消息或事件证据",
+                "暫無帶來源的價格、消息或事件證據",
                 source="screening",
                 quality="unknown",
             )

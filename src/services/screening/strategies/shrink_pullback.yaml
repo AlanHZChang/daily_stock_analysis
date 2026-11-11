@@ -1,9 +1,9 @@
 # Derived from AlphaSift revision 9f522747caafd3c0b1ddb7e14d5cf44c8580b6cf.
 # Licensed under Apache-2.0 and modified for daily_stock_analysis.
-# 缩量回踩选股策略
+# 縮量回踩選股策略
 name: shrink_pullback
-display_name: 缩量回踩
-description: 上升趋势中缩量回踩均线支撑，趋势延续的入场机会
+display_name: 縮量回踩
+description: 上升趨勢中縮量回踩均線支撐，趨勢延續的入場機會
 version: "1.1"
 category: trend
 tags: [trend, pullback, daily_k]
@@ -68,8 +68,8 @@ screening:
     capital_confirmed_bonus: 1.4
     volume_spike_ratio: 4.5
   ranking_hints: |
-    在满足缩量回踩特征的候选中，优先关注：
-    1. 回调幅度适中、趋势结构未破坏
-    2. 缩量明显，洗盘而非出货
-    3. 近期无重大利空
+    在滿足縮量回踩特徵的候選中，優先關注：
+    1. 回調幅度適中、趨勢結構未破壞
+    2. 縮量明顯，洗盤而非出貨
+    3. 近期無重大利空
   max_output: 5

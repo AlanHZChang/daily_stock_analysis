@@ -119,8 +119,8 @@ def _handle_search_stock_news(stock_code: str, stock_name: str) -> dict:
     response = service.search_stock_news(query_code, query_name, max_results=5)
 
     if not response.success:
-        # 检索已发起但失败：Agent 这一轮没有拿到新闻证据，必须记 0 而不是不记，
-        # 否则报告会把「搜过但失败」误报成「未配置搜索渠道」。
+        # 檢索已發起但失敗：Agent 這一輪沒有拿到新聞證據，必須記 0 而不是不記，
+        # 否則報告會把「搜過但失敗」誤報成「未配置搜索渠道」。
         record_news_evidence(0)
         return {
             "query": response.query,
@@ -197,14 +197,14 @@ def _handle_search_comprehensive_intel(stock_code: str, stock_name: str) -> dict
     )
 
     if not intel_results:
-        # 多维检索已发起但整体没有结果，同样必须记 0（见 _handle_search_stock_news）。
+        # 多維檢索已發起但整體沒有結果，同樣必須記 0（見 _handle_search_stock_news）。
         record_news_evidence(0)
         return {"error": "Comprehensive intel search returned no results"}
 
     # Format into readable report
     report = service.format_intel_report(intel_results, query_name)
 
-    # 本次真正交给 Agent 的证据条数，按维度累计后一次性记录。
+    # 本次真正交給 Agent 的證據條數，按維度累計後一次性記錄。
     evidence_count = 0
 
     # Also return structured data

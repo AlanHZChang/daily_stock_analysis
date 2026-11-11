@@ -19,10 +19,10 @@ StockRole = Literal["leader", "follower", "edge", "unknown"]
 
 
 class MarketStructureSource(BaseModel):
-    provider: str = Field(..., description="数据源标识，仅作快照元数据，不参与运行时 provider/model 路由")
-    dataset: str = Field(..., description="数据集标识，仅用于历史可追溯快照")
+    provider: str = Field(..., description="數據源標識，僅作快照元數據，不參與運行時 provider/model 路由")
+    dataset: str = Field(..., description="數據集標識，僅用於歷史可追溯快照")
     status: str = Field("ok", description="来源可用性快照")
-    message: Optional[str] = Field(None, description="来源提示，仅展示/排障用")
+    message: Optional[str] = Field(None, description="來源提示，僅展示/排障用")
 
 
 class MarketStructureDataQuality(BaseModel):

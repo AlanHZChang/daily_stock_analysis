@@ -1,86 +1,86 @@
 # -*- coding: utf-8 -*-
 """
-Web Chat 意图识别层 — 主解析器（Intent Resolver）。
+Web Chat 意圖識別層 — 主解析器（Intent Resolver）。
 
-按六步流水线把一条用户消息解析为**二维任务组列表**（保序、可含确认
-短路；外层组=子消息，形状契约见 ``resolve`` docstring）：
-  - ``web_intent_types.py``     — 意图枚举、WebIntentResolution、Token、
-                                  tag/关键词/正则常量（共享数据字典）；
-  - ``web_intent_tokenizer.py`` — 六步分词管道与实体提取（本层只消费其
-                                  产物，绝不重跑全管道）；
-  - ``web_intent_resolver.py``  — 本模块：主流程、规则/LLM/确认消费、
-                                  session/SSE 辅助。
+按六步流水線把一條用戶消息解析為**二維任務組列表**（保序、可含確認
+短路；外層組=子消息，形狀契約見 ``resolve`` docstring）：
+  - ``web_intent_types.py``     — 意圖枚舉、WebIntentResolution、Token、
+                                  tag/關鍵詞/正則常量（共享數據字典）；
+  - ``web_intent_tokenizer.py`` — 六步分詞管道與實體提取（本層只消費其
+                                  產物，絕不重跑全管道）；
+  - ``web_intent_resolver.py``  — 本模塊：主流程、規則/LLM/確認消費、
+                                  session/SSE 輔助。
 
-== 六步流程（resolve 主链，顺序固定）==
+== 六步流程（resolve 主鏈，順序固定）==
 
-  第一步 上下文准备与空输入短路
-     继承股票（request_context.current_stock_code 优先，退
-     recent_stocks[0]）；空/非文本/纯标点 → 闲聊 0.5 规则直达（带继承
-     股票，不动 pending——空消息不是确认响应）。
+  第一步 上下文準備與空輸入短路
+     繼承股票（request_context.current_stock_code 優先，退
+     recent_stocks[0]）；空/非文本/純標點 → 閒聊 0.5 規則直達（帶繼承
+     股票，不動 pending——空消息不是確認響應）。
 
-  第二步 全消息分词（仅此一次）
-     ``_preprocess_text`` + ``_identify_stock_codes`` 全局各调用一次，
-     之后所有阶段只消费这份 tokens，禁止重复冗余调用。
+  第二步 全消息分詞（僅此一次）
+     ``_preprocess_text`` + ``_identify_stock_codes`` 全局各調用一次，
+     之後所有階段只消費這份 tokens，禁止重複冗餘調用。
 
-  第三步 消息级多任务切分 ``_split_sub_messages(tokens, message)``
-     输出 tokens 二维列表（第一维 = 一条子消息的 token 序列），元素
-     恒不变——只按序分组，绝不重分词/改写 token。两类切口：消息消费
-     型标点（，。！？；）落在相邻 token 的原文间隙即下刀（token 文本
-     大小写折叠定位，canonical 改写的代码退用数字核）；顺序连接词
-     （然后/其次/接着/顺便）开头的 token 前下刀。切口全部落在 token
-     边界，词内"然后"（"居然后市"= 居然+后市）无从触发；并列连接词
-     （和/与/跟/及）不切——并列对象属于同一个任务。
+  第三步 消息級多任務切分 ``_split_sub_messages(tokens, message)``
+     輸出 tokens 二維列表（第一維 = 一條子消息的 token 序列），元素
+     恆不變——只按序分組，絕不重分詞/改寫 token。兩類切口：消息消費
+     型標點（，。！？；）落在相鄰 token 的原文間隙即下刀（token 文本
+     大小寫摺疊定位，canonical 改寫的代碼退用數字核）；順序連接詞
+     （然後/其次/接著/順便）開頭的 token 前下刀。切口全部落在 token
+     邊界，詞內"然后"（"居然後市"= 居然+後市）無從觸發；並列連接詞
+     （和/與/跟/及）不切——並列對象屬於同一個任務。
 
-  第四步 逐子消息规则级解析（多意图任务列表）
-     对每条子消息跑"规则阶段"（``_classify_rule``），产出【平权】任务
-     列表（无主次）：主体判定梯选出主体对象任务（个股/泛市场·指数·纯
-     市场词/板块独占/追问继承/存疑代码/闲聊——纯市场限定词是唯一对象
-     解释时同大盘口径进兜底对象，槽位填市场名；与个股实体联动时是限
-     定词交分支3 消歧），板块对象与组合语境未被主体消费
-     时各自独立生成任务（板块任务/组合任务，与主体任务共享实体解析）
-     ——组 = 子消息。歧义组/候选/裸数字等信号随身携带。大模型兜底
-     【延后不跑】。
+  第四步 逐子消息規則級解析（多意圖任務列表）
+     對每條子消息跑"規則階段"（``_classify_rule``），產出【平權】任務
+     列表（無主次）：主體判定梯選出主體對象任務（個股/泛市場·指數·純
+     市場詞/板塊獨佔/追問繼承/存疑代碼/閒聊——純市場限定詞是唯一對象
+     解釋時同大盤口徑進兜底對象，槽位填市場名；與個股實體聯動時是限
+     定詞交分支3 消歧），板塊對象與組合語境未被主體消費
+     時各自獨立生成任務（板塊任務/組合任務，與主體任務共享實體解析）
+     ——組 = 子消息。歧義組/候選/裸數字等信號隨身攜帶。大模型兜底
+     【延後不跑】。
 
-  第五步 确认消费（pending confirm_stock 存在时）
-     无 ambiguity_group 直接跳过。回复子消息画像：fresh＝点名候选外新
-     entity；has_content＝候选空间外的自带语义（意图类 token／板块指
-     数对象／未识别名／存疑代码／未识别内容）。保留是默认、丢弃是例
-     外：判为纯消歧答案的必要条件是子消息的全部内容都落在待确认候选
-     空间之内，部分内容充当消歧证据不排斥请求角色。非 fresh 一律参
-     与收窄（组 × 子消息 × entity 三重循环，复述组名跳过）；保留为任
-     务＝fresh／has_content／矛盾贡献者。无候选组的 stock_unresolved
-     链以同口径判答：恰一只纯形实体回复（fresh 且无 has_content）结算
-     为纠正标的（原意图与随行实体保留）；单个确认任务被多个实体命中
-     ＝匹配失败（比较/新请求，按新话题），带自身语义的回复按新话题。
-     结算（组间独立）：answers 去重后 0 个 → 未解；>1 个 → 矛盾（用户
-     在同一条回复里点名多个候选＝比较/新请求）——该组弃置且贡献子消
-     息整轮判新话题；恰 1 个 →
-     消解记入 confirmed。出口：全部 answers 为空 → 未消解确认作废、
-     已消解兄弟随行，按新
-     话题解析；全部消解 → 确认解除就地落位 ＋ 保留任务；存在未解 →
-     重建 pending_action（未解组 ＋ confirmed 累积 ＋ resolved_stocks
-     随行）继续等待。消费出口统一身份选择式收尾：recovered 组（重建的
-     未消解任务／已消解任务／随行兄弟）一律原样随行——它们上轮已收尾，
-     重过收尾会对已确认任务重跑 LLM 兜底（二次意见污染用户消歧结果）、
-     对低置信来源任务二次短路；本轮 kept 组按子消息分组照常过第六步
-     收尾（组=子消息不变量跨消费保持，一条子消息至多一次多意图枚举），
-     确认状态与日志当轮浮出。
+  第五步 確認消費（pending confirm_stock 存在時）
+     無 ambiguity_group 直接跳過。回覆子消息畫像：fresh＝點名候選外新
+     entity；has_content＝候選空間外的自帶語義（意圖類 token／板塊指
+     數對象／未識別名／存疑代碼／未識別內容）。保留是默認、丟棄是例
+     外：判為純消歧答案的必要條件是子消息的全部內容都落在待確認候選
+     空間之內，部分內容充當消歧證據不排斥請求角色。非 fresh 一律參
+     與收窄（組 × 子消息 × entity 三重循環，複述組名跳過）；保留為任
+     務＝fresh／has_content／矛盾貢獻者。無候選組的 stock_unresolved
+     鏈以同口徑判答：恰一隻純形實體回覆（fresh 且無 has_content）結算
+     為糾正標的（原意圖與隨行實體保留）；單個確認任務被多個實體命中
+     ＝匹配失敗（比較/新請求，按新話題），帶自身語義的回覆按新話題。
+     結算（組間獨立）：answers 去重後 0 個 → 未解；>1 個 → 矛盾（用戶
+     在同一條回覆裡點名多個候選＝比較/新請求）——該組棄置且貢獻子消
+     息整輪判新話題；恰 1 個 →
+     消解記入 confirmed。出口：全部 answers 為空 → 未消解確認作廢、
+     已消解兄弟隨行，按新
+     話題解析；全部消解 → 確認解除就地落位 ＋ 保留任務；存在未解 →
+     重建 pending_action（未解組 ＋ confirmed 累積 ＋ resolved_stocks
+     隨行）繼續等待。消費出口統一身份選擇式收尾：recovered 組（重建的
+     未消解任務／已消解任務／隨行兄弟）一律原樣隨行——它們上輪已收尾，
+     重過收尾會對已確認任務重跑 LLM 兜底（二次意見汙染用戶消歧結果）、
+     對低置信來源任務二次短路；本輪 kept 組按子消息分組照常過第六步
+     收尾（組=子消息不變量跨消費保持，一條子消息至多一次多意圖枚舉），
+     確認狀態與日誌當輪浮出。
 
-  第六步 幸存任务收尾 ``_finalize_task()``
-     ① 补跑 LLM 兜底：低置信/无信号才触发，tag 全识别的高置信结果
-        （≥0.8）与高置信主体豁免（candidates 不参与触发判据——歧义
-        出口是用户确认）；失败退回规则结果（source=llm_failed），
-        代码须过查库闸门防编造。
-     ② 确认判定补齐（``_finalize_confirmation``）：无锚点执行类 → 低
-        置信守卫收口；歧义候选非空 → 建 ambiguity_group；无法解析名
-        称 → 等用户重给；置信度 <0.6 → 低置信。
+  第六步 倖存任務收尾 ``_finalize_task()``
+     ① 補跑 LLM 兜底：低置信/無信號才觸發，tag 全識別的高置信結果
+        （≥0.8）與高置信主體豁免（candidates 不參與觸發判據——歧義
+        出口是用戶確認）；失敗退回規則結果（source=llm_failed），
+        代碼須過查庫閘門防編造。
+     ② 確認判定補齊（``_finalize_confirmation``）：無錨點執行類 → 低
+        置信守衛收口；歧義候選非空 → 建 ambiguity_group；無法解析名
+        稱 → 等用戶重給；置信度 <0.6 → 低置信。
 
-     确认收口：任一任务待确认 → 整链短路（判定权在消费方 any()）。
-     不做同意图折叠——多标的任务（"阿里的走势，平安呢"两个标的）各自
-     独立执行、各自锁定 stock scope，聚合不改变 Agent 输出质量。
+     確認收口：任一任務待確認 → 整鏈短路（判定權在消費方 any()）。
+     不做同意圖摺疊——多標的任務（"阿里的走勢，平安呢"兩個標的）各自
+     獨立執行、各自鎖定 stock scope，聚合不改變 Agent 輸出質量。
 
-意图边界总纲（三判别测试 + 逐意图收/推）见 web_intent_types 模块
-docstring；本模块注释只保留分支级依据。
+意圖邊界總綱（三判別測試 + 逐意圖收/推）見 web_intent_types 模塊
+docstring；本模塊註釋只保留分支級依據。
 """
 
 from __future__ import annotations
@@ -134,20 +134,20 @@ __all__ = [
 
 
 # =========================================================================
-# 置信度表 — 按决策路径赋常量（表达"路径可靠程度"而非校准概率）
+# 置信度表 — 按決策路徑賦常量（表達"路徑可靠程度"而非校準概率）
 # =========================================================================
 
 
-_CONFIDENCE_EXPLICIT_CODE = 0.9     # 显式代码（含交易所标注形态）：代码即标的
-_CONFIDENCE_KEYWORD_STRONG = 0.85   # 意图关键词与实体共现（"分析茅台"）
-_CONFIDENCE_BARE_NAME = 0.8         # 裸唯一名称（"茅台"）／存疑代码主体
-_CONFIDENCE_CONTEXT_INHERIT = 0.75  # 上下文继承（追问/LLM followup 伪标签）
-_CONFIDENCE_FALLBACK = 0.5          # 规则无可靠结论：必须 LLM 兜底或确认
-_CONFIDENCE_LLM_EXEMPT = 0.8        # tag 全识别 + 该置信度以上：规则视野与判定双完备，免 LLM 复核
-_CONFIDENCE_CONFIRMATION = 0.9      # 确认消费轮：用户已显式选定标的
+_CONFIDENCE_EXPLICIT_CODE = 0.9     # 顯式代碼（含交易所標註形態）：代碼即標的
+_CONFIDENCE_KEYWORD_STRONG = 0.85   # 意圖關鍵詞與實體共現（"分析茅臺"）
+_CONFIDENCE_BARE_NAME = 0.8         # 裸唯一名稱（"茅臺"）／存疑代碼主體
+_CONFIDENCE_CONTEXT_INHERIT = 0.75  # 上下文繼承（追問/LLM followup 偽標籤）
+_CONFIDENCE_FALLBACK = 0.5          # 規則無可靠結論：必須 LLM 兜底或確認
+_CONFIDENCE_LLM_EXEMPT = 0.8        # tag 全識別 + 該置信度以上：規則視野與判定雙完備，免 LLM 複核
+_CONFIDENCE_CONFIRMATION = 0.9      # 確認消費輪：用戶已顯式選定標的
 
-# 规则分类查看的"意图标签"集合：出现即构成意图信号。filler/time/market
-# 等辅助标签不单独构成意图（market 只提供范围与消歧）
+# 規則分類查看的"意圖標籤"集合：出現即構成意圖信號。filler/time/market
+# 等輔助標籤不單獨構成意圖（market 只提供範圍與消歧）
 _INTENT_TAGS = frozenset({
     TAG_REQUEST, TAG_SUBJECT_RESEARCH, TAG_ACTION_RESEARCH,
     TAG_QUESTION, TAG_OPINION, TAG_COMPARISON,
@@ -156,26 +156,26 @@ _INTENT_TAGS = frozenset({
     TAG_FOLLOWUP,
 })
 
-# T2 强分析信号（"给观点"侧）：归因/评价/比较/预测。与数据词共现时获胜
+# T2 強分析信號（"給觀點"側）：歸因/評價/比較/預測。與數據詞共現時獲勝
 _STRONG_RESEARCH_TAGS = frozenset({
     TAG_SUBJECT_RESEARCH, TAG_ACTION_RESEARCH, TAG_OPINION, TAG_COMPARISON,
 })
 
-# T2 数据点信号（"报数据"侧）。与泛动作词（request）共现时获胜，与强分析词共现时让位
+# T2 數據點信號（"報數據"側）。與泛動作詞（request）共現時獲勝，與強分析詞共現時讓位
 _QUOTE_TAGS = frozenset({TAG_ACTION_QUOTE, TAG_ACTION_QUOTE_FETCH})
 
-# 报数信号双 tag：action_quote（数据对象词）＋ action_quote_fetch（取数
-# 动词）——词形区分在上游词池完成，下游只读 tag（T2 深度裁决两者同权，
-# multi_intent_hint 只认数据对象侧）
+# 報數信號雙 tag：action_quote（數據對象詞）＋ action_quote_fetch（取數
+# 動詞）——詞形區分在上游詞池完成，下游只讀 tag（T2 深度裁決兩者同權，
+# multi_intent_hint 只認數據對象側）
 
-# T1 个性化信号：持仓/自选股主题与操作
+# T1 個性化信號：持倉/自選股主題與操作
 _PORTFOLIO_TAGS = frozenset({TAG_SUBJECT_PORTFOLIO, TAG_ACTION_PORTFOLIO})
 
-# 确认轮的候选空间外锚点：这些 tag 出现说明回复子消息携带候选空间
-# 之外的内容——分析/比较/提问请求，或板块/指数对象（板块裸提是对象
-# 承载的请求，无动词形态）。保留是
-# 默认：任一锚点在场，子消息保留为新任务走完整第六步收尾，⑤② 只丢弃
-# 全部内容都落在待确认候选空间内的纯答案片段（单消费点：_reply_profile）
+# 確認輪的候選空間外錨點：這些 tag 出現說明回覆子消息攜帶候選空間
+# 之外的內容——分析/比較/提問請求，或板塊/指數對象（板塊裸提是對象
+# 承載的請求，無動詞形態）。保留是
+# 默認：任一錨點在場，子消息保留為新任務走完整第六步收尾，⑤② 只丟棄
+# 全部內容都落在待確認候選空間內的純答案片段（單消費點：_reply_profile）
 _COMPETING_TAGS = frozenset({
     TAG_REQUEST, TAG_SUBJECT_RESEARCH, TAG_ACTION_RESEARCH,
     TAG_ACTION_QUOTE, TAG_ACTION_QUOTE_FETCH, TAG_FOLLOWUP, TAG_COMPARISON,
@@ -185,50 +185,50 @@ _COMPETING_TAGS = frozenset({
     TAG_SECTOR, TAG_SECTOR_NAME, TAG_SECTOR_N_STOCK,
 })
 
-# 歧义组候选数上限：超过视为泛词噪声丢弃（"中国"命中中国平安/中石化/
-# 中国联通等整族前缀 5 候选——跨市场同名歧义至多 3 候选 a/hk/us，
-# 合法歧义不受影响）
+# 歧義組候選數上限：超過視為泛詞噪聲丟棄（"中國"命中中國平安/中石化/
+# 中國聯通等整族前綴 5 候選——跨市場同名歧義至多 3 候選 a/hk/us，
+# 合法歧義不受影響）
 _AMBIGUOUS_MAX_CANDIDATES = 3
 
-# 并列残留防线的锚点：空段以连接词开头且紧邻前 token 是标的类
-# （"茅台|和西藏建工"）→ 剥离连接词后的文本是并列名称候选，交确认轮补正
-# （连接词前缀表 COORDINATION_PREFIXES 定义于 web_intent_types）
+# 並列殘留防線的錨點：空段以連接詞開頭且緊鄰前 token 是標的類
+# （"茅臺|和西藏建工"）→ 剝離連接詞後的文本是並列名稱候選，交確認輪補正
+# （連接詞前綴表 COORDINATION_PREFIXES 定義於 web_intent_types）
 _COORDINATION_ANCHOR_TAGS = frozenset({
     TAG_STOCK_NAME, TAG_STOCK_CODE, TAG_SECTOR_NAME, TAG_SECTOR_N_STOCK,
 })
 
-# 非全量库市场的存疑代码 tag（未命中 ≠ 非法，透传执行端实查）
+# 非全量庫市場的存疑代碼 tag（未命中 ≠ 非法，透傳執行端實查）
 _UNVERIFIED_MARKET_TAGS = frozenset({
     unknown_code_tag("hk"), unknown_code_tag("us"),
 })
 
-# 链式主体线程的状态形态：上一子消息主体任务的三种
-# 主体形态——确定标的集合 / 板块槽位 / 待消歧歧义组（名称+候选随行）。
-# 追问片段（_classify_rule 分支6）据此继承：多标的整体继承 stocks、
-# 板块前序继承 sectors、歧义前序继承候选组（与主体任务共待同一次消歧）；
-# 单标的前序走 inherited_stock_code 通道（#1619 语义）
+# 鏈式主體線程的狀態形態：上一子消息主體任務的三種
+# 主體形態——確定標的集合 / 板塊槽位 / 待消歧歧義組（名稱+候選隨行）。
+# 追問片段（_classify_rule 分支6）據此繼承：多標的整體繼承 stocks、
+# 板塊前序繼承 sectors、歧義前序繼承候選組（與主體任務共待同一次消歧）；
+# 單標的前序走 inherited_stock_code 通道（#1619 語義）
 _ChainSubject = Tuple[List[Stock], List[str], List[Tuple[str, List[Stock]]]]
 
 
 # =========================================================================
-# 共享辅助 — Stock 载荷 / 去重 / 枚举安全（各步通用）
+# 共享輔助 — Stock 載荷 / 去重 / 枚舉安全（各步通用）
 # =========================================================================
 
 
 def _dedup_stocks(stocks: Iterable[Stock]) -> List[Stock]:
-    """按 (code, market) 去重保序（首个出现者胜出）。"""
+    """按 (code, market) 去重保序（首個出現者勝出）。"""
     firsts: Dict[Tuple[str, str], Stock] = {}
     for s in stocks:
         firsts.setdefault((s.code, s.market), s)
     return list(firsts.values())
 
 def _stock_payload(stock: Stock) -> Dict[str, Any]:
-    """Stock → SSE/会话可序列化 dict（json 兼容形态）。"""
+    """Stock → SSE/會話可序列化 dict（json 兼容形態）。"""
     return {"code": stock.code, "name": stock.name, "market": stock.market}
 
 def _stock_from_payload(entry: Any) -> Optional[Stock]:
-    """会话/LLM 载荷条目（dict 或 Stock）→ Stock；形状异常（缺 code 的
-    dict / 其它类型）返回 None。"""
+    """會話/LLM 載荷條目（dict 或 Stock）→ Stock；形狀異常（缺 code 的
+    dict / 其它類型）返回 None。"""
     if isinstance(entry, Stock):
         return entry
     if isinstance(entry, dict) and entry.get("code"):
@@ -237,13 +237,13 @@ def _stock_from_payload(entry: Any) -> Optional[Stock]:
     return None
 
 def _payload_stocks(entries: Any) -> List[Stock]:
-    """载荷列表 → Stock 列表（逐条过 ``_stock_from_payload``，异常剔除）。"""
+    """載荷列表 → Stock 列表（逐條過 ``_stock_from_payload``，異常剔除）。"""
     return [s for s in map(_stock_from_payload, entries or []) if s]
 
 def _group_payload(
     name: str, candidates: List[Stock], intent: str, source_request: str,
 ) -> Dict[str, Any]:
-    """歧义组的可序列化投影（预挂/重建/兜底建组三处共用的构造点）。"""
+    """歧義組的可序列化投影（預掛/重建/兜底建組三處共用的構造點）。"""
     return {
         "name": name,
         "candidates": [_stock_payload(c) for c in candidates],
@@ -253,7 +253,7 @@ def _group_payload(
 
 
 def _group_codes(g: Dict[str, Any]) -> set:
-    """歧义组载荷的候选代码集合（dict 候选缺 code 记 None，集合运算自然忽略）。"""
+    """歧義組載荷的候選代碼集合（dict 候選缺 code 記 None，集合運算自然忽略）。"""
     return {c.get("code") for c in g.get("candidates", [])
             if isinstance(c, dict)}
 
@@ -264,9 +264,9 @@ def _prehung_groups(
     intent: str,
     source_request: str,
 ) -> Optional[Dict[str, Any]]:
-    """歧义未消解时预挂的组级 pending_action（不置确认——第六步职责）。
-    只收录仍处歧义的组（候选已被市场词消解的组随之剔除），与 candidates
-    保持同一扩张收缩视图；无候选返回 None。"""
+    """歧義未消解時預掛的組級 pending_action（不置確認——第六步職責）。
+    只收錄仍處歧義的組（候選已被市場詞消解的組隨之剔除），與 candidates
+    保持同一擴張收縮視圖；無候選返回 None。"""
     if not candidates:
         return None
     cand_codes = {c.code for c in candidates}
@@ -281,7 +281,7 @@ def _prehung_groups(
     }
 
 def _safe_web_intent(label: str) -> WebIntent:
-    """pending 中的意图标签 → 枚举；形状异常（bogus）回退 stock_analysis。"""
+    """pending 中的意圖標籤 → 枚舉；形狀異常（bogus）回退 stock_analysis。"""
     try:
         return WebIntent(label)
     except ValueError:
@@ -289,14 +289,14 @@ def _safe_web_intent(label: str) -> WebIntent:
 
 
 # =========================================================================
-# 第一步 — 上下文准备：会话归一 + 决策日志（空输入短路在 resolve 内）
+# 第一步 — 上下文準備：會話歸一 + 決策日誌（空輸入短路在 resolve 內）
 # =========================================================================
 
 
 def _session_context(source: Any) -> Dict[str, Any]:
-    """任意会话形态（dict / 带 .context 的对象 / 其他）→ 可读 dict。
-    纯归一化无副作用：LLM 兜底的会话上下文由 resolve 经 context 形参
-    显式传递，不经模块级全局通道。"""
+    """任意會話形態（dict / 帶 .context 的對象 / 其他）→ 可讀 dict。
+    純歸一化無副作用：LLM 兜底的會話上下文由 resolve 經 context 形參
+    顯式傳遞，不經模塊級全局通道。"""
     if isinstance(source, dict):
         return source
     ctx = getattr(source, "context", None)
@@ -304,7 +304,7 @@ def _session_context(source: Any) -> Dict[str, Any]:
 
 
 def _log_resolution(path: str, resolution: WebIntentResolution) -> None:
-    """每次意图决策一行 info 日志（SSE 链路排障的主线索）。"""
+    """每次意圖決策一行 info 日誌（SSE 鏈路排障的主線索）。"""
     logger.info(
         "[WebIntent] resolved via %s: intent=%s confidence=%.2f source=%s "
         "reason=%s codes=%s inherited=%s confirm=%s",
@@ -320,16 +320,16 @@ def _log_resolution(path: str, resolution: WebIntentResolution) -> None:
 
 
 # =========================================================================
-# 第三步 — 消息级多任务切分（tokens 二维；元素恒不变，仅按序分组）
+# 第三步 — 消息級多任務切分（tokens 二維；元素恆不變，僅按序分組）
 # =========================================================================
 
 def _split_sub_messages(
     tokens: Union[str, List[Token]],
     message: Optional[str] = None,
 ) -> List[List[Token]]:
-    """消息级多任务切分（第三步，切口规则与不变量见模块 docstring）：
-    全局 tokens → 子消息 tokens 二维列表，元素恒不变，只按序分组。
-    单参数形态（传文本）为独立入口：内部自跑全管道。
+    """消息級多任務切分（第三步，切口規則與不變量見模塊 docstring）：
+    全局 tokens → 子消息 tokens 二維列表，元素恆不變，只按序分組。
+    單參數形態（傳文本）為獨立入口：內部自跑全管道。
     """
     if message is None or isinstance(tokens, str):
         message = tokens if isinstance(tokens, str) else (message or "")
@@ -344,7 +344,7 @@ def _split_sub_messages(
         needle = t.text.lower()
         start = low.find(needle, pos) if needle else -1
         step = len(needle)
-        if start < 0:  # canonical 改写代码：数字核回退（hk00700 / 00700.HK）
+        if start < 0:  # canonical 改寫代碼：數字核回退（hk00700 / 00700.HK）
             needle = "".join(ch for ch in t.text if ch.isdigit())
             step = len(needle)
             start = low.find(needle, pos) if needle else -1
@@ -361,14 +361,14 @@ def _split_sub_messages(
 
 
 # =========================================================================
-# 第四步 — 规则级解析：tokens 进、规则态 resolution 出（LLM 延后不跑）
+# 第四步 — 規則級解析：tokens 進、規則態 resolution 出（LLM 延後不跑）
 # =========================================================================
 
 
 def _token_facts(sub_tokens: List[Token]) -> Dict[str, Any]:
-    """一次遍历收集判定树所需的全部事实：标签集合、确定实体、歧义组、
-    代码辨认失败/存疑、裸数字（含四重闸门提升）、板块槽位（含泛称回溯
-    与 combo）、指数、市场词。
+    """一次遍歷收集判定樹所需的全部事實：標籤集合、確定實體、歧義組、
+    代碼辨認失敗/存疑、裸數字（含四重閘門提升）、板塊槽位（含泛稱回溯
+    與 combo）、指數、市場詞。
     """
     tags: set = set()
     stocks: List[Stock] = []
@@ -400,9 +400,9 @@ def _token_facts(sub_tokens: List[Token]) -> Dict[str, Any]:
     for i, t in enumerate(sub_tokens):
         if t.tag:
             tags.add(t.tag)
-        # 泛称后缀回溯——词池外行业名提取（"固态电池概念"）：无语义/
-        # 代码形 token 紧邻板块泛称 → 入板块槽并置 combo；该 token 不
-        # 按坏代码/存疑代码记账
+        # 泛稱後綴回溯——詞池外行業名提取（"固態電池概念"）：無語義/
+        # 代碼形 token 緊鄰板塊泛稱 → 入板塊槽並置 combo；該 token 不
+        # 按壞代碼/存疑代碼記賬
         nxt = sub_tokens[i + 1] if i + 1 < len(sub_tokens) else None
         label = t.text.strip()
         backtracked = bool(
@@ -432,12 +432,12 @@ def _token_facts(sub_tokens: List[Token]) -> Dict[str, Any]:
                 unknown_codes.append(t.text)
         elif t.tag == TAG_UNKNOWN_NUMBER:
             unknown_numbers.append(t.text)
-            # 量词闸门只拦无语义标签的量词 token（万元/点/年/股…）；
-            # 已打标签的词是语义成分不是量词——"股价"（action_quote）首字
-            # 撞量词"股"不得误伤代码提升
+            # 量詞閘門只攔無語義標籤的量詞 token（萬元/點/年/股…）；
+            # 已打標籤的詞是語義成分不是量詞——"股價"（action_quote）首字
+            # 撞量詞"股"不得誤傷代碼提升
             has_unit = (nxt is not None and not nxt.tag
                         and nxt.text[:1] in NUMERIC_UNIT_SUFFIXES)
-            # 裸数字四重闸门提升：6 位 + 首码白名单 + 非量词后缀 + 查库命中
+            # 裸數字四重閘門提升：6 位 + 首碼白名單 + 非量詞後綴 + 查庫命中
             digits = t.text
             if (not has_unit and len(digits) == 6
                     and (digits[0] in A_CODE_FIRST_DIGITS
@@ -454,9 +454,9 @@ def _token_facts(sub_tokens: List[Token]) -> Dict[str, Any]:
             if (len(name) >= 2 and not name.isdigit()
                     and name not in unresolved_names):
                 unresolved_names.append(name)
-        # 具名指数与具名板块同入板块槽（"上证"）：未被主体消费的对象独
-        # 立成任务（_tasks 平权分解），不因与个股/坏码等主体共存而静默
-        # 丢弃；tag 保持 SUBJECT_INDEX 不变，分支4 的路由与置信不受影响
+        # 具名指數與具名板塊同入板塊槽（"上證"）：未被主體消費的對象獨
+        # 立成任務（_tasks 平權分解），不因與個股/壞碼等主體共存而靜默
+        # 丟棄；tag 保持 SUBJECT_INDEX 不變，分支4 的路由與置信不受影響
         if t.tag in (TAG_SECTOR_NAME, TAG_SECTOR_N_STOCK, TAG_SUBJECT_INDEX):
             _add_sector(i, t.text)
             if nxt is not None and nxt.tag == TAG_SECTOR:
@@ -479,8 +479,8 @@ def _token_facts(sub_tokens: List[Token]) -> Dict[str, Any]:
 def _disambiguate_by_market(
     candidates: List[Stock], markets: List[Any]
 ) -> Tuple[Optional[List[Stock]], List[Stock]]:
-    """市场词消歧：候选按市场过滤后恰剩一只 → 采信；零只（矛盾）或
-    多只 → None（保守保留全量候选交确认/LLM）。展示列表恒为全量候选。"""
+    """市場詞消歧：候選按市場過濾後恰剩一隻 → 採信；零隻（矛盾）或
+    多隻 → None（保守保留全量候選交確認/LLM）。展示列表恆為全量候選。"""
     if not markets:
         return None, candidates
     market_values = {m.value if hasattr(m, "value") else str(m) for m in markets}
@@ -493,13 +493,13 @@ def _disambiguate_by_market(
 def _sector_branch(
     f: Dict[str, Any], sub_tokens: List[Token],
 ) -> Tuple[WebIntent, float]:
-    """板块类任务的深度小梯子（主体判定分支5 与板块对象任务同口径）：
-    数据词且无强分析词 → 行情查询；其余板块分析（精确池命中或相邻
-    组合 0.85，双解未消 0.5）。"""
+    """板塊類任務的深度小梯子（主體判定分支5 與板塊對象任務同口徑）：
+    數據詞且無強分析詞 → 行情查詢；其餘板塊分析（精確池命中或相鄰
+    組合 0.85，雙解未消 0.5）。"""
     if (_QUOTE_TAGS & f["tags"]) and not (_STRONG_RESEARCH_TAGS & f["tags"]):
         return WebIntent.QUOTE_LOOKUP, _CONFIDENCE_KEYWORD_STRONG
-    # 指数槽位与具名板块同证据权重："指数"后缀是 market_broad 非 sector
-    # 泛称，combo 判据覆盖不到，须显式计入 exact 判据
+    # 指數槽位與具名板塊同證據權重："指數"後綴是 market_broad 非 sector
+    # 泛稱，combo 判據覆蓋不到，須顯式計入 exact 判據
     exact_sector = any(t.tag in (TAG_SECTOR_NAME, TAG_SUBJECT_INDEX)
                        for t in sub_tokens)
     confidence = (_CONFIDENCE_KEYWORD_STRONG
@@ -508,12 +508,12 @@ def _sector_branch(
 
 
 def _depth_branch(tags: set, text: str) -> WebIntent:
-    """个股主体的 T1/T2 深度裁决（主体判定分支 1/3/7 单点共用）：
-    T1 持仓操作词指向个股＝组合语境下的个股评估，持仓主题＋第一人称
-    领属＋无强分析词（"我的茅台仓位重不重"）同——强分析词在场则是
-    答案人人相同的研究维度；T2 强分析词 > 数据词 > 泛动作词，裸个股
-    默认分析。坏码/存疑码主体同享此梯：标的可疑只影响确认/透传，
-    不改写请求的深度语义。"""
+    """個股主體的 T1/T2 深度裁決（主體判定分支 1/3/7 單點共用）：
+    T1 持倉操作詞指向個股＝組合語境下的個股評估，持倉主題＋第一人稱
+    領屬＋無強分析詞（"我的茅臺倉位重不重"）同——強分析詞在場則是
+    答案人人相同的研究維度；T2 強分析詞 > 數據詞 > 泛動作詞，裸個股
+    默認分析。壞碼/存疑碼主體同享此梯：標的可疑隻影響確認/透傳，
+    不改寫請求的深度語義。"""
     if (TAG_ACTION_PORTFOLIO in tags
             or (TAG_SUBJECT_PORTFOLIO in tags
                 and POSSESSIVE_RE.search(text)
@@ -530,25 +530,25 @@ def _classify_rule(
     inherited_stock_code: str = "",
     prev_subject: Optional[_ChainSubject] = None,
 ) -> List[WebIntentResolution]:
-    """规则优先的意图判定（第四步：tokens 进、平权任务列表出；整体契约
-    见模块 docstring）。
+    """規則優先的意圖判定（第四步：tokens 進、平權任務列表出；整體契約
+    見模塊 docstring）。
 
-    主体判定梯产出首个任务，裁决序固定：wrong code 确认 → T1 个性化
-    （无个股指称）→ T3 个股 [T1 组合语境 / T2 深度：强分析词 > 数据词 >
-    泛动作词 > 默认分析] → 泛市场指数 [兜底对象：默认报数，观点/动作词
-    升级板块] → 板块 → 追问继承 → 存疑代码 → 无信号闲聊（边界总纲见
-    web_intent_types）。板块对象/组合语境未被主体消费时各自独立生成平权
-    任务（板块任务不携带 stocks——板块语义排斥个股实体；组合任务与主体
-    任务共享实体解析，"分析茅台的持仓"无领属不生成，是机构持仓研究
-    维度）。prev_subject 是链式主体线程状态源（上一子消息主体任务的
-    (stocks, sectors, ambiguous) 三形态，首片段 None）——追问继承（分支6）
-    据此继承前序主体状态。
+    主體判定梯產出首個任務，裁決序固定：wrong code 確認 → T1 個性化
+    （無個股指稱）→ T3 個股 [T1 組合語境 / T2 深度：強分析詞 > 數據詞 >
+    泛動作詞 > 默認分析] → 泛市場指數 [兜底對象：默認報數，觀點/動作詞
+    升級板塊] → 板塊 → 追問繼承 → 存疑代碼 → 無信號閒聊（邊界總綱見
+    web_intent_types）。板塊對象/組合語境未被主體消費時各自獨立生成平權
+    任務（板塊任務不攜帶 stocks——板塊語義排斥個股實體；組合任務與主體
+    任務共享實體解析，"分析茅臺的持倉"無領屬不生成，是機構持倉研究
+    維度）。prev_subject 是鏈式主體線程狀態源（上一子消息主體任務的
+    (stocks, sectors, ambiguous) 三形態，首片段 None）——追問繼承（分支6）
+    據此繼承前序主體狀態。
     """
     f = _token_facts(sub_tokens)
     text = "".join(t.text for t in sub_tokens)
     tokens_payload = [t.text for t in sub_tokens]
-    # 视野完备性：任一空 tag 残段（词池外口语/刷屏 unknown_token）即
-    # False，与置信度联合构成第六步 LLM 兜底的豁免判据
+    # 視野完備性：任一空 tag 殘段（詞池外口語/刷屏 unknown_token）即
+    # False，與置信度聯合構成第六步 LLM 兜底的豁免判據
     all_tagged = all(t.tag for t in sub_tokens)
 
     def _task(
@@ -557,10 +557,10 @@ def _classify_rule(
         ambiguous: Optional[List[Tuple[str, List[Stock]]]] = None,
         **extra: Any,
     ) -> WebIntentResolution:
-        """平权任务公共构造器：子消息级共享上下文（文本/tokens/继承码/
-        视野完备性）单点装配；歧义未消解时预挂组级 pending_action（不置
-        确认——第六步职责）。组来源默认取本子消息事实，追问继承任务
-        显式携带前序片段的歧义组。"""
+        """平權任務公共構造器：子消息級共享上下文（文本/tokens/繼承碼/
+        視野完備性）單點裝配；歧義未消解時預掛組級 pending_action（不置
+        確認——第六步職責）。組來源默認取本子消息事實，追問繼承任務
+        顯式攜帶前序片段的歧義組。"""
         res = WebIntentResolution(
             intent=intent, confidence=confidence, source=source,
             inherited_stock_code=inherited_stock_code,
@@ -573,7 +573,7 @@ def _classify_rule(
         return res
 
     def _tasks(verdict: WebIntentResolution) -> List[WebIntentResolution]:
-        """主体任务 ＋ 未被主体消费的并存对象任务（板块/组合语境）。"""
+        """主體任務 ＋ 未被主體消費的並存對象任務（板塊/組合語境）。"""
         tasks = [verdict]
         if f["sectors"] and not verdict.sectors:
             sector_intent, sector_conf = _sector_branch(f, sub_tokens)
@@ -590,11 +590,11 @@ def _classify_rule(
         return tasks
 
     tags = f["tags"]
-    # multi_intent_hint＝"单任务表达不完"的自首：数据对象级 quote 词与强
-    # 分析/组合词同场（纯取数动词"看下…走势"不算）、组合泛指×显式动作
-    # 词（主体显式如"持仓的茅台股价"不触发）、个股代码×板块对象——
-    # resolution 只有一个 intent 字段，这类并存交 LLM 多意图复核拆分
-    # （多标的单任务由 stocks[] 原生承载，不算自首）
+    # multi_intent_hint＝"單任務表達不完"的自首：數據對象級 quote 詞與強
+    # 分析/組合詞同場（純取數動詞"看下…走勢"不算）、組合泛指×顯式動作
+    # 詞（主體顯式如"持倉的茅臺股價"不觸發）、個股代碼×板塊對象——
+    # resolution 只有一個 intent 字段，這類並存交 LLM 多意圖複核拆分
+    # （多標的單任務由 stocks[] 原生承載，不算自首）
     quote_obj = TAG_ACTION_QUOTE in tags
     action_cls = (_INTENT_TAGS - _PORTFOLIO_TAGS - {
         TAG_QUESTION, TAG_FOLLOWUP, TAG_SUBJECT_MARKET_BROAD,
@@ -609,21 +609,21 @@ def _classify_rule(
     markets = f["markets"]
     market_value = markets[0].value if len(markets) == 1 else None
 
-    # 1) 确定不存在的代码：直接以确认收尾，不走 LLM（LLM 也无法凭空造股）；
-    #    深度语义照常过 _depth_branch——标的可疑只影响确认，不改写请求意图
+    # 1) 確定不存在的代碼：直接以確認收尾，不走 LLM（LLM 也無法憑空造股）；
+    #    深度語義照常過 _depth_branch——標的可疑隻影響確認，不改寫請求意圖
     if f["wrong_codes"] and not f["has_entity"]:
         return _tasks(_task(
             _depth_branch(tags, text), _CONFIDENCE_EXPLICIT_CODE, multi_hint,
             unresolved_names=list(f["wrong_codes"])))
 
-    # 2) T1 个性化（无个股指称）：整体组合语境，深度测试不介入
-    #    （sectors 槽位由各执行类分支统一投影补挂）
+    # 2) T1 個性化（無個股指稱）：整體組合語境，深度測試不介入
+    #    （sectors 槽位由各執行類分支統一投影補掛）
     if _PORTFOLIO_TAGS & tags and not f["has_entity"]:
         return _tasks(_task(
             WebIntent.PORTFOLIO_ANALYSIS, _CONFIDENCE_KEYWORD_STRONG,
             multi_hint))
 
-    # 3) T3 对象=个股：T1 定组合语境，T2 定深度
+    # 3) T3 對象=個股：T1 定組合語境，T2 定深度
     if f["has_entity"]:
         confidence = (_CONFIDENCE_EXPLICIT_CODE if f["code_entity"]
                       else _CONFIDENCE_KEYWORD_STRONG if tags & _INTENT_TAGS
@@ -637,21 +637,21 @@ def _classify_rule(
                 stocks.extend(picked)
             else:
                 candidates = _dedup_stocks(candidates + display)
-        # T1/T2 深度裁决走 _depth_branch（判据注释见该函数，与坏码/存
-        # 疑码主体同口径）；板块/ETF 对象同句时由 _tasks 再分解
+        # T1/T2 深度裁決走 _depth_branch（判據註釋見該函數，與壞碼/存
+        # 疑碼主體同口徑）；板塊/ETF 對象同句時由 _tasks 再分解
         return _tasks(_task(
             _depth_branch(tags, text), confidence, multi_hint,
             stocks=stocks, candidates=candidates,
             unresolved_names=[*f["wrong_codes"], *f["unresolved_names"]],
             unverified_codes=list(f["unverified_codes"])))
 
-    # 4) 泛市场/指数/纯市场词：兜底对象——仅当市场词是句子的唯一对象
-    #    解释时直达（具名板块/存疑代码在场时"行情"是语境而非对象；与
-    #    个股实体联动时是市场限定词而非对象——"港股阿里"由分支3按市场
-    #    消歧消费；裸数字在场（"港股00700"）时对象解释不唯一，交 LLM
-    #    复核，绝不当板块报市场行情而静默丢实体）；sectors 统一槽位用
-    #    指数名原文，纯泛市场用市场名（"大盘"），纯市场限定词用市场
-    #    槽（"港股"）；观点/动作词升级板块分析，默认报数
+    # 4) 泛市場/指數/純市場詞：兜底對象——僅當市場詞是句子的唯一對象
+    #    解釋時直達（具名板塊/存疑代碼在場時"行情"是語境而非對象；與
+    #    個股實體聯動時是市場限定詞而非對象——"港股阿里"由分支3按市場
+    #    消歧消費；裸數字在場（"港股00700"）時對象解釋不唯一，交 LLM
+    #    複核，絕不當板塊報市場行情而靜默丟實體）；sectors 統一槽位用
+    #    指數名原文，純泛市場用市場名（"大盤"），純市場限定詞用市場
+    #    槽（"港股"）；觀點/動作詞升級板塊分析，默認報數
     _has_specific_subject = (
         f["unverified_codes"] or f["unknown_codes"]
         or bool({TAG_SECTOR, TAG_SECTOR_NAME, TAG_SECTOR_N_STOCK} & tags)
@@ -669,10 +669,10 @@ def _classify_rule(
         return _tasks(_task(branch, _CONFIDENCE_KEYWORD_STRONG, multi_hint,
                             sectors=broad_sectors))
 
-    # 5) 板块/行业：数据词报数，其余板块分析（``_sector_branch`` 同口径）。
-    #    行业名精确命中词池或"行业名+泛称"相邻组合消除双解 → 0.85；仅回
-    #    溯提取的词外语与行业兼股票名（"机器人"）双解未消 → 0.5 交 LLM。
-    #    unverified 只随分析路径携带（报数路径不透传存疑代码）
+    # 5) 板塊/行業：數據詞報數，其餘板塊分析（``_sector_branch`` 同口徑）。
+    #    行業名精確命中詞池或"行業名+泛稱"相鄰組合消除雙解 → 0.85；僅回
+    #    溯提取的詞外語與行業兼股票名（"機器人"）雙解未消 → 0.5 交 LLM。
+    #    unverified 只隨分析路徑攜帶（報數路徑不透傳存疑代碼）
     if not f["has_entity"] and bool(
             {TAG_SECTOR, TAG_SECTOR_NAME, TAG_SECTOR_N_STOCK} & tags):
         intent, confidence = _sector_branch(f, sub_tokens)
@@ -682,12 +682,12 @@ def _classify_rule(
         return _tasks(_task(intent, confidence, multi_hint,
                             sectors=list(f["sectors"]), **extra))
 
-    # 6) 追问继承：无新股票 +（followup 词或无主体意图句——主题缺失默认
-    #    主体为"它"；要求动作类意图词在场，纯疑问碎片不继承）+ 上轮执行
-    #    类意图。守卫：消息含"未消化"信号（空 tag 段/存疑代码/裸数字）时
-    #    不得继承——门控对动作词类不偏待，否则"现在能买09932吗"类消息被
-    #    继承吸收、用户显式指称的标的被静默丢弃；被拦截的消息交 LLM 复核
-    #    或存疑代码透传分支（宁可不做，不可做错）
+    # 6) 追問繼承：無新股票 +（followup 詞或無主體意圖句——主題缺失默認
+    #    主體為"它"；要求動作類意圖詞在場，純疑問碎片不繼承）+ 上輪執行
+    #    類意圖。守衛：消息含"未消化"信號（空 tag 段/存疑代碼/裸數字）時
+    #    不得繼承——門控對動作詞類不偏待，否則"現在能買09932嗎"類消息被
+    #    繼承吸收、用戶顯式指稱的標的被靜默丟棄；被攔截的消息交 LLM 複核
+    #    或存疑代碼透傳分支（寧可不做，不可做錯）
     unresolved_subject = (
         any(not t.tag for t in sub_tokens)
         or bool(f["unknown_numbers"]) or bool(f["unknown_codes"])
@@ -698,11 +698,11 @@ def _classify_rule(
             and last_intent in ALL_WEB_INTENTS
             and WebIntent(last_intent) in _EXECUTING_INTENTS
             and not unresolved_subject):
-        # 前序主体状态继承：多标的（比较）整体继承 stocks、板块前序继承
-        # sectors、歧义前序继承候选组（组结构随行，与主体任务共待同一次
-        # 消歧，一次答复各自落位）；单标的前序走 inherited_stock_code 通道
-        # （#1619 语义）——三形态覆盖主体全部在场形态，追问
-        # 片段绝不以无锚点执行类任务放行（触发无标的 Agent 工作流）
+        # 前序主體狀態繼承：多標的（比較）整體繼承 stocks、板塊前序繼承
+        # sectors、歧義前序繼承候選組（組結構隨行，與主體任務共待同一次
+        # 消歧，一次答覆各自落位）；單標的前序走 inherited_stock_code 通道
+        # （#1619 語義）——三形態覆蓋主體全部在場形態，追問
+        # 片段絕不以無錨點執行類任務放行（觸發無標的 Agent 工作流）
         inherit_stocks, inherit_sectors, inherit_ambiguous = [], [], []
         if prev_subject is not None:
             prev_stocks, prev_sectors, prev_ambiguous = prev_subject
@@ -720,10 +720,10 @@ def _classify_rule(
                 [c for _n, group in inherit_ambiguous for c in group]),
             ambiguous=inherit_ambiguous or None))
 
-    # 7) 存疑代码主体：hk/us 非全量库未命中无法判定合法与否——用户显式
-    #    写出代码即强指称，高置信放行透传实查（深度语义照常过
-    #    _depth_branch）；与泛市场语境共存时对象无法判定（"板块"tag 已
-    #    随 DFS 失败陪葬）——低置信交 LLM 裁定
+    # 7) 存疑代碼主體：hk/us 非全量庫未命中無法判定合法與否——用戶顯式
+    #    寫出代碼即強指稱，高置信放行透傳實查（深度語義照常過
+    #    _depth_branch）；與泛市場語境共存時對象無法判定（"板塊"tag 已
+    #    隨 DFS 失敗陪葬）——低置信交 LLM 裁定
     if f["unverified_codes"]:
         broad_ctx = (TAG_SUBJECT_MARKET_BROAD in tags
                      or TAG_SUBJECT_INDEX in tags)
@@ -737,19 +737,19 @@ def _classify_rule(
             _depth_branch(tags, text), _CONFIDENCE_FALLBACK, multi_hint,
             unverified_codes=list(f["unknown_codes"])))
 
-    # 8) 无信号：闲聊兜底（低置信触发 LLM 复核；非执行类不确认）
+    # 8) 無信號：閒聊兜底（低置信觸發 LLM 複核；非執行類不確認）
     return _tasks(_task(WebIntent.GENERAL_CHAT, _CONFIDENCE_FALLBACK, multi_hint))
 
 
 # =========================================================================
-# 第五步 — 确认消费：上轮确认任务 × 本轮规则态任务 → 就地消歧合并（二维进出）
+# 第五步 — 確認消費：上輪確認任務 × 本輪規則態任務 → 就地消歧合併（二維進出）
 # =========================================================================
 
 
 def _pending_confirming_tasks(context: Dict[str, Any]) -> List[Dict[str, Any]]:
-    """pending_actions 会话键 → 确认任务投影：确认存活的唯一权威
-    （resolve 的消费闸门）＋ last_resolutions 缺失时的兼容载荷，包装为
-    last_resolution 元素形态供消费链无感读取。"""
+    """pending_actions 會話鍵 → 確認任務投影：確認存活的唯一權威
+    （resolve 的消費閘門）＋ last_resolutions 缺失時的兼容載荷，包裝為
+    last_resolution 元素形態供消費鏈無感讀取。"""
     pending_list = context.get(PENDING_ACTIONS_KEY)
     pending = next(
         (item for item in (pending_list if isinstance(pending_list, list) else [])
@@ -769,9 +769,9 @@ def _pending_confirming_tasks(context: Dict[str, Any]) -> List[Dict[str, Any]]:
 
 
 def _canonical_digit_code(raw: str) -> str:
-    """裸数字 → 规范代码形态：5 位纯数字补 HK 前缀（与 tokenizer
-    ``_canonical_stock_code`` 同口径）；非纯数字形态（如 "GOOGL"）原样
-    返回，不误加前缀。"""
+    """裸數字 → 規範代碼形態：5 位純數字補 HK 前綴（與 tokenizer
+    ``_canonical_stock_code`` 同口徑）；非純數字形態（如 "GOOGL"）原樣
+    返回，不誤加前綴。"""
     digits = raw.strip()
     if len(digits) == 5 and digits.isdigit():
         return f"HK{digits}"
@@ -781,10 +781,10 @@ def _canonical_digit_code(raw: str) -> str:
 def _normalize_pending_groups(
     pending: Dict[str, Any],
 ) -> Tuple[List[Dict[str, Any]], List[Stock]]:
-    """pending → (有效歧义组列表, 组内全部候选)。兼容 groups 组式与顶层
-    平铺（name/candidates 直接挂 pending 顶层）两类形状；候选逐条过
-    ``_payload_stocks``（Stock 对象透传）。形状异常（非 dict／无候选）
-    返回空列表——会话投影可能携带畸形 pending_action，解析器不得被击穿。"""
+    """pending → (有效歧義組列表, 組內全部候選)。兼容 groups 組式與頂層
+    平鋪（name/candidates 直接掛 pending 頂層）兩類形狀；候選逐條過
+    ``_payload_stocks``（Stock 對象透傳）。形狀異常（非 dict／無候選）
+    返回空列表——會話投影可能攜帶畸形 pending_action，解析器不得被擊穿。"""
     if not isinstance(pending, dict):
         return [], []
     groups: List[Dict[str, Any]] = [
@@ -808,7 +808,7 @@ def _normalize_pending_groups(
 
 
 def _sub_names_group(group: Dict[str, Any], sub_text: str) -> bool:
-    """子消息是否点名该组主体（组名或任一候选名出现在文中，子串口径）。"""
+    """子消息是否點名該組主體（組名或任一候選名出現在文中，子串口徑）。"""
     name = group.get("name") or ""
     return bool(name) and name in sub_text or any(
         c.name and c.name in sub_text for c in group["candidates"])
@@ -819,24 +819,24 @@ def _narrow_group_entities(
     resolution: WebIntentResolution,
     all_groups: Optional[List[Dict[str, Any]]] = None,
 ) -> List[Stock]:
-    """一个歧义组 × 一条子消息的收窄。证据通道（独立产出，重复指向
-    同一候选由结算去重）：市场词收窄到唯一 > 候选名全等 > 候选名唯一
-    子串 > 确定实体命中候选 > 裸数字短码；复述组名与多命中不构成证据。
-    返回本组收窄到的候选列表（可空）。
+    """一個歧義組 × 一條子消息的收窄。證據通道（獨立產出，重複指向
+    同一候選由結算去重）：市場詞收窄到唯一 > 候選名全等 > 候選名唯一
+    子串 > 確定實體命中候選 > 裸數字短碼；複述組名與多命中不構成證據。
+    返回本組收窄到的候選列表（可空）。
     """
     cands: List[Stock] = group["candidates"]
     out: List[Stock] = []
     group_name = group.get("name") or ""
     sub_text = resolution.source_request or "".join(resolution.tokens)
-    # 市场词从文本词池恢复（resolution.tokens 只存文本无 tag）
+    # 市場詞從文本詞池恢復（resolution.tokens 只存文本無 tag）
     low = sub_text.lower()
     markets = [mkt for mkt, kws in _MARKET_KEYWORD_MAP.items()
                if any(kw.lower() in low for kw in kws)]
 
-    # 市场词：候选按市场过滤后恰剩一只（可同时收窄多组）。多组场景的
-    # 作用域：子消息点名了它组主体时，被点名组候选覆盖的市场词已绑定
-    # 该组、不作用于本组（按名指向的市场词串扰他组会造成错误消解或
-    # 矛盾弃置）；点名组不覆盖的市场词保留全局证据
+    # 市場詞：候選按市場過濾後恰剩一隻（可同時收窄多組）。多組場景的
+    # 作用域：子消息點名了它組主體時，被點名組候選覆蓋的市場詞已綁定
+    # 該組、不作用於本組（按名指向的市場詞串擾他組會造成錯誤消解或
+    # 矛盾棄置）；點名組不覆蓋的市場詞保留全局證據
     if markets:
         market_values = {m.value for m in markets}
         if all_groups and not _sub_names_group(group, sub_text):
@@ -850,17 +850,17 @@ def _narrow_group_entities(
             out.append(filtered[0])
 
     stripped = sub_text.strip()
-    # 候选名全等（整条子消息就是一个候选全名）
+    # 候選名全等（整條子消息就是一個候選全名）
     out += [c for c in cands
             if c.name and c.name == stripped and stripped != group_name]
-    # 候选名唯一子串（"阿里巴巴港股"里的"阿里巴巴"命中全部同组候选 ≠ 证据）
+    # 候選名唯一子串（"阿里巴巴港股"裡的"阿里巴巴"命中全部同組候選 ≠ 證據）
     sub_hits = [c for c in cands
                 if c.name and c.name in sub_text and stripped != group_name]
     if len(sub_hits) == 1:
         out.append(sub_hits[0])
 
-    # 确定实体命中候选（"平安银行"解析为 000001 且在组内）＋ 裸数字短码
-    # （"09988" → HK09988，扫描 4-6 位数字段）：按代码等值直查（同码取首个）
+    # 確定實體命中候選（"平安銀行"解析為 000001 且在組內）＋ 裸數字短碼
+    # （"09988" → HK09988，掃描 4-6 位數字段）：按代碼等值直查（同碼取首個）
     by_code: Dict[str, Stock] = {}
     for c in cands:
         by_code.setdefault(c.code, c)
@@ -875,16 +875,16 @@ def _narrow_group_entities(
 def _reply_profile(
     resolution: WebIntentResolution, universe: set,
 ) -> Tuple[bool, bool]:
-    """消歧回复子消息画像（契约见模块 docstring 第五步）。
+    """消歧回覆子消息畫像（契約見模塊 docstring 第五步）。
 
-    - ``fresh``＝点名候选外实体（不参与收窄，整轮判新话题）：确定实体
-      或歧义候选的代码不在待确认候选全集（``universe``）——候选空间
-      内的实体提及（复述组名/点名候选）是答案空间回声，不构成保留理由；
-    - ``has_content``＝候选空间外的自带语义：未识别名/存疑代码、板块/
-      指数对象、意图词（token 级 tag 查表，clean+extend 全池）、未读
-      内容（all_tags_recognized=False——保留后 LLM 视野轴兜底才可达）。
-    两者皆 False＝纯消歧片段（市场词/候选名/裸数字/复述组名），已被
-    ① 消费，不构成任务。
+    - ``fresh``＝點名候選外實體（不參與收窄，整輪判新話題）：確定實體
+      或歧義候選的代碼不在待確認候選全集（``universe``）——候選空間
+      內的實體提及（複述組名/點名候選）是答案空間回聲，不構成保留理由；
+    - ``has_content``＝候選空間外的自帶語義：未識別名/存疑代碼、板塊/
+      指數對象、意圖詞（token 級 tag 查表，clean+extend 全池）、未讀
+      內容（all_tags_recognized=False——保留後 LLM 視野軸兜底才可達）。
+    兩者皆 False＝純消歧片段（市場詞/候選名/裸數字/複述組名），已被
+    ① 消費，不構成任務。
     """
     fresh = any(e.code not in universe
                 for e in (*resolution.stocks, *resolution.candidates))
@@ -897,8 +897,8 @@ def _reply_profile(
 
 
 def _iter_tasks(tasks: Any):
-    """任务集合 → 任务迭代器（一律二维契约下的兼容展平：二维组列表 /
-    一维任务列表 / 单个 resolution 对象 / dict 与对象混合形态）。"""
+    """任務集合 → 任務迭代器（一律二維契約下的兼容展平：二維組列表 /
+    一維任務列表 / 單個 resolution 對象 / dict 與對象混合形態）。"""
     if isinstance(tasks, (list, tuple)):
         if tasks and isinstance(tasks[0], (list, tuple)):
             yield from (r for group in tasks for r in group)
@@ -909,16 +909,16 @@ def _iter_tasks(tasks: Any):
 
 
 def _as_task_groups(tasks: Any) -> List[List[Any]]:
-    """任务集合 → 二维组列表：二维原样返回；一维非空列表整体视为单组
-    （保持上轮组序，区别于逐元素成组）；空/非列表 → []（调用方兜底）。"""
+    """任務集合 → 二維組列表：二維原樣返回；一維非空列表整體視為單組
+    （保持上輪組序，區別於逐元素成組）；空/非列表 → []（調用方兜底）。"""
     if isinstance(tasks, list) and tasks:
         return tasks if isinstance(tasks[0], list) else [tasks]
     return []
 
 
 def _has_pending_action(task: Any) -> bool:
-    """任务是否携带可消费的确认动作（needs_confirmation 且有 pending；
-    low_confidence 确认无 pending 不算）。兼容对象与 asdict dict 投影。"""
+    """任務是否攜帶可消費的確認動作（needs_confirmation 且有 pending；
+    low_confidence 確認無 pending 不算）。兼容對象與 asdict dict 投影。"""
     if isinstance(task, dict):
         return bool(task.get("needs_confirmation") and task.get("pending_action"))
     return bool(getattr(task, "needs_confirmation", False)
@@ -926,22 +926,22 @@ def _has_pending_action(task: Any) -> bool:
 
 
 def _is_pending_action(resolutions: Any) -> bool:
-    """二维任务列表中是否存在待确认动作（判定权在消费方 any()；兼容
-    一维/对象/dict 混合形态）。"""
+    """二維任務列表中是否存在待確認動作（判定權在消費方 any()；兼容
+    一維/對象/dict 混合形態）。"""
     return any(_has_pending_action(r) for r in _iter_tasks(resolutions))
 
 
 def _recover_resolution(payload: Dict[str, Any]) -> WebIntentResolution:
-    """last_resolution 会话投影（asdict dict）→ WebIntentResolution：
-    按 dataclass 字段反射取值（缺键落字段默认），仅 intent 与 Stock
-    列表字段显式转换——字段增删无需同步本函数。"""
+    """last_resolution 會話投影（asdict dict）→ WebIntentResolution：
+    按 dataclass 字段反射取值（缺鍵落字段默認），僅 intent 與 Stock
+    列表字段顯式轉換——字段增刪無需同步本函數。"""
     stock_lists = {"stocks", "candidates"}
     kwargs: Dict[str, Any] = {}
     for f in fields(WebIntentResolution):
         raw = payload.get(f.name)
         if f.name == "intent":
-            # 兼容 str / str-Enum（asdict 投影保留枚举实例，str() 会得到
-            # "WebIntent.X" 形态——直接按值构造，不自作 str 包装）
+            # 兼容 str / str-Enum（asdict 投影保留枚舉實例，str() 會得到
+            # "WebIntent.X" 形態——直接按值構造，不自作 str 包裝）
             kwargs[f.name] = (raw if isinstance(raw, WebIntent)
                               else _safe_web_intent(raw or "stock_analysis"))
         elif f.name in stock_lists:
@@ -954,10 +954,10 @@ def _recover_resolution(payload: Dict[str, Any]) -> WebIntentResolution:
 
 
 def _session_chain_subject(context: Dict[str, Any]) -> Optional[_ChainSubject]:
-    """上一已执行轮落点主体的会话种子（跨轮追问的继承源）。落点＝最后
-    一个执行类组的组首（与 apply_outcome 的 last_intent 同规则——意图
-    与主体锚点出自同一任务）；短路轮不作种子；无可继承主体（stocks/
-    sectors 皆空）返回 None，锚点退 recent_stocks 通道。"""
+    """上一已執行輪落點主體的會話種子（跨輪追問的繼承源）。落點＝最後
+    一個執行類組的組首（與 apply_outcome 的 last_intent 同規則——意圖
+    與主體錨點出自同一任務）；短路輪不作種子；無可繼承主體（stocks/
+    sectors 皆空）返回 None，錨點退 recent_stocks 通道。"""
     groups = [
         [_recover_resolution(r) if isinstance(r, dict) else r for r in g]
         for g in _as_task_groups(context.get(LAST_RESOLUTIONS_KEY)) if g
@@ -976,21 +976,21 @@ def _consume_confirmations(
     last_resolution: List[List[Any]],
     reply_groups: List[List[WebIntentResolution]],
 ) -> List[List[WebIntentResolution]]:
-    """第五步（三步契约与结算规则见模块 docstring）：上轮确认任务 × 本轮
-    规则态任务 → 证据驱动结算，二维进出、严格就地。
+    """第五步（三步契約與結算規則見模塊 docstring）：上輪確認任務 × 本輪
+    規則態任務 → 證據驅動結算，二維進出、嚴格就地。
 
-        last_resolution  = "分析茅台和阿里"        （上轮短路任务，整链未执行）
-        reply_groups     = "港股，分析医药板块"      （聚合项 + 新任务）
-        返回              ≈ "分析茅台和阿里(港股)，分析医药板块"
+        last_resolution  = "分析茅臺和阿里"        （上輪短路任務，整鏈未執行）
+        reply_groups     = "港股，分析醫藥板塊"      （聚合項 + 新任務）
+        返回              ≈ "分析茅臺和阿里(港股)，分析醫藥板塊"
 
-        特殊出口：拒绝词（逐子消息锚定、全部片段为完整拒绝形）→ [闲聊]
-        （上轮整链作废）；全部确认任务零交互（纯模糊回应）→ 丢弃仍在
-        等待的确认任务、已消解兄弟随行 ＋ 本轮任务原样（新话题，二维
-        组结构保持）；stock_unresolved 链（无候选组）恰一只纯形实体回复
-        按纠正标的结算原任务（intent 不从回复重推；单任务被多实体命中
-        ＝匹配失败，按新话题）。
+        特殊出口：拒絕詞（逐子消息錨定、全部片段為完整拒絕形）→ [閒聊]
+        （上輪整鏈作廢）；全部確認任務零交互（純模糊回應）→ 丟棄仍在
+        等待的確認任務、已消解兄弟隨行 ＋ 本輪任務原樣（新話題，二維
+        組結構保持）；stock_unresolved 鏈（無候選組）恰一隻純形實體回覆
+        按糾正標的結算原任務（intent 不從回覆重推；單任務被多實體命中
+        ＝匹配失敗，按新話題）。
     """
-    # 输入归一：二维组列表，dict 投影恢复为对象（字段完整：tokens 等）
+    # 輸入歸一：二維組列表，dict 投影恢復為對象（字段完整：tokens 等）
     recovered = [[_recover_resolution(r) if isinstance(r, dict) else r
                   for r in g] for g in _as_task_groups(last_resolution)]
     reply_groups = _as_task_groups(reply_groups)
@@ -1003,9 +1003,9 @@ def _consume_confirmations(
         for g in _normalize_pending_groups(task.pending_action)[0]
         for s in g["candidates"]
     }
-    # 拒绝判定逐子消息锚定匹配（整串拼接丢分隔符会把"算了，不分析
-    # 了"拼成用户从未说过的"算了不分析了"）：全部片段都是完整拒绝
-    # 词形才取消——"算了，再看看茅台"类拒绝词＋内容仍按新话题解析
+    # 拒絕判定逐子消息錨定匹配（整串拼接丟分隔符會把"算了，不分析
+    # 了"拼成用戶從未說過的"算了不分析了"）：全部片段都是完整拒絕
+    # 詞形才取消——"算了，再看看茅臺"類拒絕詞＋內容仍按新話題解析
     texts = [(r.source_request or "".join(r.tokens)).strip()
              for r in reply_tasks]
     if texts and all(DECLINE_PATTERN.match(t) for t in texts):
@@ -1014,41 +1014,41 @@ def _consume_confirmations(
             intent=WebIntent.GENERAL_CHAT, source="confirmation",
             confidence=_CONFIDENCE_CONFIRMATION)]]
 
-    # 回复子消息画像：非 fresh 一律参与收窄；是否保留为任务由此画像＋
-    # ① 的矛盾事实共同决定
+    # 回覆子消息畫像：非 fresh 一律參與收窄；是否保留為任務由此畫像＋
+    # ① 的矛盾事實共同決定
     profiles = [_reply_profile(res, all_candidate_codes)
                 for res in reply_tasks]
 
-    # ---- ① 对 last_resolution 消歧聚合（逐确认任务，就地落位）----
+    # ---- ① 對 last_resolution 消歧聚合（逐確認任務，就地落位）----
     interacted = False
     voided_tasks: List[WebIntentResolution] = []
-    contradiction_sources: set = set()  # 矛盾组贡献子消息（比较/新请求重开）
-    correction_sources: set = set()  # 已被纠错消费的回复子消息（不保留为新任务）
+    contradiction_sources: set = set()  # 矛盾組貢獻子消息（比較/新請求重開）
+    correction_sources: set = set()  # 已被糾錯消費的回覆子消息（不保留為新任務）
     for task in confirmings:
         pending = task.pending_action
         groups, _all = _normalize_pending_groups(pending)
         if not groups:
-            # stock_unresolved 纠错链：pending 无候选组，判答口径与歧义
-            # 收窄同哲学——子消息全部内容就是候选空间外的实体指称
-            # （fresh 且无 has_content）才算答案；带自身语义（意图词/
-            # 板块/疑问）的回复按新话题走原路径。非 dict 的畸形 pending
-            # 按形状异常跳过（不得击穿消费链）
+            # stock_unresolved 糾錯鏈：pending 無候選組，判答口徑與歧義
+            # 收窄同哲學——子消息全部內容就是候選空間外的實體指稱
+            # （fresh 且無 has_content）才算答案；帶自身語義（意圖詞/
+            # 板塊/疑問）的回覆按新話題走原路徑。非 dict 的畸形 pending
+            # 按形狀異常跳過（不得擊穿消費鏈）
             if (not isinstance(pending, dict)
                     or not pending.get("unresolved_names")):
                 continue
             pure = [si for si, (res, (fr, hc)) in
                     enumerate(zip(reply_tasks, profiles))
                     if fr and not hc and res.stocks]
-            # 恰一只才算纠正答案（每个确认任务 × 每个实体互相匹配）：
-            # 单个任务被多个实体命中＝匹配失败——多实体并列是比较/新
-            # 请求语义（与歧义组 ">1＝矛盾弃置" 同裁决），不消费；0 只
-            # 纯片段同交零交互出口按新话题处理
+            # 恰一隻才算糾正答案（每個確認任務 × 每個實體互相匹配）：
+            # 單個任務被多個實體命中＝匹配失敗——多實體並列是比較/新
+            # 請求語義（與歧義組 ">1＝矛盾棄置" 同裁決），不消費；0 只
+            # 純片段同交零交互出口按新話題處理
             corrected = _dedup_stocks(
                 s for si in pure for s in reply_tasks[si].stocks)
             if len(corrected) != 1:
                 continue
-            # 结算与"全部组落定"同口径：原意图随任务对象存活（不从回复
-            # 重推）、随行实体合并保留、确认产物盖戳
+            # 結算與"全部組落定"同口徑：原意圖隨任務對象存活（不從回覆
+            # 重推）、隨行實體合併保留、確認產物蓋戳
             task.stocks = _dedup_stocks(task.stocks + corrected)
             task.candidates = []
             task.needs_confirmation = False
@@ -1077,27 +1077,27 @@ def _consume_confirmations(
             if len(uniq) == 1:
                 resolved.append(uniq[0])
             elif len(uniq) > 1:
-                dropped_groups.append(gi)  # 矛盾弃置：该组退出等待
+                dropped_groups.append(gi)  # 矛盾棄置：該組退出等待
             else:
                 unresolved_groups.append(group)
 
         if not resolved and not dropped_groups:
-            continue  # 零交互：该确认任务原样保留
+            continue  # 零交互：該確認任務原樣保留
         interacted = True
-        # 矛盾＝同一条回复点名多个候选＝比较/新请求：贡献子消息整轮判新话题
+        # 矛盾＝同一條回覆點名多個候選＝比較/新請求：貢獻子消息整輪判新話題
         contradiction_sources.update(
             si for gi in dropped_groups for si in sources[gi])
-        # 组全部矛盾弃置且无消解/随行实体：请求整体作废——用户已在同一
-        # 条回复里给出新语义，空壳执行任务不产出
+        # 組全部矛盾棄置且無消解/隨行實體：請求整體作廢——用戶已在同一
+        # 條回覆裡給出新語義，空殼執行任務不產出
         voided = (bool(dropped_groups) and not unresolved_groups
                   and not resolved and not task.stocks)
 
-        # 消解就地落位：原 stocks + 消解 + resolved_stocks 随行实体合并，去重保序
+        # 消解就地落位：原 stocks + 消解 + resolved_stocks 隨行實體合併，去重保序
         carried = _payload_stocks(pending.get("resolved_stocks"))
         task.stocks = _dedup_stocks(task.stocks + resolved + carried)
 
         if unresolved_groups:
-            # 歧义聚合不完全：未解组 + confirmed 累积随 pending_action 更新
+            # 歧義聚合不完全：未解組 + confirmed 累積隨 pending_action 更新
             base_intent = str(pending.get("intent") or task.intent.value)
             confirmed = [c for c in pending.get("confirmed", [])
                          if isinstance(c, dict)]
@@ -1119,20 +1119,20 @@ def _consume_confirmations(
                 ],
                 "confirmed": confirmed,
                 "original_request": str(pending.get("original_request") or ""),
-                # 已落位实体随行（下轮消费合并回 stocks，多轮链不丢）
+                # 已落位實體隨行（下輪消費合併回 stocks，多輪鏈不丟）
                 "resolved_stocks": [_stock_payload(s) for s in task.stocks],
             }
         else:
-            # 全部组落定：确认状态解除，任务就位为普通执行任务。
-            # unresolved_names 一并清空——用户已通过标的交互给出主体，
-            # 坏代码澄清轮结构上不可满足，保留只会把已消解标的重新短路
+            # 全部組落定：確認狀態解除，任務就位為普通執行任務。
+            # unresolved_names 一併清空——用戶已通過標的交互給出主體，
+            # 壞代碼澄清輪結構上不可滿足，保留只會把已消解標的重新短路
             task.candidates = []
             task.needs_confirmation = False
             task.reason = ""
             task.unresolved_names = []
             task.pending_action = None
-            # 确认产物盖戳：用户显式选定标的是终局裁决，置信度抬升到
-            # 确认档（来源路径的低置信标签不保留）
+            # 確認產物蓋戳：用戶顯式選定標的是終局裁決，置信度抬升到
+            # 確認檔（來源路徑的低置信標籤不保留）
             task.source = "confirmation"
             task.confidence = max(task.confidence, _CONFIDENCE_CONFIRMATION)
             logger.info("confirm_stock resolved: %d group(s)", len(resolved))
@@ -1141,17 +1141,17 @@ def _consume_confirmations(
             voided_tasks.append(task)
 
     if not interacted:
-        # 全部确认任务零收窄：纯模糊回应。仍在等待的确认任务按"跑题即
-        # 作废"丢弃；已消解待执行的兄弟任务保留（混链不因未消费的确认
-        # 链连带销毁）；本轮任务原样随行（新话题，组结构保持）
+        # 全部確認任務零收窄：純模糊回應。仍在等待的確認任務按"跑題即
+        # 作廢"丟棄；已消解待執行的兄弟任務保留（混鏈不因未消費的確認
+        # 鏈連帶銷燬）；本輪任務原樣隨行（新話題，組結構保持）
         survivors = [g for g in (
             [t for t in g if not t.needs_confirmation] for g in recovered) if g]
         return survivors + reply_groups
 
-    # ---- ② 丢弃本轮的纯消歧元素（fresh／自带语义／矛盾贡献者保留）----
-    # 按子消息分组保留——"组=子消息"不变量保持，第六步的组级 LLM 枚举
-    # 据此维持一条子消息至多一次；已被纠错消费的纯答案片段一并排除
-    # （答案不双跑）
+    # ---- ② 丟棄本輪的純消歧元素（fresh／自帶語義／矛盾貢獻者保留）----
+    # 按子消息分組保留——"組=子消息"不變量保持，第六步的組級 LLM 枚舉
+    # 據此維持一條子消息至多一次；已被糾錯消費的純答案片段一併排除
+    # （答案不雙跑）
     keep_flags = [((fresh or has_content) and si not in correction_sources)
                   or si in contradiction_sources
                   for si, (fresh, has_content) in enumerate(profiles)]
@@ -1163,20 +1163,20 @@ def _consume_confirmations(
         if members:
             kept.append(members)
 
-    # ---- ③ 一个列表合并：上轮（消歧后就位、作废壳剔除）＋ 本轮保留 ----
+    # ---- ③ 一個列表合併：上輪（消歧後就位、作廢殼剔除）＋ 本輪保留 ----
     survivors = [g for g in (
         [t for t in g if t not in voided_tasks] for g in recovered) if g]
     return survivors + kept
 
 
 # =========================================================================
-# 第六步 — 幸存任务收尾：LLM 兜底 → 确认判定
+# 第六步 — 倖存任務收尾：LLM 兜底 → 確認判定
 # =========================================================================
 
 
 def _extract_json_object(text: str) -> Optional[str]:
-    """从 LLM 噪声输出中提取第一个完整 JSON 对象：深度计数 + 字符串状态
-    机，正确处理嵌套与字符串内花括号，不误并 JSON 之后的解释文字。"""
+    """從 LLM 噪聲輸出中提取第一個完整 JSON 對象：深度計數 + 字符串狀態
+    機，正確處理嵌套與字符串內花括號，不誤並 JSON 之後的解釋文字。"""
     start = text.find("{")
     if start < 0:
         return None
@@ -1185,7 +1185,7 @@ def _extract_json_object(text: str) -> Optional[str]:
     escaped = False
     for i in range(start, len(text)):
         ch = text[i]
-        if escaped:  # 转义字符无条件跳过（escaped 只在字符串内置位）
+        if escaped:  # 轉義字符無條件跳過（escaped 只在字符串內置位）
             escaped = False
         elif in_string:
             if ch == "\\":
@@ -1204,8 +1204,8 @@ def _extract_json_object(text: str) -> Optional[str]:
 
 
 def _normalize_llm_item(item: Any) -> Optional[Dict[str, Any]]:
-    """多意图数组单项 → 规范化载荷（与单对象形态同构）：intent 规范化
-    校验、market 归一、sectors/unresolved_names 清洗。非法项 None。"""
+    """多意圖數組單項 → 規範化載荷（與單對象形態同構）：intent 規範化
+    校驗、market 歸一、sectors/unresolved_names 清洗。非法項 None。"""
     if not isinstance(item, dict):
         return None
     intent = normalize_intent_label(item.get("intent"))
@@ -1230,9 +1230,9 @@ def _normalize_llm_item(item: Any) -> Optional[Dict[str, Any]]:
 
 
 def _parse_llm_payload(content: str) -> Optional[Dict[str, Any]]:
-    """从 LLM 文本回复解析 JSON 载荷；非 JSON/缺字段/非法 intent 返回 None
-    （宁缺毋滥）。容错：首尾空白/BOM、code fence、JSON 前后噪声（深度
-    计数提取）；``intents`` 数组优先（非法项丢弃，全非法回退单对象形态）。
+    """從 LLM 文本回復解析 JSON 載荷；非 JSON/缺字段/非法 intent 返回 None
+    （寧缺毋濫）。容錯：首尾空白/BOM、code fence、JSON 前後噪聲（深度
+    計數提取）；``intents`` 數組優先（非法項丟棄，全非法回退單對象形態）。
     """
     cleaned = (content or "").strip().lstrip("\ufeff")
     if not cleaned:
@@ -1258,11 +1258,11 @@ def _parse_llm_payload(content: str) -> Optional[Dict[str, Any]]:
         if items:
             result["intents"] = items
             return result
-        # 数组全非法：弹掉残键再回退单对象形态判定（下游只见规范化
-        # 数组或不见该键，原始非法数组绝不流入多模式合并）
+        # 數組全非法：彈掉殘鍵再回退單對象形態判定（下游只見規範化
+        # 數組或不見該鍵，原始非法數組絕不流入多模式合併）
         result.pop("intents", None)
-    # 单对象形态与数组元素共用同一规范化（_normalize_llm_item 是唯一
-    # 规范化点，两条协议路径字段契约同构）
+    # 單對象形態與數組元素共用同一規範化（_normalize_llm_item 是唯一
+    # 規範化點，兩條協議路徑字段契約同構）
     item = _normalize_llm_item(result)
     if item is None:
         return None
@@ -1274,8 +1274,8 @@ def _drop_resolved_group(
     candidates: List[Stock], picked: List[Stock],
     pending: Optional[Dict[str, Any]],
 ) -> List[Stock]:
-    """组感知候选收敛：剔除被选中代码所属歧义组的候选，兄弟组保留
-    （整清会让未消解组静默丢失）；无预挂组结构退化为整清。"""
+    """組感知候選收斂：剔除被選中代碼所屬歧義組的候選，兄弟組保留
+    （整清會讓未消解組靜默丟失）；無預掛組結構退化為整清。"""
     groups = [g for g in (pending or {}).get("groups") or []
               if isinstance(g, dict)]
     if not groups:
@@ -1295,22 +1295,22 @@ def _merge_llm_result(
     context: Dict[str, Any],
     rule_view: Optional[WebIntentResolution] = None,
 ) -> WebIntentResolution:
-    """LLM 载荷 → WebIntentResolution：校验、压置信度（≤ LLM_CONFIDENCE_CAP）、
-    防幻觉合并。followup 伪标签转继承上轮意图（非执行类降闲聊）；stock_code
-    三道闸门（∈ 歧义候选 → 查库命中 → 未命中按市场分流：hk/us 透传实查、
-    a 股记 unresolved 交确认）；规则侧硬信号（实体/板块）保留，LLM 板块名/
-    未解名以"原文出现"为闸门合入（板块无注册表，防编造）。
+    """LLM 載荷 → WebIntentResolution：校驗、壓置信度（≤ LLM_CONFIDENCE_CAP）、
+    防幻覺合併。followup 偽標籤轉繼承上輪意圖（非執行類降閒聊）；stock_code
+    三道閘門（∈ 歧義候選 → 查庫命中 → 未命中按市場分流：hk/us 透傳實查、
+    a 股記 unresolved 交確認）；規則側硬信號（實體/板塊）保留，LLM 板塊名/
+    未解名以"原文出現"為閘門合入（板塊無註冊表，防編造）。
 
-    ``rule_resolution`` 是元素基座：多元素拆分时其实体槽已被重置，只承担
-    链路字段与继承；``rule_view`` 是防幻觉闸门的事实源（原始规则任务，
-    缺省回退基座，单元素路径两者为同一对象）。闸门判据必须读原始规则
-    任务——重置后的基座在多元素模式下恒判"无歧义候选"，越权换标的的
-    代码会被采信执行，故多元素调用方必须显式回传。
+    ``rule_resolution`` 是元素基座：多元素拆分時其實體槽已被重置，只承擔
+    鏈路字段與繼承；``rule_view`` 是防幻覺閘門的事實源（原始規則任務，
+    缺省回退基座，單元素路徑兩者為同一對象）。閘門判據必須讀原始規則
+    任務——重置後的基座在多元素模式下恆判"無歧義候選"，越權換標的的
+    代碼會被採信執行，故多元素調用方必須顯式回傳。
     """
     try:
         raw_confidence = float(payload.get("confidence", 0.5))
-        # NaN/Inf 按缺失处理（0.5）：NaN 会击穿一切比较，把"毫无把握"伪装
-        # 成"高于确认阈值"跳过确认
+        # NaN/Inf 按缺失處理（0.5）：NaN 會擊穿一切比較，把"毫無把握"偽裝
+        # 成"高於確認閾值"跳過確認
         if not math.isfinite(raw_confidence):
             raise ValueError
     except (TypeError, ValueError):
@@ -1326,8 +1326,8 @@ def _merge_llm_result(
     else:
         intent = WebIntent(payload["intent"])
 
-    # LLM 市场推断仅用于打破跨市场同名歧义（规则市场词已在分类层完成
-    # 同样的消歧，能走到这里的歧义说明规则侧无市场证据）
+    # LLM 市場推斷僅用於打破跨市場同名歧義（規則市場詞已在分類層完成
+    # 同樣的消歧，能走到這裡的歧義說明規則側無市場證據）
     market = payload.get("market")
     if not isinstance(market, Market):
         market = None
@@ -1335,28 +1335,28 @@ def _merge_llm_result(
     stocks = list(rule_resolution.stocks)
     sectors = list(rule_resolution.sectors)
     candidates = list(rule_resolution.candidates)
-    # 跨组采信闸门的判据是"规则侧是否有歧义候选"——输入属性，不随消
-    # 费收缩：市场消解/组内选中清空列表后，后续库内命中的组外代码仍
-    # 须拒收（幻觉标的不因先前的合法消解而洗白）；判据读 rule_view，
-    # 不随多元素基座重置失明
+    # 跨組採信閘門的判據是"規則側是否有歧義候選"——輸入屬性，不隨消
+    # 費收縮：市場消解/組內選中清空列表後，後續庫內命中的組外代碼仍
+    # 須拒收（幻覺標的不因先前的合法消解而洗白）；判據讀 rule_view，
+    # 不隨多元素基座重置失明
     gate = rule_view if rule_view is not None else rule_resolution
     had_candidates = bool(gate.candidates)
-    # 元素可经库内通道认领的规则侧代码：恒含确定实体（消息中真实出现
-    # 的标的，元素认领是分发不是幻觉）；多元素模式（基座已重置，据对
-    # 象身份判别）追加歧义候选组成员——单元素模式的候选只走
-    # in_candidates 受控通道（含选中组收缩语义），不在此列
+    # 元素可經庫內通道認領的規則側代碼：恆含確定實體（消息中真實出現
+    # 的標的，元素認領是分發不是幻覺）；多元素模式（基座已重置，據對
+    # 象身份判別）追加歧義候選組成員——單元素模式的候選只走
+    # in_candidates 受控通道（含選中組收縮語義），不在此列
     claimable = {s.code for s in gate.stocks}
     if gate is not rule_resolution:
         claimable |= {c.code for c in gate.candidates}
     unverified = list(rule_resolution.unverified_codes)
-    # 规则侧坏码名单是硬信号（形态非法/全量库未命中的确定性判定，存在
-    # 性不依赖 LLM 回填）：作基底 seed，LLM 回填名经原文闸门去重合并
-    # （下游循环的 in unresolved 判重天然衔接）；读 gate 与
-    # had_candidates 同源，多元素基座的实体槽已重置
+    # 規則側壞碼名單是硬信號（形態非法/全量庫未命中的確定性判定，存在
+    # 性不依賴 LLM 回填）：作基底 seed，LLM 回填名經原文閘門去重合並
+    # （下游循環的 in unresolved 判重天然銜接）；讀 gate 與
+    # had_candidates 同源，多元素基座的實體槽已重置
     unresolved = list(gate.unresolved_names)
 
-    # 用 LLM 市场推断打破跨市场同名歧义：无确定实体时候选中恰有一只与
-    # 推断市场一致 → 采纳（"美股阿里巴巴"语境下 LLM 回 market=us）
+    # 用 LLM 市場推斷打破跨市場同名歧義：無確定實體時候選中恰有一隻與
+    # 推斷市場一致 → 採納（"美股阿里巴巴"語境下 LLM 回 market=us）
     if market is not None and candidates and not stocks:
         market_filtered = [c for c in candidates if c.market == market.value]
         if len(market_filtered) == 1:
@@ -1364,7 +1364,7 @@ def _merge_llm_result(
             candidates = _drop_resolved_group(
                 candidates, market_filtered, rule_resolution.pending_action)
 
-    # stock_code / stock_codes 统一过三道闸门，多标的提及逐个过闸
+    # stock_code / stock_codes 統一過三道閘門，多標的提及逐個過閘
     extra_codes = payload.get("stock_codes")
     raw_codes = [
         c.strip()
@@ -1374,15 +1374,15 @@ def _merge_llm_result(
     ]
     seen_codes: set = set()
     for raw in raw_codes:
-        # LLM 常按真实世界拼写返回裸 5 位 HK 码（"09988"）：先归一到
-        # HK+5 规范身份，与候选匹配/查库/确认轮共用同一代码拼写
+        # LLM 常按真實世界拼寫返回裸 5 位 HK 碼（"09988"）：先歸一到
+        # HK+5 規範身份，與候選匹配/查庫/確認輪共用同一代碼拼寫
         code = _canonical_digit_code(raw.upper())
         if code in seen_codes:
             continue
         seen_codes.add(code)
         in_candidates = [c for c in candidates if c.code == code]
         if in_candidates:
-            # LLM 在歧义候选中做了选择：被选中组整体收敛，兄弟组保留交确认
+            # LLM 在歧義候選中做了選擇：被選中組整體收斂，兄弟組保留交確認
             stocks = _dedup_stocks(stocks + in_candidates)
             candidates = _drop_resolved_group(
                 candidates, in_candidates, rule_resolution.pending_action)
@@ -1392,9 +1392,9 @@ def _merge_llm_result(
                 if not had_candidates or code in claimable:
                     stocks = _dedup_stocks(stocks + [stock])
                 else:
-                    # 跨组采信闸门：规则侧已有歧义候选时，库内命中但不在
-                    # 规则侧标的宇宙（候选组 ∪ 已解析实体）内的代码是越
-                    # 权换标的，拒收
+                    # 跨組採信閘門：規則側已有歧義候選時，庫內命中但不在
+                    # 規則側標的宇宙（候選組 ∪ 已解析實體）內的代碼是越
+                    # 權換標的，拒收
                     logger.info(
                         "LLM stock_code %s rejected: outside ambiguity groups",
                         raw)
@@ -1406,14 +1406,14 @@ def _merge_llm_result(
                     unresolved.append(raw)
                 logger.info("LLM stock_code %s rejected: not in stockDB", raw)
 
-    # LLM 报告的无法解析标的名称（"你好股份"类生造名）：过原文闸门后并入
-    # unresolved，走既有 stock_unresolved 确认——空标的执行任务是无效产出
-    # 原文闸门用小写归一比对（str.lower 逐码点映射保持子串包含，单一
-    # 小写比对即覆盖原样命中）
+    # LLM 報告的無法解析標的名稱（"你好股份"類生造名）：過原文閘門後併入
+    # unresolved，走既有 stock_unresolved 確認——空標的執行任務是無效產出
+    # 原文閘門用小寫歸一比對（str.lower 逐碼點映射保持子串包含，單一
+    # 小寫比對即覆蓋原樣命中）
     low_text_llm = str(payload.get("message_text") or "").lower()
 
     def in_text(name: str) -> bool:
-        """原文闸门：LLM 返回的名称（小写归一）出现在消息原文里。"""
+        """原文閘門：LLM 返回的名稱（小寫歸一）出現在消息原文裡。"""
         return name.lower() in low_text_llm
 
     for name in payload.get("unresolved_names") or []:
@@ -1425,12 +1425,12 @@ def _merge_llm_result(
             logger.info("LLM unresolved_name %r rejected: not in message text", name)
 
     if (unresolved or unverified) and intent == WebIntent.GENERAL_CHAT:
-        # LLM 提到股票但判成闲聊且代码不可信：保持闲聊，忽略坏代码
+        # LLM 提到股票但判成閒聊且代碼不可信：保持閒聊，忽略壞代碼
         unresolved = []
         unverified = []
 
-    # LLM 板块名合入（规则侧为基底）：防幻觉闸门"原文出现"；同义去重按
-    # 去后缀键——"AI板块"与基底"AI"是同一板块的两种表述
+    # LLM 板塊名合入（規則側為基底）：防幻覺閘門"原文出現"；同義去重按
+    # 去後綴鍵——"AI板塊"與基底"AI"是同一板塊的兩種表述
     sector_keys = {sector_dedup_key(s) for s in sectors}
     for name in payload.get("sectors") or []:
         key = sector_dedup_key(name)
@@ -1442,8 +1442,8 @@ def _merge_llm_result(
         else:
             logger.info("LLM sector %r rejected: not in message text", name)
 
-    # 以规则结果为基底做 replace 而非手抄字段重建：未指名字段（预挂
-    # 歧义组等）自动随行，手抄清单漏字段的漂移从结构上不可能发生
+    # 以規則結果為基底做 replace 而非手抄字段重建：未指名字段（預掛
+    # 歧義組等）自動隨行，手抄清單漏字段的漂移從結構上不可能發生
     return replace(
         rule_resolution,
         intent=intent,
@@ -1462,15 +1462,15 @@ def _merge_llm_tasks(
     payload: Dict[str, Any],
     context: Dict[str, Any],
 ) -> List[WebIntentResolution]:
-    """LLM 载荷 → 任务列表（合并入口单路径）：单对象载荷视同单元素
-    intents 数组，逐项过 ``_merge_llm_result`` 闸门。单元素继承完整规则
-    基底（LLM 漏填代码不构成实体丢失）；多元素实体槽重置（逐项继承会把
-    全部标的污染进每个任务；继承码随之一并重置，残留会让未填实体的元素
-    静默回退会话陈旧标的）——重置只作用于继承槽位，防幻觉闸门的事实源
-    经 ``rule_view`` 读原始规则任务，不随重置失明；链路字段
-    （source_request/tokens）随行。数组内 followup＝延续前一项意图与
-    主体，保序输出。多元素孤儿核算见
-    ``_reclaim_orphan_entities``——规则侧实体绝不因协议拆分静默蒸发。
+    """LLM 載荷 → 任務列表（合併入口單路徑）：單對象載荷視同單元素
+    intents 數組，逐項過 ``_merge_llm_result`` 閘門。單元素繼承完整規則
+    基底（LLM 漏填代碼不構成實體丟失）；多元素實體槽重置（逐項繼承會把
+    全部標的汙染進每個任務；繼承碼隨之一併重置，殘留會讓未填實體的元素
+    靜默回退會話陳舊標的）——重置只作用於繼承槽位，防幻覺閘門的事實源
+    經 ``rule_view`` 讀原始規則任務，不隨重置失明；鏈路字段
+    （source_request/tokens）隨行。數組內 followup＝延續前一項意圖與
+    主體，保序輸出。多元素孤兒核算見
+    ``_reclaim_orphan_entities``——規則側實體絕不因協議拆分靜默蒸發。
     """
     items = payload.get("intents") or [payload]
     base = rule_resolution if len(items) == 1 else replace(
@@ -1487,9 +1487,9 @@ def _merge_llm_tasks(
     for item in items:
         sub = dict(item)
         sub["message_text"] = payload.get("message_text")
-        # 数组内 followup＝延续前一项意图与主体：意图经改写 context 复用
-        # _merge_llm_result 的转换逻辑；主体槽空时随行补齐前一项对应槽，
-        # 追问元素不落成无锚点执行任务
+        # 數組內 followup＝延續前一項意圖與主體：意圖經改寫 context 複用
+        # _merge_llm_result 的轉換邏輯；主體槽空時隨行補齊前一項對應槽，
+        # 追問元素不落成無錨點執行任務
         is_followup = sub.get("intent") == LLM_FOLLOWUP_LABEL
         item_context = ({**context, LAST_INTENT_KEY: prev_intent_value}
                         if is_followup and prev_intent_value else context)
@@ -1508,19 +1508,19 @@ def _merge_llm_tasks(
 
 
 def _subject_anchor_empty(r: WebIntentResolution) -> bool:
-    """六槽主体锚点全空（孤儿回填目标与 finalize 空锚点守卫同口径）。"""
+    """六槽主體錨點全空（孤兒回填目標與 finalize 空錨點守衛同口徑）。"""
     return not any((r.stocks, r.candidates, r.sectors, r.unresolved_names,
                     r.unverified_codes, r.inherited_stock_code))
 
 
 def _first_open_executing(out: List[WebIntentResolution]) -> Optional[WebIntentResolution]:
-    """首个无 stocks/candidates 的执行类元素（孤儿单目标挂载点）。"""
+    """首個無 stocks/candidates 的執行類元素（孤兒單目標掛載點）。"""
     return next((t for t in out if t.intent in _EXECUTING_INTENTS
                  and not t.stocks and not t.candidates), None)
 
 
 def _warn_unclaimed(codes: List[str]) -> None:
-    """孤儿主体无挂载目标的显式丢弃告警（宁可显式损失不误挂）。"""
+    """孤兒主體無掛載目標的顯式丟棄告警（寧可顯式損失不誤掛）。"""
     logger.warning(
         "LLM multi-intent split left rule entities unclaimed with no "
         "empty executing task to attach: %s", ",".join(codes))
@@ -1530,18 +1530,18 @@ def _reclaim_orphan_entities(
     out: List[WebIntentResolution],
     rule_resolution: WebIntentResolution,
 ) -> None:
-    """多元素主体核算（就地）：规则侧主体如何落位到拆分元素。
+    """多元素主體核算（就地）：規則側主體如何落位到拆分元素。
 
-    单一主体单元（个股/歧义组/板块槽）＝子消息主体，可安全平分给全部
-    无主体执行元素——"X的股价和走势"的多元素拆分与逗号展开形同构；
-    个股/板块单元被认领后不回填（防同标的重复执行），歧义组例外——
-    认领者已解自己那份，无主体元素仍需各自的消歧问答。多主体混合视图
-    ＝协议层信息不足（无法确定性分发）：单目标孤儿回收（挂载到首
-    个无 stocks/candidates 的执行元素），无目标时显式 warning 丢弃——
-    宁可显式损失不误挂；候选挂载时预挂组结构随行（歧义组任一成员被
-    认领即整组清账）。unverified 认领按大小写折叠的代码等值（规则侧原
-    始拼写 vs 元素侧归一拼写）、恒单目标挂载防重复实查——与
-    unresolved_names 的逐元素 seed（澄清请求幂等）刻意不对称。
+    單一主體單元（個股/歧義組/板塊槽）＝子消息主體，可安全平分給全部
+    無主體執行元素——"X的股價和走勢"的多元素拆分與逗號展開形同構；
+    個股/板塊單元被認領後不回填（防同標的重複執行），歧義組例外——
+    認領者已解自己那份，無主體元素仍需各自的消歧問答。多主體混合視圖
+    ＝協議層信息不足（無法確定性分發）：單目標孤兒回收（掛載到首
+    個無 stocks/candidates 的執行元素），無目標時顯式 warning 丟棄——
+    寧可顯式損失不誤掛；候選掛載時預掛組結構隨行（歧義組任一成員被
+    認領即整組清賬）。unverified 認領按大小寫摺疊的代碼等值（規則側原
+    始拼寫 vs 元素側歸一拼寫）、恆單目標掛載防重複實查——與
+    unresolved_names 的逐元素 seed（澄清請求冪等）刻意不對稱。
     """
     rule = rule_resolution
     if not (rule.stocks or rule.candidates
@@ -1552,8 +1552,8 @@ def _reclaim_orphan_entities(
     groups = [g for g in (rule.pending_action or {}).get("groups") or []
               if isinstance(g, dict)]
 
-    # unverified 单目标回收先行：目标谓词（无 stocks/candidates）与主
-    # 体回填互不侵占目标
+    # unverified 單目標回收先行：目標謂詞（無 stocks/candidates）與主
+    # 體回填互不侵佔目標
     orphan_unverified = [c for c in rule.unverified_codes
                          if c.upper() not in claimed]
     if orphan_unverified:
@@ -1564,8 +1564,8 @@ def _reclaim_orphan_entities(
         else:
             _warn_unclaimed(orphan_unverified)
 
-    # 单元计数：个股逐只、候选按预挂组（组边界即歧义问句边界）、板块
-    # 逐槽；无主体元素＝六槽全空（与 finalize 的空锚点同口径）
+    # 單元計數：個股逐只、候選按預掛組（組邊界即歧義問句邊界）、板塊
+    # 逐槽；無主體元素＝六槽全空（與 finalize 的空錨點同口徑）
     unit_count = (len(rule.stocks)
                   + ((len(groups) or 1) if rule.candidates else 0)
                   + len(rule.sectors))
@@ -1590,7 +1590,7 @@ def _reclaim_orphan_entities(
                     list(t.sectors) + rule.sectors[:1]))
         return
 
-    # 多主体混合视图：保守单目标孤儿回收
+    # 多主體混合視圖：保守單目標孤兒回收
     group_peers: Dict[str, set] = {}
     for g in groups:
         codes = _group_codes(g)
@@ -1625,9 +1625,9 @@ def _pending_skeleton(
     groups: List[Dict[str, Any]],
     unresolved_names: Optional[List[str]] = None,
 ) -> Dict[str, Any]:
-    """确认动作 pending_action 构造骨架：action/intent/groups/
-    original_request + resolved_stocks（原请求已解析实体，消费轮合并回
-    stocks，比较语义不丢）+ 可选 unresolved_names。"""
+    """確認動作 pending_action 構造骨架：action/intent/groups/
+    original_request + resolved_stocks（原請求已解析實體，消費輪合併回
+    stocks，比較語義不丟）+ 可選 unresolved_names。"""
     pending: Dict[str, Any] = {
         "action": "confirm_stock",
         "intent": resolution.intent.value,
@@ -1642,7 +1642,7 @@ def _pending_skeleton(
 
 
 def _mark_confirm(r: WebIntentResolution, reason: str) -> None:
-    """置确认标志（needs_confirmation + reason）——各收口分支的公共落点。"""
+    """置確認標誌（needs_confirmation + reason）——各收口分支的公共落點。"""
     r.needs_confirmation = True
     r.reason = reason
 
@@ -1650,15 +1650,15 @@ def _mark_confirm(r: WebIntentResolution, reason: str) -> None:
 def _finalize_confirmations(
     resolutions: List[WebIntentResolution],
 ) -> List[WebIntentResolution]:
-    """第六步②组级入口：一条子消息（组）全部任务的确认判定。歧义组优先
-    消费第四步预挂的 pending_action.groups，无预挂按 candidates 兜底建组；
-    仅执行类意图需要确认（三/四类 reason 见模块 docstring）。
+    """第六步②組級入口：一條子消息（組）全部任務的確認判定。歧義組優先
+    消費第四步預掛的 pending_action.groups，無預掛按 candidates 兜底建組；
+    僅執行類意圖需要確認（三/四類 reason 見模塊 docstring）。
 
-    集合提供者（组内存在 portfolio_analysis）是组级事实：空主体锚点的
-    执行类任务主体＝提供者的账户标的集合输出（任务间主体引用），无锚点
-    守卫与低置信守卫对其豁免——对空实体动作元素转无选项确认会死锁（用户
-    重说同一句原样重入管道，任何回复无法消解）。执行端契约：空实体执行
-    任务绑定同组组合任务的输出，不得做"沿用上一只股票"之类兜底。
+    集合提供者（組內存在 portfolio_analysis）是組級事實：空主體錨點的
+    執行類任務主體＝提供者的賬戶標的集合輸出（任務間主體引用），無錨點
+    守衛與低置信守衛對其豁免——對空實體動作元素轉無選項確認會死鎖（用戶
+    重說同一句原樣重入管道，任何回覆無法消解）。執行端契約：空實體執行
+    任務綁定同組組合任務的輸出，不得做"沿用上一隻股票"之類兜底。
     """
     has_provider = any(
         r.intent is WebIntent.PORTFOLIO_ANALYSIS for r in resolutions)
@@ -1667,18 +1667,18 @@ def _finalize_confirmations(
         resolution.confidence = max(0.0, min(1.0, resolution.confidence))
         sub_text = resolution.source_request or "".join(resolution.tokens)
         if resolution.intent not in _EXECUTING_INTENTS:
-            # 有意图信号但对象未解的闲聊候选（"分析…哈喽板块"）是实义
-            # 请求黑洞，转澄清确认；完全无信号的寒暄（"你好呀"）放行
+            # 有意圖信號但對象未解的閒聊候選（"分析…哈嘍板塊"）是實義
+            # 請求黑洞，轉澄清確認；完全無信號的寒暄（"你好呀"）放行
             if (resolution.source == "llm_failed"
                     and INTENT_WORD_RE.search(sub_text)
                     and resolution.confidence < CONFIRMATION_CONFIDENCE_THRESHOLD):
                 _mark_confirm(resolution, "low_confidence")
             return resolution
 
-        # 无锚点执行类守卫：执行类任务缺一切主体锚点时转低置信澄清——
-        # followup 意图提升与多意图拆分的未填实体元素在此单点收口；
-        # 组内存在集合提供者时豁免（空实体任务主体＝其输出，转无选项
-        # 确认会让用户任何回复都无法消解）
+        # 無錨點執行類守衛：執行類任務缺一切主體錨點時轉低置信澄清——
+        # followup 意圖提升與多意圖拆分的未填實體元素在此單點收口；
+        # 組內存在集合提供者時豁免（空實體任務主體＝其輸出，轉無選項
+        # 確認會讓用戶任何回覆都無法消解）
         empty_anchor = _subject_anchor_empty(resolution)
         if (resolution.intent != WebIntent.PORTFOLIO_ANALYSIS
                 and empty_anchor and not has_provider):
@@ -1688,8 +1688,8 @@ def _finalize_confirmations(
 
         if resolution.candidates:
             _mark_confirm(resolution, "ambiguous_stock_name")
-            # 权威结构 groups：优先消费第四步预挂的组（已被 LLM 消解的组
-            # 其候选不在 candidates 中，随之过滤），无预挂按候选兜底
+            # 權威結構 groups：優先消費第四步預掛的組（已被 LLM 消解的組
+            # 其候選不在 candidates 中，隨之過濾），無預掛按候選兜底
             cand_codes = {c.code for c in resolution.candidates}
             groups = [
                 g for g in (resolution.pending_action or {}).get("groups", [])
@@ -1699,7 +1699,7 @@ def _finalize_confirmations(
                     resolution.candidates[0].name or resolution.candidates[0].code,
                     resolution.candidates, resolution.intent.value, sub_text)
             ]
-            # 原请求中已解析的确定实体随 pending 保留（消费轮合并回 stocks）
+            # 原請求中已解析的確定實體隨 pending 保留（消費輪合併回 stocks）
             resolution.pending_action = _pending_skeleton(
                 resolution, sub_text, groups,
                 unresolved_names=list(resolution.unresolved_names) or None)
@@ -1707,7 +1707,7 @@ def _finalize_confirmations(
 
         if resolution.unresolved_names:
             _mark_confirm(resolution, "stock_unresolved")
-            # groups 为空：无歧义候选，等待用户重新提供名称/代码
+            # groups 為空：無歧義候選，等待用戶重新提供名稱/代碼
             resolution.pending_action = _pending_skeleton(
                 resolution, sub_text, [],
                 unresolved_names=list(resolution.unresolved_names))
@@ -1715,14 +1715,14 @@ def _finalize_confirmations(
 
         if (resolution.confidence < CONFIRMATION_CONFIDENCE_THRESHOLD
                 and not (has_provider and empty_anchor)):
-            # low_confidence 不产生 pending_action（意图待澄清而非选标的），
-            # 预挂载体一并撤下——残留组会被 apply_pending 写回，弹出误导性
-            # 选股确认；提供者在场的空实体任务不走此出口（转无选项确认同
-            # 样会死锁）
+            # low_confidence 不產生 pending_action（意圖待澄清而非選標的），
+            # 預掛載體一併撤下——殘留組會被 apply_pending 寫回，彈出誤導性
+            # 選股確認；提供者在場的空實體任務不走此出口（轉無選項確認同
+            # 樣會死鎖）
             _mark_confirm(resolution, "low_confidence")
             resolution.pending_action = None
         elif resolution.pending_action and not resolution.needs_confirmation:
-            # 预挂组已随 LLM 消歧/市场收窄清空候选：撤下预挂载体
+            # 預掛組已隨 LLM 消歧/市場收窄清空候選：撤下預掛載體
             resolution.pending_action = None
         return resolution
 
@@ -1732,24 +1732,24 @@ def _finalize_confirmations(
 def _finalize_confirmation(
     resolution: WebIntentResolution,
 ) -> WebIntentResolution:
-    """第六步②的单任务便捷入口（无组上下文＝无提供者，守卫原口径）。"""
+    """第六步②的單任務便捷入口（無組上下文＝無提供者，守衛原口徑）。"""
     return _finalize_confirmations([resolution])[0]
 
 
 # =========================================================================
-# 主类 — 六步流水线宿主（类内方法即执行序：构造/LLM/收尾/主入口）
+# 主類 — 六步流水線宿主（類內方法即執行序：構造/LLM/收尾/主入口）
 # =========================================================================
 
 
 class WebIntentResolver:
-    """Web Chat 意图识别器：token 序列 → 二维任务组列表（组=子消息）。
+    """Web Chat 意圖識別器：token 序列 → 二維任務組列表（組=子消息）。
 
-    LLM adapter 惰性构建（litellm provider 栈加载昂贵）：首次真正触发
-    兜底的 resolve 才构建，失败永久禁用（兜底退化为低置信转确认），
-    构建受锁保护可全局复用。config 与 llm_adapter 均省略则禁用兜底。
+    LLM adapter 惰性構建（litellm provider 棧加載昂貴）：首次真正觸發
+    兜底的 resolve 才構建，失敗永久禁用（兜底退化為低置信轉確認），
+    構建受鎖保護可全局複用。config 與 llm_adapter 均省略則禁用兜底。
     """
 
-    # request_context 中当前股票（#1619 股票范围机制）的读取键
+    # request_context 中當前股票（#1619 股票範圍機制）的讀取鍵
     CURRENT_STOCK_CODE_KEY = "current_stock_code"
 
     def __init__(
@@ -1759,8 +1759,8 @@ class WebIntentResolver:
         llm_adapter: Optional[Any] = None,
         llm_timeout: float = 45.0,
     ) -> None:
-        """config 传入即启用 LLM 兜底（adapter 惰性构建，失败永久禁用）；
-        llm_adapter 直接注入则跳过构建（测试/复用场景）。"""
+        """config 傳入即啟用 LLM 兜底（adapter 惰性構建，失敗永久禁用）；
+        llm_adapter 直接注入則跳過構建（測試/複用場景）。"""
         self._config = config
         self._llm_adapter = llm_adapter
         self._llm_timeout = llm_timeout
@@ -1772,9 +1772,9 @@ class WebIntentResolver:
     # ------------------------------------------------------------------
 
     def _ensure_llm_adapter(self) -> Optional[Any]:
-        """返回可用的 LLM adapter；从 config 按需构建（首次兜底才
-        import，litellm 栈加载昂贵），失败置 ``_llm_init_failed`` 永久
-        禁用——初始化问题不击穿解析主链路。
+        """返回可用的 LLM adapter；從 config 按需構建（首次兜底才
+        import，litellm 棧加載昂貴），失敗置 ``_llm_init_failed`` 永久
+        禁用——初始化問題不擊穿解析主鏈路。
         """
         if self._llm_adapter is not None or self._llm_init_failed:
             return self._llm_adapter
@@ -1786,7 +1786,7 @@ class WebIntentResolver:
 
                 try:
                     self._llm_adapter = LLMToolAdapter(self._config)
-                except Exception as exc:  # noqa: BLE001 — 初始化失败不该击穿意图层
+                except Exception as exc:  # noqa: BLE001 — 初始化失敗不該擊穿意圖層
                     logger.warning(
                         "web intent LLM fallback disabled (adapter init failed): %s",
                         exc,
@@ -1797,26 +1797,26 @@ class WebIntentResolver:
     def _should_use_llm(
         self, resolution: WebIntentResolution,
     ) -> bool:
-        """LLM 兜底触发条件（宁可不做不可做错：默认复核，豁免需三证
-        齐全；adapter 不可用时恒 False——规则结果是唯一防线）。
+        """LLM 兜底觸發條件（寧可不做不可做錯：默認複核，豁免需三證
+        齊全；adapter 不可用時恆 False——規則結果是唯一防線）。
 
-        豁免三证（缺一即复核）：
-          ① 视野完备——``all_tags_recognized``（未读内容可能藏着主体/
-             附加诉求，不得静默丢弃）；
-          ② 判定可靠——置信度 ≥ ``_CONFIDENCE_LLM_EXEMPT``（0.8：关键词
-             共现 0.85 / 显式代码 0.9 达标；继承 0.75 不达标）；
-          ③ 表达完备——无 multi_intent_hint：数据对象词 × 强分析/组合类
-             同场（"多少钱＋基本面"＝一句两个深度）交 LLM 判定拆分还是
-             单一。
-        继承产物主体在场同享豁免（继承机制确定性；歧义候选同为主体
-        在场——消歧是用户确认事务）。纯确认碎片（source="confirmation"）
-        与 hk/us 存疑代码永不触发。
+        豁免三證（缺一即複核）：
+          ① 視野完備——``all_tags_recognized``（未讀內容可能藏著主體/
+             附加訴求，不得靜默丟棄）；
+          ② 判定可靠——置信度 ≥ ``_CONFIDENCE_LLM_EXEMPT``（0.8：關鍵詞
+             共現 0.85 / 顯式代碼 0.9 達標；繼承 0.75 不達標）；
+          ③ 表達完備——無 multi_intent_hint：數據對象詞 × 強分析/組合類
+             同場（"多少錢＋基本面"＝一句兩個深度）交 LLM 判定拆分還是
+             單一。
+        繼承產物主體在場同享豁免（繼承機制確定性；歧義候選同為主體
+        在場——消歧是用戶確認事務）。純確認碎片（source="confirmation"）
+        與 hk/us 存疑代碼永不觸發。
         """
         if resolution.source == "confirmation":
             return False
-        # 继承产物主体在场同享豁免（继承机制确定性，0.75 是路径标签非
-        # 疑义信号；歧义候选同为主体在场——消歧是用户确认事务；空主体
-        # 继承无锚点，仍复核）
+        # 繼承產物主體在場同享豁免（繼承機制確定性，0.75 是路徑標籤非
+        # 疑義信號；歧義候選同為主體在場——消歧是用戶確認事務；空主體
+        # 繼承無錨點，仍復核）
         subject_backed = (resolution.source == "context" and bool(
             resolution.stocks or resolution.sectors
             or resolution.candidates or resolution.inherited_stock_code))
@@ -1832,17 +1832,17 @@ class WebIntentResolver:
         resolution: WebIntentResolution,
         context: Dict[str, Any],
     ) -> Optional[List[WebIntentResolution]]:
-        """调用 LLM 做意图分类并合并结果（多意图协议下为任务列表，保
-        序）；任何失败返回 None（用规则结果，由收尾链标记
-        source="llm_failed"）。失败面全覆盖：adapter 异常、超时、error
-        provider、非 JSON 回复、非法 intent——宁可退回规则低置信（转
-        确认）也不被坏输出污染。
+        """調用 LLM 做意圖分類併合並結果（多意圖協議下為任務列表，保
+        序）；任何失敗返回 None（用規則結果，由收尾鏈標記
+        source="llm_failed"）。失敗面全覆蓋：adapter 異常、超時、error
+        provider、非 JSON 回覆、非法 intent——寧可退回規則低置信（轉
+        確認）也不被壞輸出汙染。
         """
         adapter = self._ensure_llm_adapter()
         if adapter is None:
             return None
-        # is_available 在真实适配器上是 property（返回 bool），兼容方法
-        # 形态两种接口；不可用（如未配 API key）时跳过调用
+        # is_available 在真實適配器上是 property（返回 bool），兼容方法
+        # 形態兩種接口；不可用（如未配 API key）時跳過調用
         available = getattr(adapter, "is_available", True)
         if callable(available):
             available = available()
@@ -1851,8 +1851,8 @@ class WebIntentResolver:
             return None
         text = resolution.source_request or "".join(resolution.tokens)
         recent = context.get(RECENT_STOCKS_KEY) or []
-        # 继承码随 prompt 下发为 current_stock：无自身标的的片段（"和市盈
-        # 率"）只有拿到 current_stock 才能判回执行类意图
+        # 繼承碼隨 prompt 下發為 current_stock：無自身標的的片段（"和市盈
+        # 率"）只有拿到 current_stock 才能判回執行類意圖
         current_stock = None
         if resolution.inherited_stock_code:
             stock = lookup_stock_by_code(resolution.inherited_stock_code)
@@ -1865,8 +1865,8 @@ class WebIntentResolver:
             "ambiguous_candidates": [_stock_payload(c)
                                      for c in resolution.candidates],
             "unresolved_codes": list(resolution.unresolved_names),
-            # 读点归一：不可序列化元素（set/对象）会让 json.dumps 在 try
-            # 外以 TypeError 击穿，只透传字符串元素
+            # 讀點歸一：不可序列化元素（set/對象）會讓 json.dumps 在 try
+            # 外以 TypeError 擊穿，只透傳字符串元素
             "recent_stocks": ([c for c in recent if isinstance(c, str)]
                               if isinstance(recent, list) else []),
             "last_intent": context.get(LAST_INTENT_KEY, ""),
@@ -1876,12 +1876,12 @@ class WebIntentResolver:
             {"role": "user", "content": json.dumps(request_body, ensure_ascii=False)},
         ]
         try:
-            # max_tokens=5000：思考型模型（deepseek 系）思考 token 与正文
-            # 共享预算，200 会被思考烧光、正文恒空 → 兜底确定性失败
+            # max_tokens=5000：思考型模型（deepseek 系）思考 token 與正文
+            # 共享預算，200 會被思考燒光、正文恆空 → 兜底確定性失敗
             response = adapter.call_text(
                 messages, temperature=0.0, max_tokens=5000,
                 timeout=self._llm_timeout)
-        except Exception as exc:  # noqa: BLE001 — LLM 栈任意异常都不该击穿意图层
+        except Exception as exc:  # noqa: BLE001 — LLM 棧任意異常都不該擊穿意圖層
             logger.warning("web intent LLM fallback failed: %s", exc)
             return None
         if response is None or getattr(response, "provider", "") == "error":
@@ -1890,20 +1890,20 @@ class WebIntentResolver:
         if payload is None:
             logger.warning("web intent LLM returned unparseable payload")
             return None
-        # 原文随载荷传递：merge 侧用它对 LLM 返回的板块名做原文出现校验
+        # 原文隨載荷傳遞：merge 側用它對 LLM 返回的板塊名做原文出現校驗
         payload["message_text"] = text
         return _merge_llm_tasks(resolution, payload, context)
 
     # ------------------------------------------------------------------
-    # 第六步 — 幸存任务收尾
+    # 第六步 — 倖存任務收尾
     # ------------------------------------------------------------------
 
     @staticmethod
     def _group_base(group: List[WebIntentResolution],
                     ) -> WebIntentResolution:
-        """组视图并集基底：链路字段全组同源（同一子消息），取首任务
-        即取代表（无主次语义）；实体槽按任务对象归属分布在各组员上，
-        并集才是该子消息的完整规则视野。"""
+        """組視圖並集基底：鏈路字段全組同源（同一子消息），取首任務
+        即取代表（無主次語義）；實體槽按任務對象歸屬分佈在各組員上，
+        並集才是該子消息的完整規則視野。"""
         first = group[0]
         if len(group) == 1:
             return first
@@ -1923,11 +1923,11 @@ class WebIntentResolver:
         group: List[WebIntentResolution],
         context: Dict[str, Any],
     ) -> List[WebIntentResolution]:
-        """一条子消息（组）的收尾——sub_message 是收尾的最小单位：
-        ① 组级复核：组内任一任务触发 → 以组视图并集为基底发起一次 LLM
-        调用，产出即该子消息的全部任务，【整组替换】（一条子消息至多
-        一次多意图枚举）；失败退回规则任务逐任务收尾并标 llm_failed；
-        ② 逐任务确认判定补齐（``_finalize_confirmations``）与日志。
+        """一條子消息（組）的收尾——sub_message 是收尾的最小單位：
+        ① 組級複核：組內任一任務觸發 → 以組視圖並集為基底發起一次 LLM
+        調用，產出即該子消息的全部任務，【整組替換】（一條子消息至多
+        一次多意圖枚舉）；失敗退回規則任務逐任務收尾並標 llm_failed；
+        ② 逐任務確認判定補齊（``_finalize_confirmations``）與日誌。
         """
         resolutions = list(group)
         if any(self._should_use_llm(r) for r in group):
@@ -1936,8 +1936,8 @@ class WebIntentResolver:
             if llm_tasks:
                 resolutions = llm_tasks
             else:
-                # 复核调用失败：整组退回规则判定，source 标记区分"未调"
-                # 的 rule（组内成员同属这次失败复核）
+                # 複核調用失敗：整組退回規則判定，source 標記區分"未調"
+                # 的 rule（組內成員同屬這次失敗複核）
                 for r in group:
                     r.source = "llm_failed"
 
@@ -1947,7 +1947,7 @@ class WebIntentResolver:
         return out
 
     # ------------------------------------------------------------------
-    # 主入口 — 六步流水线
+    # 主入口 — 六步流水線
     # ------------------------------------------------------------------
 
     def resolve(
@@ -1956,39 +1956,39 @@ class WebIntentResolver:
         session_context: Any = None,
         request_context: Any = None,
     ) -> List[List[WebIntentResolution]]:
-        """解析一条用户消息，返回**二维任务组列表**（按用户表达顺序保
+        """解析一條用戶消息，返回**二維任務組列表**（按用戶表達順序保
         序）。
 
-        外层 = 子消息任务组（一条消费型标点/顺序连接词切开的一段），
-        组内是平权任务（主体任务＋未被消费的板块/指数/组合兄弟任务）；
-        单意图消息同样是双层结构 ``[[task]]``。确认状态在需确认任务自
-        身：任一组的任一任务 ``needs_confirmation=True`` 即
-        整条消息短路（消费方 ``any()`` 判断），链式确认的 confirmed
-        寄生在该任务的 ``pending_action`` 上。
+        外層 = 子消息任務組（一條消費型標點/順序連接詞切開的一段），
+        組內是平權任務（主體任務＋未被消費的板塊/指數/組合兄弟任務）；
+        單意圖消息同樣是雙層結構 ``[[task]]``。確認狀態在需確認任務自
+        身：任一組的任一任務 ``needs_confirmation=True`` 即
+        整條消息短路（消費方 ``any()`` 判斷），鏈式確認的 confirmed
+        寄生在該任務的 ``pending_action`` 上。
         session_context 提供 recent_stocks / pending_actions / last_intent；
         request_context 提供 ``current_stock_code``（#1619）
         """
-        # ---- 第一步：上下文准备与空输入短路 ----
+        # ---- 第一步：上下文準備與空輸入短路 ----
         context = _session_context(session_context)
         request = _session_context(request_context)
         recent = context.get(RECENT_STOCKS_KEY) or []
-        # 会话形状异常不击穿（与写侧 apply_outcome 的 str 过滤同口径）：
-        # 继承码来源值非文本按缺失处理，不带病流入查库/LLM 兜底路径
+        # 會話形狀異常不擊穿（與寫側 apply_outcome 的 str 過濾同口徑）：
+        # 繼承碼來源值非文本按缺失處理，不帶病流入查庫/LLM 兜底路徑
         raw_current = request.get(self.CURRENT_STOCK_CODE_KEY, "")
         current_stock_code = raw_current if isinstance(raw_current, str) else ""
         first_recent = (recent[0] if isinstance(recent, list) and recent
                         and isinstance(recent[0], str) else "")
         inherited_stock_code = current_stock_code or first_recent
-        # 确认存活的唯一权威是 pending_actions（clear_pending_actions 的
-        # 清理协议只作用于它）；last_resolutions 是消费载荷投影——开关
-        # 关闭时陈旧投影不得被消费（Agent 失败收尾后旧确认链立即失效）
+        # 確認存活的唯一權威是 pending_actions（clear_pending_actions 的
+        # 清理協議只作用於它）；last_resolutions 是消費載荷投影——開關
+        # 關閉時陳舊投影不得被消費（Agent 失敗收尾後舊確認鏈立即失效）
         pending_gate = _pending_confirming_tasks(context)
         last_resolution = (context.get(LAST_RESOLUTIONS_KEY) or pending_gate
                            ) if pending_gate else []
 
         if not isinstance(message, str) or not message.strip():
-            # 空/非文本：闲聊直达（带继承股票；空消息不清 pending——
-            # 它不是确认响应，pending 留待真正回复时消费）
+            # 空/非文本：閒聊直達（帶繼承股票；空消息不清 pending——
+            # 它不是確認響應，pending 留待真正回覆時消費）
             empty = WebIntentResolution(
                 intent=WebIntent.GENERAL_CHAT,
                 confidence=_CONFIDENCE_FALLBACK,
@@ -1996,17 +1996,17 @@ class WebIntentResolver:
                 inherited_stock_code=inherited_stock_code,
             )
             _log_resolution("rule", empty)
-            return [[empty]]  # 一律二维
+            return [[empty]]  # 一律二維
 
-        # ---- 第二步：全消息分词（_preprocess_text / _identify_stock_codes
-        #      全局仅此一次，后续各阶段只消费这份 tokens）----
+        # ---- 第二步：全消息分詞（_preprocess_text / _identify_stock_codes
+        #      全局僅此一次，後續各階段只消費這份 tokens）----
         _, tokens = _preprocess_text(message)
         tokens = _identify_stock_codes(tokens)
 
-        # ---- 第三步：消息级多任务切分（tokens 二维）----
+        # ---- 第三步：消息級多任務切分（tokens 二維）----
         sub_token_lists = _split_sub_messages(tokens, message)
 
-        # ---- 第四步：逐子消息规则级解析（多意图任务列表；LLM 延后不跑）----
+        # ---- 第四步：逐子消息規則級解析（多意圖任務列表；LLM 延後不跑）----
         full_resolution: List[List[WebIntentResolution]] = []
         prev_intent = context.get(LAST_INTENT_KEY, "")
         prev_subject: Optional[_ChainSubject] = _session_chain_subject(context)
@@ -2020,7 +2020,7 @@ class WebIntentResolver:
                 prev_subject,)
             full_resolution.append(tasks)
             verdict = tasks[0]
-            prev_intent = verdict.intent.value   # 继承意图＝上组主体任务意图
+            prev_intent = verdict.intent.value   # 繼承意圖＝上組主體任務意圖
             prev_ambiguous = [
                 (str(g.get("name") or ""),
                  [s for s in map(_stock_from_payload, g.get("candidates", []))
@@ -2031,8 +2031,8 @@ class WebIntentResolver:
             prev_subject = (list(verdict.stocks), list(verdict.sectors),
                             prev_ambiguous)
 
-        # ---- 第五步：确认消费（pending 存在时优先判定本轮是否为确认响应）----
-        if _is_pending_action(last_resolution):  # 有歧义需要消歧
+        # ---- 第五步：確認消費（pending 存在時優先判定本輪是否為確認響應）----
+        if _is_pending_action(last_resolution):  # 有歧義需要消歧
             reply_tasks = [t for g in full_resolution for t in g]
             full_resolution = _consume_confirmations(last_resolution, full_resolution)
             this_round = {id(t) for t in reply_tasks}
@@ -2043,11 +2043,11 @@ class WebIntentResolver:
                 for group in _as_task_groups(full_resolution)
             ]
 
-        # ---- 第六步：逐幸存任务收尾（LLM 兜底 → 确认判定）----
-        # ---- 确认收口（判定权在消费方）----
-        # 不做同意图折叠：多标的任务各自独立执行、各自锁定 stock scope，
-        # 聚合不改变 Agent 输出质量；任一任务待确认即整链短路（消费方
-        # any() 判定），确认任务与其余任务随组结构写入 last_resolutions
+        # ---- 第六步：逐倖存任務收尾（LLM 兜底 → 確認判定）----
+        # ---- 確認收口（判定權在消費方）----
+        # 不做同意圖摺疊：多標的任務各自獨立執行、各自鎖定 stock scope，
+        # 聚合不改變 Agent 輸出質量；任一任務待確認即整鏈短路（消費方
+        # any() 判定），確認任務與其餘任務隨組結構寫入 last_resolutions
         return [self._finalize_task(group, context) for group in full_resolution]
 
     def resolve_first(
@@ -2056,19 +2056,19 @@ class WebIntentResolver:
         session_context: Any = None,
         request_context: Any = None,
     ) -> WebIntentResolution:
-        """单任务便捷视图：二维任务列表的首组首任务（首子消息首个任务）。"""
+        """單任務便捷視圖：二維任務列表的首組首任務（首子消息首個任務）。"""
         return self.resolve(message, session_context, request_context)[0][0]
 
 
 # =========================================================================
-# 会话簿记 — resolve 之后的出口写回（pending 结算 / recent / last_intent）
+# 會話簿記 — resolve 之後的出口寫回（pending 結算 / recent / last_intent）
 # =========================================================================
 
 
 def _writable_context(session: Any) -> Optional[Dict[str, Any]]:
-    """簿记目标 dict：None session / 无 context 对象返回 None（no-op）。
-    空 dict 会话与空 .context 同为有效目标——宿主可能挂 update_context
-    持久化钩子，真值判断会误伤（getattr(None) 得 None，免显式判空）。"""
+    """簿記目標 dict：None session / 無 context 對象返回 None（no-op）。
+    空 dict 會話與空 .context 同為有效目標——宿主可能掛 update_context
+    持久化鉤子，真值判斷會誤傷（getattr(None) 得 None，免顯式判空）。"""
     if isinstance(session, dict):
         return session
     context = getattr(session, "context", None)
@@ -2078,8 +2078,8 @@ def _writable_context(session: Any) -> Optional[Dict[str, Any]]:
 def _write_context(
     session: Any, context: Dict[str, Any], key: str, value: Any
 ) -> None:
-    """写会话键：宿主对象提供 ``update_context``（ConversationSession 的
-    簿记入口，可能带持久化钩子）时走它，否则直接写 context dict。"""
+    """寫會話鍵：宿主對象提供 ``update_context``（ConversationSession 的
+    簿記入口，可能帶持久化鉤子）時走它，否則直接寫 context dict。"""
     updater = getattr(session, "update_context", None)
     if callable(updater):
         updater(key, value)
@@ -2092,14 +2092,14 @@ def apply_pending(
     tasks: "Union[WebIntentResolution, List[WebIntentResolution],"
            " List[List[WebIntentResolution]]]",
 ) -> None:
-    """resolve 边界同步调用：写/清 pending_actions（消费即结算，替换式
-    ——确认任务存在则写其 pending_action，否则清空，旧 pending 绝不跨轮
-    残留）。必须在 SSE 层发出 action_required 之前完成，否则用户下一条
-    回复会先于 pending 落库、被当成新消息解析；空输入轮由调用方跳过
-    （空消息不得清 pending）。确认任务扫描全部组全部位置——多意图消息
-    的确认任务可以不在首组，只看首位会把 pending 写丢。入参以 resolve
-    的二维产出为主形态（兼容一维任务列表/单个 resolution，经
-    ``_iter_tasks`` 展平——组结构不影响本函数，扫描本就按全部位置）。
+    """resolve 邊界同步調用：寫/清 pending_actions（消費即結算，替換式
+    ——確認任務存在則寫其 pending_action，否則清空，舊 pending 絕不跨輪
+    殘留）。必須在 SSE 層發出 action_required 之前完成，否則用戶下一條
+    回覆會先於 pending 落庫、被當成新消息解析；空輸入輪由調用方跳過
+    （空消息不得清 pending）。確認任務掃描全部組全部位置——多意圖消息
+    的確認任務可以不在首組，只看首位會把 pending 寫丟。入參以 resolve
+    的二維產出為主形態（兼容一維任務列表/單個 resolution，經
+    ``_iter_tasks`` 展平——組結構不影響本函數，掃描本就按全部位置）。
     """
     task_list = list(_iter_tasks(tasks))
     context = _writable_context(session)
@@ -2116,12 +2116,12 @@ def apply_outcome(
     executed_tasks: "Union[WebIntentResolution, List[WebIntentResolution],"
                     " List[List[WebIntentResolution]]]",
 ) -> None:
-    """任务执行完成后调用：recent_stocks 头插去重截断（候选/未解析标的
-    不入列）+ last_intent（落点＝最后一个执行类组的组首，与头插"后写胜
-    出"同源；无执行类组退末位）。只记真正执行的任务——短路轮不写，
-    未执行的 stocks/意图不得污染继承上下文。入参以执行端实际执行的
-    resolve 原始二维形态为主（组结构是落点判定的输入，展平即丢）；
-    兼容一维任务列表/单个 resolution。
+    """任務執行完成後調用：recent_stocks 頭插去重截斷（候選/未解析標的
+    不入列）+ last_intent（落點＝最後一個執行類組的組首，與頭插"後寫勝
+    出"同源；無執行類組退末位）。只記真正執行的任務——短路輪不寫，
+    未執行的 stocks/意圖不得汙染繼承上下文。入參以執行端實際執行的
+    resolve 原始二維形態為主（組結構是落點判定的輸入，展平即丟）；
+    兼容一維任務列表/單個 resolution。
     """
     task_list = list(_iter_tasks(executed_tasks))
     context = _writable_context(session)
@@ -2134,7 +2134,7 @@ def apply_outcome(
         recent.insert(0, code)
     _write_context(session, context, RECENT_STOCKS_KEY, recent[:MAX_RECENT_STOCKS])
     if task_list:
-        # last_intent＝对话落点（最后一个执行类主体任务的组首），与 recent_stocks 头插"后写胜出"同源；无执行类组退末位（纯闲聊轮）
+        # last_intent＝對話落點（最後一個執行類主體任務的組首），與 recent_stocks 頭插"後寫勝出"同源；無執行類組退末位（純閒聊輪）
         landing = next((g[0] for g in reversed(_as_task_groups(executed_tasks))
                         if g and g[0].intent in _EXECUTING_INTENTS),
                        task_list[-1])
@@ -2146,22 +2146,22 @@ def apply_resolution_to_session(
     resolution: "Union[WebIntentResolution, List[WebIntentResolution],"
                 " List[List[WebIntentResolution]]]",
 ) -> None:
-    """把一次解析结果写入会话上下文（组合入口 = apply_pending +
-    apply_outcome）。入参以 resolve 的二维任务组产出为主形态
-    （兼容一维任务列表/单个 resolution，经 ``_iter_tasks`` 展平），
-    确认任务可位于任意组任意位置。短路轮（存在任一 needs_confirmation
-    任务）整链未执行：只结算 pending，recent_stocks / last_intent 不写；
-    last_resolutions 每轮二维投影——第五步确认消费的数据源，上轮歧义
-    任务的 pending_action 必须跨轮可见。
+    """把一次解析結果寫入會話上下文（組合入口 = apply_pending +
+    apply_outcome）。入參以 resolve 的二維任務組產出為主形態
+    （兼容一維任務列表/單個 resolution，經 ``_iter_tasks`` 展平），
+    確認任務可位於任意組任意位置。短路輪（存在任一 needs_confirmation
+    任務）整鏈未執行：只結算 pending，recent_stocks / last_intent 不寫；
+    last_resolutions 每輪二維投影——第五步確認消費的數據源，上輪歧義
+    任務的 pending_action 必須跨輪可見。
     """
     tasks = list(_iter_tasks(resolution))
     short_circuited = any(t.needs_confirmation for t in tasks)
     apply_pending(session, tasks)
-    # 传原始（二维）结构：组结构是 last_intent 落点判定的输入，展平即丢
+    # 傳原始（二維）結構：組結構是 last_intent 落點判定的輸入，展平即丟
     apply_outcome(session, [] if short_circuited else resolution)
-    # last_resolutions 每轮写（含短路轮，信息不缺失）：二维组结构原样
-    # 投影——第五步确认消费的数据源，上轮歧义任务的 pending_action
-    # 必须跨轮可见；分组信息（子消息边界）随链路保留
+    # last_resolutions 每輪寫（含短路輪，信息不缺失）：二維組結構原樣
+    # 投影——第五步確認消費的數據源，上輪歧義任務的 pending_action
+    # 必須跨輪可見；分組信息（子消息邊界）隨鏈路保留
     if (ctx := _writable_context(session)) is not None:
         two_dim = _as_task_groups(resolution) or [tasks]
         _write_context(session, ctx, LAST_RESOLUTIONS_KEY,
@@ -2169,8 +2169,8 @@ def apply_resolution_to_session(
 
 
 def clear_pending_actions(session: Any) -> None:
-    """清空待确认动作（Agent 失败路径的显式收尾；正常轮由 apply 替换）。
-    pending_actions 是确认存活的唯一权威：清空即旧确认链失效（消费
-    闸门关闭，陈旧 last_resolutions 投影惰性化，下轮写侧覆写自愈）。"""
+    """清空待確認動作（Agent 失敗路徑的顯式收尾；正常輪由 apply 替換）。
+    pending_actions 是確認存活的唯一權威：清空即舊確認鏈失效（消費
+    閘門關閉，陳舊 last_resolutions 投影惰性化，下輪寫側覆寫自愈）。"""
     if (context := _writable_context(session)) is not None:
         _write_context(session, context, PENDING_ACTIONS_KEY, [])

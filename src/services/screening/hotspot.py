@@ -1411,14 +1411,14 @@ def _build_summary_route_item(
 ) -> HotspotRouteItem:
     leaders = summary.leaders or [stock.name for stock in stocks[:3] if stock.name]
     parts = [
-        f"{summary.topic or summary.name}热度 {summary.heat_score:.1f}",
-        f"阶段 {summary.stage}" if summary.stage else "",
+        f"{summary.topic or summary.name}熱度 {summary.heat_score:.1f}",
+        f"階段 {summary.stage}" if summary.stage else "",
         "核心股 " + "、".join(leaders[:3]) if leaders else "",
     ]
     source = summary.provider_used or summary.source or "screening_hotspot"
     return HotspotRouteItem(
         date=_event_day(datetime.now(timezone.utc).isoformat()),
-        title="当前发酵",
+        title="當前發酵",
         description=_compact_text("，".join(_dedupe_texts(parts)), max_description_chars),
         source=source,
         event_type="summary",

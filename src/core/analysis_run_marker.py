@@ -100,15 +100,15 @@ def _read_marker_payload(marker_path: Path) -> tuple[Optional[dict], str]:
     except FileNotFoundError:
         return None, "missing"
     except OSError as exc:
-        logger.warning("读取分析运行标记失败（视为无标记）: %s", exc)
+        logger.warning("讀取分析運行標記失敗（視為無標記）: %s", exc)
         return None, f"unreadable ({exc})"
     try:
         payload = json.loads(raw)
     except (TypeError, ValueError) as exc:
-        logger.warning("分析运行标记损坏（视为无标记）: %s", exc)
+        logger.warning("分析運行標記損壞（視為無標記）: %s", exc)
         return None, f"corrupt ({exc})"
     if not isinstance(payload, dict):
-        logger.warning("分析运行标记内容不是 JSON 对象（视为无标记）")
+        logger.warning("分析運行標記內容不是 JSON 對象（視為無標記）")
         return None, "not-object"
     return payload, "ok"
 
@@ -260,7 +260,7 @@ def record_analysis_run_marker(
                 and existing.get("run_date") == date.today().isoformat()
             ):
                 logger.info(
-                    "当日已有全量分析记录，subset 运行不覆盖当日 full 标记: %s",
+                    "當日已有全量分析記錄，subset 運行不覆蓋當日 full 標記: %s",
                     marker_path,
                 )
                 return
@@ -282,7 +282,7 @@ def record_analysis_run_marker(
         }
 
         if dry_run:
-            logger.info("dry-run 模式不写入分析运行标记: %s", marker_path)
+            logger.info("dry-run 模式不寫入分析運行標記: %s", marker_path)
             return
 
         marker_path.parent.mkdir(parents=True, exist_ok=True)
@@ -297,7 +297,7 @@ def record_analysis_run_marker(
         )
         os.replace(tmp_path, marker_path)
         logger.info(
-            "已记录分析运行标记（%s）: %s", normalized_scope, marker_path
+            "已記錄分析運行標記（%s）: %s", normalized_scope, marker_path
         )
     except Exception as exc:
-        logger.warning("写入分析运行标记失败（忽略，不影响分析结果）: %s", exc)
+        logger.warning("寫入分析運行標記失敗（忽略，不影響分析結果）: %s", exc)

@@ -285,7 +285,7 @@ def _is_compare_message(
         return False
 
     for match in _LINKED_COMPARE_PATTERN.finditer(message):
-        body_candidates = set(extract_stock_codes(f"比较 {match.group('body')}", registry))
+        body_candidates = set(extract_stock_codes(f"比較 {match.group('body')}", registry))
         if body_candidates & new_candidates:
             return True
     return False
